@@ -1197,6 +1197,12 @@ ui:
       review: 审查
       bookmark: 收藏夹
       moderation: 管理
+      popular_tags: 热门标签
+      popular_tags_loading: 加载中…
+      popular_tags_error: 加载失败，请稍后重试或前往标签页。
+      popular_tags_none: 暂无热门标签，可前往标签页浏览。
+      show_more_tags: 显示更多
+      view_all_tags: 查看全部标签
     search:
       placeholder: 搜索
   footer:

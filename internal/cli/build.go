@@ -497,7 +497,11 @@ func buildBinary(b *buildingMaterial) (err error) {
 	cmdPkg := "github.com/apache/answer/cmd"
 	ldflags := fmt.Sprintf("-X %s.Version=%s -X %s.Revision=%s -X %s.Time=%s",
 		cmdPkg, versionInfo.Version, cmdPkg, versionInfo.Revision, cmdPkg, versionInfo.Time)
+	// Force using vendored sources generated in this build pipeline.
+	// This avoids accidentally resolving github.com/apache/answer from module cache,
+	// which can miss locally built UI assets and cause runtime "open build/index.html" errors.
 	err = b.newExecCmd("go", "build",
+		"-mod=vendor",
 		"-ldflags", ldflags, "-o", b.outputPath, ".").Run()
 	if err != nil {
 		return err

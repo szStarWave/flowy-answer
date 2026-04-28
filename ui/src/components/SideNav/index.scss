@@ -28,6 +28,45 @@
 
 #sideNav {
   max-width: 208px;
+
+  .side-nav-popular-tags {
+    max-width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  /* 无论数据是否加载完成，都保留「热门标签」区块位置，便于确认前端已部署、再排查数据/接口 */
+  .side-nav-popular-tags--slot {
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .side-nav-popular-tags__body {
+    min-height: 2.25rem;
+  }
+
+  .side-nav-popular-tags__title {
+    margin-bottom: 0.25rem;
+  }
+
+  .side-nav-popular-tags__chips {
+    max-height: 14rem;
+    overflow-y: auto;
+  }
+
+  .side-nav-popular-tags__action {
+    color: var(--an-side-nav-link);
+    font-size: 0.875rem;
+  }
+
+  .side-nav-popular-tags__action:hover {
+    color: var(--an-side-nav-link-hover-color);
+  }
+
+  .side-nav-popular-tags--loading {
+    min-height: 2.25rem;
+  }
+
   .nav-link {
     color: var(--an-side-nav-link);
   }

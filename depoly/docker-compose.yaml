@@ -1,0 +1,44 @@
+# ~/answer-deploy/docker-compose.yml
+# 若镜像编入了 cache-redis 插件：需增加 redis 服务，且管理后台「插件 → Redis Cache」
+# 中 Endpoint 填「redis:6379」（服务名与下方 redis 服务一致）。未配置时会报 redis is not configured correctly。
+services:
+  answer:
+    image: registry.cn-beijing.aliyuncs.com/flowy-aipc/answer:${ANSWER_IMAGE_TAG:-20250428}
+    container_name: answer_app
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./answer-data:/data
+    environment:
+      - INSTALL_PORT=80
+    networks:
+      - answer_net
+    # 关键：等待 MySQL 健康后再启动
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: answer_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "asb78%AD"
+      MYSQL_DATABASE: answer
+      MYSQL_USER: answer
+      MYSQL_PASSWORD: "asb78%AD"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - answer_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pasb78%AD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  answer_net:
+    driver: bridge

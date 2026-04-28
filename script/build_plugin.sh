@@ -17,7 +17,7 @@
 # under the License.
 
 set -e
-echo "begin build plugin"
+echo "begin prepare plugin imports"
 plugin_file=./script/plugin_list
 if [ ! -f "$plugin_file" ]; then
   echo "plugin_list is not exist"
@@ -25,19 +25,45 @@ if [ ! -f "$plugin_file" ]; then
 fi
 
 echo "plugin_list exist"
-cmd="./answer build "
-for repo in `cat $plugin_file`
-do
-  echo ${repo}
-  cmd=$cmd" --with "${repo}
-done
+gen_file=./cmd/answer/plugin_imports_gen.go
 
-echo "cmd is "$cmd
-$cmd
-if [ ! -f "./new_answer" ]; then
-  echo "new_answer is not exist build failed"
-  exit 1
-fi
-rm answer
-mv new_answer answer
-./answer plugin
+cat > "$gen_file" <<'EOF'
+package main
+
+import (
+EOF
+
+while IFS= read -r repo || [ -n "$repo" ]; do
+  repo=$(echo "$repo" | sed 's/\r$//' | xargs)
+  if [ -z "$repo" ]; then
+    continue
+  fi
+  case "$repo" in
+    \#*)
+      continue
+      ;;
+  esac
+
+  module_ref="${repo%%=*}"
+  module_path="${module_ref%@*}"
+  module_ver="${module_ref#*@}"
+  if [ "$module_path" = "$module_ref" ]; then
+    module_ver=""
+  fi
+
+  if [ -n "$module_ver" ]; then
+    echo "go get ${module_path}@${module_ver}"
+    go get "${module_path}@${module_ver}"
+  else
+    echo "go get ${module_path}@latest"
+    go get "${module_path}@latest"
+  fi
+
+  echo "	_ \"${module_path}\"" >> "$gen_file"
+done < "$plugin_file"
+
+cat >> "$gen_file" <<'EOF'
+)
+EOF
+
+echo "plugin imports generated at ${gen_file}"

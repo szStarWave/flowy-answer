@@ -28,7 +28,7 @@ const Index: FC = () => {
   return (
     <div className="d-flex">
       <div
-        className="position-sticky px-3 border-end pt-4 d-none d-lg-block"
+        className="position-sticky px-3 border-end pt-4 d-none d-md-block"
         id="pcSideNav">
         <SideNav />
       </div>

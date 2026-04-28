@@ -51,13 +51,14 @@ test:
 clean:
 	@$(GO) clean ./...
 	@rm -f $(BIN)
+	@rm -rf ui/build
 
 install-ui-packages:
 	@corepack enable
 	@corepack prepare pnpm@9.7.0 --activate
 
 ui:
-	@cd ui && pnpm pre-install && pnpm build && cd -
+	@cd ui && rm -rf build && pnpm pre-install && pnpm build && cd -
 
 lint: generate $(GOLANGCI)
 	@bash ./script/check-asf-header.sh

@@ -27,6 +27,8 @@ import { Icon, PluginRender } from '@/components';
 import { PluginType } from '@/utils/pluginKit';
 import request from '@/utils/request';
 
+import PopularTags from './PopularTags';
+
 import './index.scss';
 
 const Index: FC = () => {
@@ -84,6 +86,8 @@ const Index: FC = () => {
         request={request}
         navigate={navigate}
       />
+
+      <PopularTags />
 
       {can_revision || userInfo?.role_id === 2 ? (
         <>

@@ -1,0 +1,53 @@
+# Build context exclusions — keeps Windows/Linux Docker builds small and avoids
+# "archive/tar: unknown file mode" from .git / node_modules symlinks and odd modes.
+
+.git
+.github
+.gitattributes
+.gitignore
+
+# IDE / local
+.idea
+.fleet
+.vscode
+.cursor
+*.swp
+*~
+.DS_Store
+._*
+
+# Dependencies & caches (rebuilt inside the image)
+**/node_modules
+ui/node_modules
+ui/build
+ui/.cache
+**/dist
+vendor
+
+# Local binaries & artifacts
+answer
+new_answer
+*.exe
+*.so
+build/tools
+tmp
+logs
+cmd/logs
+
+# Env & secrets (never bake into context)
+# 注意：ui 生产环境变量由「构建时」ui/scripts/env.js 根据 configs/config.yaml 生成 ui/.env.production，
+# 不需要把本机 .env 打进镜像；若改 API 根路径等，请改 configs/config.yaml 的 ui 段后重新构建基础镜像。
+.env
+.env.local
+.env.production
+.env.development
+
+# Local deploy / data (not part of source build)
+answer-data
+depoly/answer-data
+depoly/mysql
+**/mysql
+
+# OS junk
+Thumbs.db
+*.db

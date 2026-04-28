@@ -1215,6 +1215,12 @@ ui:
       review: Review
       bookmark: Bookmarks
       moderation: Moderation
+      popular_tags: Popular tags
+      popular_tags_loading: Loading…
+      popular_tags_error: Couldn't load tags. Try again or open the tags page.
+      popular_tags_none: No tags to show yet. Visit the tags page to explore.
+      show_more_tags: Show more
+      view_all_tags: View all tags
     search:
       placeholder: Search
   footer:

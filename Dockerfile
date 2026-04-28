@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,38 +15,65 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#
+# Build with BuildKit: DOCKER_BUILDKIT=1 docker build ...
+# Cache mounts speed up repeat builds; GOPROXY lists multiple mirrors to avoid goproxy.cn EOF.
 
 FROM golang:1.24-alpine AS golang-builder
 LABEL maintainer="linkinstar@apache.org"
 
-ARG GOPROXY
-# ENV GOPROXY ${GOPROXY:-direct}
-# ENV GOPROXY=https://proxy.golang.com.cn,direct
+# 多源回退；goproxy.io 偶发 502，国内优先 goproxy.cn。全挂时可：--build-arg GOPROXY=direct
+ARG GOPROXY=https://goproxy.cn,https://goproxy.io,https://mirrors.aliyun.com/goproxy/,direct
+ENV GOPROXY=${GOPROXY}
+ARG GOSUMDB=sum.golang.google.cn
+ENV GOSUMDB=${GOSUMDB}
 
-ENV GOPATH /go
-ENV GOROOT /usr/local/go
-ENV PACKAGE github.com/apache/answer
-ENV BUILD_DIR ${GOPATH}/src/${PACKAGE}
-ENV ANSWER_MODULE ${BUILD_DIR}
+ENV GOPATH=/go
+ENV GOROOT=/usr/local/go
+ENV PACKAGE=github.com/apache/answer
+ENV BUILD_DIR=${GOPATH}/src/${PACKAGE}
+ENV ANSWER_MODULE=${BUILD_DIR}
 
 ARG TAGS="sqlite sqlite_unlock_notify"
-ENV TAGS "bindata timetzdata $TAGS"
+ENV TAGS="bindata timetzdata ${TAGS}"
 ARG CGO_EXTRA_CFLAGS
 
 COPY . ${BUILD_DIR}
 WORKDIR ${BUILD_DIR}
-RUN apk --no-cache add build-base git bash nodejs npm && npm install -g pnpm@9.7.0 \
-    && make clean build
+ENV npm_config_cache=/npm-cache
+# apk 与 BuildKit cache 同层在 Windows/Docker Desktop 上偶发 extract I/O、integrity 错误，拆成两步。
+RUN apk update && apk --no-cache add build-base git bash nodejs npm
 
-RUN chmod 755 answer
-RUN ["/bin/bash","-c","script/build_plugin.sh"]
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/npm-cache \
+    --mount=type=cache,target=/root/.local/share/pnpm \
+    npm install -g pnpm@9.7.0 \
+    && make clean \
+    && make ui \
+    && sed -i 's/\r$//' script/build_plugin.sh \
+    && bash script/build_plugin.sh \
+    && make build \
+    && chmod 755 answer \
+    && test -s ui/build/index.html \
+    && test -d ui/build/static
 RUN cp answer /usr/bin/answer
 
 RUN mkdir -p /data/uploads && chmod 777 /data/uploads \
     && mkdir -p /data/i18n && cp -r i18n/*.yaml /data/i18n
+RUN mkdir -p /opt/answer-src \
+    && tar -C ${BUILD_DIR} \
+      --exclude='./ui/node_modules' \
+      --exclude='./.git' \
+      -cf - . | tar -C /opt/answer-src -xf -
 
 FROM alpine
 LABEL maintainer="linkinstar@apache.org"
+# 与线上对照：docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) ...
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
+LABEL org.opencontainers.image.revision="${GIT_COMMIT}" \
+      org.opencontainers.image.created="${BUILD_DATE}"
 
 ARG TIMEZONE
 ENV TIMEZONE=${TIMEZONE:-"Asia/Shanghai"}
@@ -66,8 +94,9 @@ RUN apk update \
 
 COPY --from=golang-builder /usr/bin/answer /usr/bin/answer
 COPY --from=golang-builder /data /data
+COPY --from=golang-builder /opt/answer-src /opt/answer-src
 COPY /script/entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod 755 /entrypoint.sh
 
 VOLUME /data
 EXPOSE 80
