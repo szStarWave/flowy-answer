@@ -31,6 +31,8 @@ import type * as Type from '@/common/interface';
 import { queryTags, useUserPermission } from '@/services';
 import { writeSettingStore } from '@/stores';
 
+import TagSelectorPicklist from './Picklist';
+
 // import { OutsideClickListener } from '@/components';
 
 import './index.scss';
@@ -38,6 +40,8 @@ import './index.scss';
 interface IProps {
   value?: Type.Tag[];
   onChange?: (tags: Type.Tag[]) => void;
+  /** `picklist`：下拉多选，从系统已有标签中勾选，不通过输入框模糊搜索 */
+  mode?: 'typeahead' | 'picklist';
   hiddenDescription?: boolean;
   hiddenCreateBtn?: boolean;
   maxTagLength?: number;
@@ -49,9 +53,11 @@ interface IProps {
   errMsg?: string;
 }
 
+type ITypeaheadProps = Omit<IProps, 'mode'>;
+
 let timer;
 
-const TagSelector: FC<IProps> = ({
+const TagSelectorTypeahead: FC<ITypeaheadProps> = ({
   value = [],
   onChange,
   hiddenDescription = false,
@@ -484,6 +490,25 @@ const TagSelector: FC<IProps> = ({
       <Form.Control.Feedback type="invalid">{errMsg}</Form.Control.Feedback>
     </div>
   );
+};
+
+const TagSelector: FC<IProps> = (props) => {
+  const { mode = 'typeahead', ...rest } = props;
+  if (mode === 'picklist') {
+    return (
+      <TagSelectorPicklist
+        value={rest.value}
+        onChange={rest.onChange}
+        hiddenDescription={rest.hiddenDescription}
+        maxTagLength={rest.maxTagLength}
+        isInvalid={rest.isInvalid}
+        tagStyleMode={rest.tagStyleMode}
+        formText={rest.formText}
+        errMsg={rest.errMsg}
+      />
+    );
+  }
+  return <TagSelectorTypeahead {...(rest as ITypeaheadProps)} />;
 };
 
 export default TagSelector;

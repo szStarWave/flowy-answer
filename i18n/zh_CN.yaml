@@ -1179,6 +1179,11 @@ ui:
     add_btn: 添加标签
     create_btn: 创建新标签
     search_tag: 搜索标签
+    picklist_toggle: 从列表选择标签
+    picklist_loading: 加载标签列表…
+    picklist_load_error: 加载标签失败，请稍后重试。
+    picklist_empty: 暂无可选标签，请管理员先在「标签」中创建。
+    picklist_all_tags: 全部标签
     hint: 描述您的内容是关于什么，至少需要一个标签。
     hint_zero_tags: 描述您的内容与什么有关。
     hint_more_than_one_tag: "描述您的内容是关于什么，至少需要{{min_tags_number}}个标签。"

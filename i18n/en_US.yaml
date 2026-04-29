@@ -1197,6 +1197,11 @@ ui:
     add_btn: Add tag
     create_btn: Create new tag
     search_tag: Search tag
+    picklist_toggle: Select tags from list
+    picklist_loading: Loading tags…
+    picklist_load_error: Failed to load tags. Please try again later.
+    picklist_empty: No tags are available. Ask an admin to create tags on the Tags page.
+    picklist_all_tags: All tags
     hint: Describe what your content is about, at least one tag is required.
     hint_zero_tags: Describe what your content is about.
     hint_more_than_one_tag: "Describe what your content is about, at least {{min_tags_number}} tags are required."

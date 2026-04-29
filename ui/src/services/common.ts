@@ -49,6 +49,59 @@ export const useQueryTags = (params) => {
   };
 };
 
+const TAG_PICKER_PAGE_SIZE = 200;
+const TAG_PICKER_MAX_PAGES = 50;
+
+/** Load all available tags (name order) for the question tag picklist UI. */
+export const fetchAllTagsForPicker = async (): Promise<Type.Tag[]> => {
+  const merged: Type.Tag[] = [];
+  const seen = new Set<string>();
+
+  const appendPage = (list: unknown[]) => {
+    list.forEach((raw) => {
+      const row = raw as Type.Tag;
+      if (!row?.slug_name || seen.has(row.slug_name)) {
+        return;
+      }
+      seen.add(row.slug_name);
+      merged.push({
+        slug_name: row.slug_name,
+        display_name: row.display_name,
+        recommend: row.recommend,
+        reserved: row.reserved,
+        main_tag_slug_name: row.main_tag_slug_name,
+        original_text: '',
+        parsed_text: '',
+        tag_id: row.tag_id,
+      });
+    });
+  };
+
+  const loadFromPage = async (page: number): Promise<void> => {
+    if (page > TAG_PICKER_MAX_PAGES) {
+      return;
+    }
+    const res = await request.get<Type.ListResult>(
+      `/answer/api/v1/tags/page?${qs.stringify(
+        {
+          page,
+          page_size: TAG_PICKER_PAGE_SIZE,
+          query_cond: 'name',
+        },
+        { skipNulls: true },
+      )}`,
+    );
+    const list = res?.list ?? [];
+    appendPage(list);
+    if (list.length === TAG_PICKER_PAGE_SIZE) {
+      await loadFromPage(page + 1);
+    }
+  };
+
+  await loadFromPage(1);
+  return merged;
+};
+
 export const useQueryRevisions = (object_id: string | undefined) => {
   return useSWR<Record<string, any>>(
     object_id ? `/answer/api/v1/revisions?object_id=${object_id}` : '',

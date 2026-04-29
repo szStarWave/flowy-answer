@@ -77,3 +77,72 @@
   background-color: var(--bs-body-bg);
   outline: 0;
 }
+
+.tag-selector-picklist {
+  /* 与表单项 input 同款的「框」+ 右箭头，无按钮样式、无内联 placeholder 文案 */
+  .tag-selector-picklist__field {
+    min-height: calc(1.5em + 0.75rem * 2);
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    /* Bootstrap 默认会给 .dropdown-toggle 加尾箭头，与右侧 chevron 重复，隐藏之 */
+    &::after {
+      display: none;
+    }
+    /* 不继承按钮样式 */
+    background-color: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color);
+  }
+
+  .tag-selector-picklist__field:hover:not(.is-invalid) {
+    border-color: var(--bs-border-color) !important;
+  }
+
+  .tag-selector-picklist__field--open:not(.is-invalid),
+  .tag-selector-picklist__field:focus:not(.is-invalid),
+  .tag-selector-picklist__field:focus-visible:not(.is-invalid) {
+    border-color: var(--bs-primary) !important;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+
+  .tag-selector-picklist__affix {
+    min-width: 1.5rem;
+    align-self: stretch;
+    border-left: 1px solid var(--bs-border-color, #dee2e6);
+    padding-left: 0.5rem;
+  }
+
+  .tag-selector-picklist__spinner {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.1rem;
+  }
+
+  .tag-selector-picklist__chevron {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+  }
+
+  .tag-selector-picklist__chevron--open {
+    transform: rotate(180deg);
+  }
+
+  .tag-selector-picklist__menu {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .tag-selector-picklist__scroll {
+    max-height: 17.5rem;
+    overflow-y: auto;
+  }
+
+  .form-check {
+    min-height: 1.5rem;
+    margin-bottom: 0;
+  }
+}

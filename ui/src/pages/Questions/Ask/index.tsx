@@ -510,6 +510,7 @@ const Ask = () => {
             <Form.Group controlId="tags" className="my-3">
               <Form.Label>{t('form.fields.tags.label')}</Form.Label>
               <TagSelector
+                mode="picklist"
                 value={formData.tags.value}
                 onChange={handleTagsChange}
                 showRequiredTag
