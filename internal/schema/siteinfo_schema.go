@@ -115,6 +115,12 @@ type SiteQuestionsReq struct {
 	// RequireReviewForNewQuestions when true, users with default User role (not admin/moderator)
 	// enter the moderation queue for new questions after reviewer plugins (plugin may still reject/delete).
 	RequireReviewForNewQuestions bool `validate:"omitempty" json:"require_review_for_new_questions"`
+	// UserDailyQuestionLimit max questions per user per calendar day (site timezone); 0 = unlimited.
+	UserDailyQuestionLimit int `validate:"omitempty,gte=0,lte=1000" json:"user_daily_question_limit"`
+	// UserQuestionIntervalSeconds minimum seconds between two questions from the same user; 0 = no limit.
+	UserQuestionIntervalSeconds int `validate:"omitempty,gte=0,lte=86400" json:"user_question_interval_seconds"`
+	// UserCommentIntervalSeconds minimum seconds between two comments from the same user; 0 = no limit.
+	UserCommentIntervalSeconds int `validate:"omitempty,gte=0,lte=86400" json:"user_comment_interval_seconds"`
 }
 
 // SiteAdvancedReq site advanced settings request

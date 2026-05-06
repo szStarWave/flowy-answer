@@ -66,6 +66,24 @@ const QaSettings = () => {
         title: t('require_review_for_new_questions.label'),
         description: t('require_review_for_new_questions.text'),
       },
+      user_daily_question_limit: {
+        type: 'number',
+        title: t('user_daily_question_limit.label'),
+        description: t('user_daily_question_limit.text'),
+        default: 20,
+      },
+      user_question_interval_seconds: {
+        type: 'number',
+        title: t('user_question_interval_seconds.label'),
+        description: t('user_question_interval_seconds.text'),
+        default: 120,
+      },
+      user_comment_interval_seconds: {
+        type: 'number',
+        title: t('user_comment_interval_seconds.label'),
+        description: t('user_comment_interval_seconds.text'),
+        default: 15,
+      },
     },
   };
   const uiSchema: UISchema = {
@@ -93,6 +111,24 @@ const QaSettings = () => {
         label: t('require_review_for_new_questions.label'),
       },
     },
+    user_daily_question_limit: {
+      'ui:widget': 'input',
+      'ui:options': {
+        inputType: 'number',
+      },
+    },
+    user_question_interval_seconds: {
+      'ui:widget': 'input',
+      'ui:options': {
+        inputType: 'number',
+      },
+    },
+    user_comment_interval_seconds: {
+      'ui:widget': 'input',
+      'ui:options': {
+        inputType: 'number',
+      },
+    },
   };
   const [formData, setFormData] = useState<Type.FormDataType>(
     initFormData(schema),
@@ -112,6 +148,11 @@ const QaSettings = () => {
       restrict_answer: formData.restrict_answer.value,
       require_review_for_new_questions:
         formData.require_review_for_new_questions.value,
+      user_daily_question_limit: formData.user_daily_question_limit.value,
+      user_question_interval_seconds:
+        formData.user_question_interval_seconds.value,
+      user_comment_interval_seconds:
+        formData.user_comment_interval_seconds.value,
     };
     updateQuestionSetting(reqParams)
       .then(() => {
@@ -140,6 +181,12 @@ const QaSettings = () => {
         formMeta.restrict_answer.value = res.restrict_answer;
         formMeta.require_review_for_new_questions.value =
           res.require_review_for_new_questions ?? false;
+        formMeta.user_daily_question_limit.value =
+          res.user_daily_question_limit ?? 20;
+        formMeta.user_question_interval_seconds.value =
+          res.user_question_interval_seconds ?? 120;
+        formMeta.user_comment_interval_seconds.value =
+          res.user_comment_interval_seconds ?? 15;
         setFormData(formMeta);
       }
     });

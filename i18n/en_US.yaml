@@ -188,6 +188,8 @@ backend:
         other: The comment time has been too long to modify.
       content_cannot_empty:
         other: Comment content cannot be empty.
+      post_interval_too_short:
+        other: Please wait {{.seconds}} seconds before posting another comment.
     email:
       duplicate:
         other: Email already exists.
@@ -241,6 +243,10 @@ backend:
         other: Content cannot be empty.
       content_less_than_minimum:
         other: Not enough content entered.
+      daily_limit_exceeded:
+        other: You have reached the daily question limit ({{.limit}} per day).
+      post_interval_too_short:
+        other: Please wait {{.seconds}} seconds before posting another question.
     rank:
       fail_to_meet_the_condition:
         other: Reputation rank fail to meet the condition.
@@ -2212,6 +2218,15 @@ ui:
       min_tags:
         label: "Minimum tags per question"
         text: "Minimum number of tags required in a question."
+      user_daily_question_limit:
+        label: "Daily question limit per user"
+        text: "Maximum new questions a single user may post per calendar day (site timezone). Use 0 for no limit. Admin and moderator posts are not counted."
+      user_question_interval_seconds:
+        label: "Minimum interval between questions (seconds)"
+        text: "Minimum seconds between two questions from the same user. Use 0 for no limit. Admin and moderator are exempt."
+      user_comment_interval_seconds:
+        label: "Minimum interval between comments (seconds)"
+        text: "Minimum seconds between two comments from the same user. Use 0 for no limit. Admin and moderator are exempt."
       recommend_tags:
         label: Recommend tags
         text: "Recommend tags will show in the dropdown list by default."

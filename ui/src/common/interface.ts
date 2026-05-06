@@ -893,6 +893,12 @@ export interface AdminQuestionSetting {
   min_content: number;
   restrict_answer: boolean;
   require_review_for_new_questions: boolean;
+  /** 0 = unlimited */
+  user_daily_question_limit: number;
+  /** 0 = no minimum gap */
+  user_question_interval_seconds: number;
+  /** 0 = no minimum gap */
+  user_comment_interval_seconds: number;
 }
 
 export interface AdminTagsSetting {

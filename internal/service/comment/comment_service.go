@@ -21,11 +21,14 @@ package comment
 
 import (
 	"context"
+	"math"
+	"time"
 
+	"github.com/apache/answer/internal/base/handler"
+	"github.com/apache/answer/internal/base/middleware"
+	"github.com/apache/answer/internal/base/translator"
 	"github.com/apache/answer/internal/service/eventqueue"
 	"github.com/apache/answer/internal/service/review"
-
-	"time"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/pager"
@@ -39,7 +42,9 @@ import (
 	"github.com/apache/answer/internal/service/noticequeue"
 	"github.com/apache/answer/internal/service/object_info"
 	"github.com/apache/answer/internal/service/permission"
+	"github.com/apache/answer/internal/service/siteinfo_common"
 	usercommon "github.com/apache/answer/internal/service/user_common"
+	"github.com/gin-gonic/gin"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/token"
 	"github.com/apache/answer/pkg/uid"
@@ -57,6 +62,7 @@ type CommentRepo interface {
 	GetComment(ctx context.Context, commentID string) (comment *entity.Comment, exist bool, err error)
 	GetCommentPage(ctx context.Context, commentQuery *CommentQuery) (
 		comments []*entity.Comment, total int64, err error)
+	GetUserLastCommentCreatedAt(ctx context.Context, userID string) (createdAt time.Time, has bool, err error)
 }
 
 type CommentQuery struct {
@@ -93,6 +99,7 @@ type CommentService struct {
 	activityQueueService             activityqueue.Service
 	eventQueueService                eventqueue.Service
 	reviewService                    *review.ReviewService
+	siteInfoService                  siteinfo_common.SiteInfoCommonService
 }
 
 // NewCommentService new comment service
@@ -109,6 +116,7 @@ func NewCommentService(
 	activityQueueService activityqueue.Service,
 	eventQueueService eventqueue.Service,
 	reviewService *review.ReviewService,
+	siteInfoService siteinfo_common.SiteInfoCommonService,
 ) *CommentService {
 	return &CommentService{
 		commentRepo:                      commentRepo,
@@ -123,7 +131,48 @@ func NewCommentService(
 		activityQueueService:             activityQueueService,
 		eventQueueService:                eventQueueService,
 		reviewService:                    reviewService,
+		siteInfoService:                  siteInfoService,
 	}
+}
+
+func (cs *CommentService) shouldApplyUserCommentRateLimit(ctx context.Context) bool {
+	gc, ok := ctx.(*gin.Context)
+	if !ok {
+		return false
+	}
+	return !middleware.GetUserIsAdminModerator(gc)
+}
+
+func (cs *CommentService) checkUserCommentRateLimit(ctx context.Context, userID string) error {
+	if !cs.shouldApplyUserCommentRateLimit(ctx) {
+		return nil
+	}
+	sq, err := cs.siteInfoService.GetSiteQuestion(ctx)
+	if err != nil {
+		return err
+	}
+	if sq.UserCommentIntervalSeconds <= 0 {
+		return nil
+	}
+	lastAt, has, err := cs.commentRepo.GetUserLastCommentCreatedAt(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return nil
+	}
+	minGap := time.Duration(sq.UserCommentIntervalSeconds) * time.Second
+	since := time.Since(lastAt)
+	if since >= minGap {
+		return nil
+	}
+	wait := int(math.Ceil(minGap.Seconds() - since.Seconds()))
+	if wait < 1 {
+		wait = 1
+	}
+	lang := handler.GetLangByCtx(ctx)
+	msg := translator.TrWithData(lang, reason.CommentPostIntervalTooShort, map[string]any{"seconds": wait})
+	return errors.BadRequest(reason.CommentPostIntervalTooShort).WithMsg(msg)
 }
 
 // AddComment add comment
@@ -160,6 +209,10 @@ func (cs *CommentService) AddComment(ctx context.Context, req *schema.AddComment
 	} else {
 		comment.SetReplyUserID("")
 		comment.SetReplyCommentID("")
+	}
+
+	if err = cs.checkUserCommentRateLimit(ctx, req.UserID); err != nil {
+		return nil, err
 	}
 
 	err = cs.commentRepo.AddComment(ctx, comment)

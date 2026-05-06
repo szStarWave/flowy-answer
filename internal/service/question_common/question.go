@@ -89,6 +89,8 @@ type QuestionRepo interface {
 	RecoverQuestionLink(ctx context.Context, link ...*entity.QuestionLink) (err error)
 	UpdateQuestionLinkStatus(ctx context.Context, status int, links ...*entity.QuestionLink) (err error)
 	GetQuestionLink(ctx context.Context, page, pageSize int, questionID string, orderCond string, inDays int) (questions []*entity.Question, total int64, err error)
+	CountUserQuestionsCreatedBetween(ctx context.Context, userID string, startUTC, endUTC time.Time) (count int64, err error)
+	GetUserLastQuestionCreatedAt(ctx context.Context, userID string) (createdAt time.Time, has bool, err error)
 }
 
 // QuestionCommon user service

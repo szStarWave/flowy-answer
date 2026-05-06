@@ -200,7 +200,7 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	externalService := noticequeue.NewExternalService()
 	reviewRepo := review.NewReviewRepo(dataData)
 	reviewService := review2.NewReviewService(reviewRepo, objService, userCommon, userRepo, questionRepo, answerRepo, userRoleRelService, externalService, tagCommonService, questionCommon, noticequeueService, siteInfoCommonService, commentCommonRepo)
-	commentService := comment2.NewCommentService(commentRepo, commentCommonRepo, userCommon, objService, voteRepo, emailService, userRepo, noticequeueService, externalService, service, eventqueueService, reviewService)
+	commentService := comment2.NewCommentService(commentRepo, commentCommonRepo, userCommon, objService, voteRepo, emailService, userRepo, noticequeueService, externalService, service, eventqueueService, reviewService, siteInfoCommonService)
 	rolePowerRelRepo := role.NewRolePowerRelRepo(dataData)
 	rolePowerRelService := role2.NewRolePowerRelService(rolePowerRelRepo, userRoleRelService)
 	rankService := rank2.NewRankService(userCommon, userRankRepo, objService, userRoleRelService, rolePowerRelService, configService)

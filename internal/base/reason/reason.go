@@ -120,6 +120,9 @@ const (
 	UserMuted                        = "error.user.muted"
 	UserStatusDeleted                = "error.user.status_deleted"
 	ErrFeatureDisabled               = "error.feature.disabled"
+	QuestionDailyLimitExceeded       = "error.question.daily_limit_exceeded"
+	QuestionPostIntervalTooShort     = "error.question.post_interval_too_short"
+	CommentPostIntervalTooShort      = "error.comment.post_interval_too_short"
 )
 
 // user external login reasons

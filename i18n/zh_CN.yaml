@@ -187,6 +187,8 @@ backend:
         other: 评论时间太久，无法修改。
       content_cannot_empty:
         other: 评论内容不能为空。
+      post_interval_too_short:
+        other: 请再等待 {{.seconds}} 秒后再发布下一条评论。
     email:
       duplicate:
         other: 邮箱已存在。
@@ -240,6 +242,10 @@ backend:
         other: 内容不能为空。
       content_less_than_minimum:
         other: 输入的内容不足。
+      daily_limit_exceeded:
+        other: 已达到每日发帖上限（每天最多 {{.limit}} 条）。
+      post_interval_too_short:
+        other: 请再等待 {{.seconds}} 秒后再发布下一个问题。
     rank:
       fail_to_meet_the_condition:
         other: 声望值未达到要求。
@@ -2172,6 +2178,15 @@ ui:
       min_tags:
         label: "问题的最少标签数"
         text: "一个问题所需标签的最小数量。"
+      user_daily_question_limit:
+        label: "每用户每日发帖上限"
+        text: "单个用户在站点时区下每个自然日最多可发布的新问题数。填 0 表示不限制。管理员与版主发帖不计入。"
+      user_question_interval_seconds:
+        label: "发帖最小间隔（秒）"
+        text: "同一用户两次发布问题之间的最短间隔秒数。填 0 表示不限制。管理员与版主不受此限制。"
+      user_comment_interval_seconds:
+        label: "评论最小间隔（秒）"
+        text: "同一用户两次发布评论之间的最短间隔秒数。填 0 表示不限制。管理员与版主不受此限制。"
       recommend_tags:
         label: 推荐标签
         text: "推荐标签将默认显示在下拉列表中。"

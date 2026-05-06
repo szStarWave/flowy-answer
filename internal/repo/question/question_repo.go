@@ -871,3 +871,34 @@ func (qr *questionRepo) GetQuestionLink(ctx context.Context, page, pageSize int,
 	}
 	return
 }
+
+// CountUserQuestionsCreatedBetween counts non-deleted questions by user in [startUTC, endUTC).
+func (qr *questionRepo) CountUserQuestionsCreatedBetween(ctx context.Context, userID string, startUTC, endUTC time.Time) (count int64, err error) {
+	count, err = qr.data.DB.Context(ctx).Where("user_id = ?", userID).
+		And("status != ?", entity.QuestionStatusDeleted).
+		And("created_at >= ?", startUTC).
+		And("created_at < ?", endUTC).
+		Count(&entity.Question{})
+	if err != nil {
+		err = errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return
+}
+
+// GetUserLastQuestionCreatedAt returns the latest created_at for a user's non-deleted questions.
+func (qr *questionRepo) GetUserLastQuestionCreatedAt(ctx context.Context, userID string) (createdAt time.Time, has bool, err error) {
+	q := &entity.Question{}
+	has, err = qr.data.DB.Context(ctx).Where("user_id = ?", userID).
+		And("status != ?", entity.QuestionStatusDeleted).
+		OrderBy("created_at DESC").
+		Limit(1).
+		Get(q)
+	if err != nil {
+		err = errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+		return time.Time{}, false, err
+	}
+	if !has {
+		return time.Time{}, false, nil
+	}
+	return q.CreatedAt, true, nil
+}

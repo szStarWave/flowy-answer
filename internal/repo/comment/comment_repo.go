@@ -21,6 +21,7 @@ package comment
 
 import (
 	"context"
+	"time"
 
 	"github.com/segmentfault/pacman/log"
 
@@ -150,6 +151,24 @@ func (cr *commentRepo) GetCommentPage(ctx context.Context, commentQuery *comment
 		err = errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
 	return
+}
+
+// GetUserLastCommentCreatedAt returns the latest created_at for a user's non-deleted comments.
+func (cr *commentRepo) GetUserLastCommentCreatedAt(ctx context.Context, userID string) (createdAt time.Time, has bool, err error) {
+	c := &entity.Comment{}
+	has, err = cr.data.DB.Context(ctx).Where("user_id = ?", userID).
+		And("status != ?", entity.CommentStatusDeleted).
+		OrderBy("created_at DESC").
+		Limit(1).
+		Get(c)
+	if err != nil {
+		err = errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+		return time.Time{}, false, err
+	}
+	if !has {
+		return time.Time{}, false, nil
+	}
+	return c.CreatedAt, true, nil
 }
 
 // RemoveAllUserComment remove all user comment

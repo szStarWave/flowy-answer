@@ -22,10 +22,13 @@ package content
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
+	"github.com/apache/answer/internal/base/middleware"
 	"github.com/apache/answer/internal/service/eventqueue"
+	"github.com/gin-gonic/gin"
 	"github.com/apache/answer/plugin"
 
 	"github.com/apache/answer/internal/base/constant"
@@ -299,6 +302,78 @@ func (qs *QuestionService) HasNewTag(ctx context.Context, tags []*schema.TagItem
 	return qs.tagCommon.HasNewTag(ctx, tags)
 }
 
+func (qs *QuestionService) shouldApplyUserQuestionRateLimit(ctx context.Context) bool {
+	gc, ok := ctx.(*gin.Context)
+	if !ok {
+		return false
+	}
+	return !middleware.GetUserIsAdminModerator(gc)
+}
+
+func (qs *QuestionService) siteCalendarDayUTC(ctx context.Context) (startUTC, endUTC time.Time, err error) {
+	siteIf, err := qs.siteInfoService.GetSiteInterface(ctx)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	loc := time.UTC
+	if siteIf != nil && siteIf.TimeZone != "" {
+		if l, e := time.LoadLocation(siteIf.TimeZone); e == nil {
+			loc = l
+		}
+	}
+	now := time.Now().In(loc)
+	startLocal := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	return startLocal.UTC(), startLocal.Add(24 * time.Hour).UTC(), nil
+}
+
+func (qs *QuestionService) checkUserQuestionRateLimits(ctx context.Context, userID string) (errorlist any, err error) {
+	if !qs.shouldApplyUserQuestionRateLimit(ctx) {
+		return nil, nil
+	}
+	sq, err := qs.siteInfoService.GetSiteQuestion(ctx)
+	if err != nil {
+		return nil, err
+	}
+	lang := handler.GetLangByCtx(ctx)
+	if sq.UserDailyQuestionLimit > 0 {
+		start, end, e := qs.siteCalendarDayUTC(ctx)
+		if e != nil {
+			return nil, e
+		}
+		cnt, e := qs.questionRepo.CountUserQuestionsCreatedBetween(ctx, userID, start, end)
+		if e != nil {
+			return nil, e
+		}
+		if cnt >= int64(sq.UserDailyQuestionLimit) {
+			msg := translator.TrWithData(lang, reason.QuestionDailyLimitExceeded, map[string]any{
+				"limit": sq.UserDailyQuestionLimit,
+			})
+			el := []*validator.FormErrorField{{ErrorField: "title", ErrorMsg: msg}}
+			return el, errors.BadRequest(reason.QuestionDailyLimitExceeded)
+		}
+	}
+	if sq.UserQuestionIntervalSeconds > 0 {
+		lastAt, has, e := qs.questionRepo.GetUserLastQuestionCreatedAt(ctx, userID)
+		if e != nil {
+			return nil, e
+		}
+		if has {
+			minGap := time.Duration(sq.UserQuestionIntervalSeconds) * time.Second
+			since := time.Since(lastAt)
+			if since < minGap {
+				wait := int(math.Ceil(minGap.Seconds() - since.Seconds()))
+				if wait < 1 {
+					wait = 1
+				}
+				msg := translator.TrWithData(lang, reason.QuestionPostIntervalTooShort, map[string]any{"seconds": wait})
+				el := []*validator.FormErrorField{{ErrorField: "title", ErrorMsg: msg}}
+				return el, errors.BadRequest(reason.QuestionPostIntervalTooShort)
+			}
+		}
+	}
+	return nil, nil
+}
+
 // AddQuestion add question
 func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.QuestionAdd) (questionInfo any, err error) {
 	minimumTags, err := qs.tagCommon.GetMinimumTags(ctx)
@@ -363,6 +438,10 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 			err = errors.BadRequest(reason.RecommendTagEnter)
 			return errorlist, err
 		}
+	}
+
+	if rlErrList, rlErr := qs.checkUserQuestionRateLimits(ctx, req.UserID); rlErr != nil {
+		return rlErrList, rlErr
 	}
 
 	question := &entity.Question{}
