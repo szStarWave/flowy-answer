@@ -45,6 +45,9 @@ import (
 	"github.com/segmentfault/pacman/log"
 )
 
+// reviewSubmitterSitePolicy is stored in review.submitter when queued by site settings (not a plugin slug).
+const reviewSubmitterSitePolicy = "site_policy"
+
 // ReviewRepo review repository
 type ReviewRepo interface {
 	AddReview(ctx context.Context, review *entity.Review) (err error)
@@ -199,6 +202,17 @@ func (cs *ReviewService) getReviewContentAuthorInfo(ctx context.Context, userID 
 	return
 }
 
+func (cs *ReviewService) shouldQueueDefaultUserQuestion(ctx context.Context, author plugin.ReviewContentAuthor) bool {
+	if author.Role != 1 {
+		return false
+	}
+	sq, err := cs.siteInfoService.GetSiteQuestion(ctx)
+	if err != nil || sq == nil {
+		return false
+	}
+	return sq.RequireReviewForNewQuestions
+}
+
 // call plugin to review
 func (cs *ReviewService) callPluginToReview(ctx context.Context, userID, objectID string,
 	reviewContent *plugin.ReviewContent) (reviewStatus plugin.ReviewStatus) {
@@ -229,6 +243,15 @@ func (cs *ReviewService) callPluginToReview(ctx context.Context, userID, objectI
 		}
 		return nil
 	})
+
+	// After plugins: optional site policy queues default-role users for new questions only.
+	if reviewStatus == plugin.ReviewStatusApproved &&
+		reviewContent.ObjectType == constant.QuestionObjectType &&
+		cs.shouldQueueDefaultUserQuestion(ctx, reviewContent.Author) {
+		reviewStatus = plugin.ReviewStatusNeedReview
+		r.Reason = ""
+		r.Submitter = reviewSubmitterSitePolicy
+	}
 
 	if reviewStatus == plugin.ReviewStatusNeedReview {
 		if err := cs.reviewRepo.AddReview(ctx, r); err != nil {

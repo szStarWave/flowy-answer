@@ -52,6 +52,10 @@ backend:
       other: Unlist
     unpin:
       other: Unpin
+    mark_featured:
+      other: Mark as featured
+    unmark_featured:
+      other: Remove featured mark
     show:
       other: List
     invite_someone_to_answer:
@@ -249,6 +253,9 @@ backend:
         other: Report handle failed.
       not_found:
         other: Report not found.
+    review:
+      site_policy_submitter:
+        other: Site policy (new questions require review)
     tag:
       already_exist:
         other: Tag already exists.
@@ -291,6 +298,8 @@ backend:
         other: User not found.
       suspended:
         other: User has been suspended.
+      muted:
+        other: You are muted and cannot post questions, answers, or comments for now.
       username_invalid:
         other: Username is invalid.
       username_duplicate:
@@ -845,6 +854,7 @@ ui:
     account_activation: Account Activation
     confirm_email: Confirm Email
     account_suspended: Account Suspended
+    account_muted: Account muted
     admin: Admin
     change_email: Modify Email
     install: Answer Installation
@@ -888,6 +898,10 @@ ui:
     until_time: "Your account was suspended until {{ time }}."
     forever: This user was suspended forever.
     end: You don't meet a community guideline.
+    contact_us: Contact us
+  muted:
+    title: Your account is muted
+    desc: While muted you cannot post new questions, answers, or comments, but you can still browse the site.
     contact_us: Contact us
   editor:
     blockquote:
@@ -1497,6 +1511,15 @@ ui:
       title: Pin this post
       content: Are you sure you wish to pinned globally? This post will appear at the top of all post lists.
       confirm_btn: Pin
+    mark_featured:
+      title: Mark as featured
+      content: >-
+        Featured posts sort higher within each tag (after pinned posts). They are not pinned on the whole site.
+      confirm_btn: Mark featured
+    unmark_featured:
+      title: Remove featured mark
+      content: Are you sure you want to remove the featured mark from this post?
+      confirm_btn: Remove mark
   delete:
     title: Delete this post
     question: >-
@@ -1643,6 +1666,7 @@ ui:
     answered: answered
     asked: asked
     closed: closed
+    featured_badge: Featured
     follow_a_tag: Follow a tag
     more: More
   personal:
@@ -2024,6 +2048,14 @@ ui:
         content: A suspended user can't log in.
         label: How long will the user be suspended for?
         forever: Forever
+      mute_user:
+        title: Mute this user
+        content: A muted user can still log in and browse, but cannot post questions, answers, or comments.
+        label: Mute duration
+        forever: Forever
+      muted_badge: Muted
+      mute: Mute
+      unmute: Unmute
     questions:
       page_title: Questions
       unlisted: Unlisted
@@ -2169,6 +2201,9 @@ ui:
         title: Answer write
         label: Each user can only write one answer for the same question
         text: "Turn off to allow users to write multiple answers to the same question, which may cause answers to be unfocused."
+      require_review_for_new_questions:
+        label: Require review for new questions from default users
+        text: "When enabled, members with the default User role go to the review queue; Admin and Moderator posts stay public. Review under Review → Queued posts, or Admin → Questions → Pending."
       min_tags:
         label: "Minimum tags per question"
         text: "Minimum number of tags required in a question."
@@ -2470,6 +2505,8 @@ ui:
     post_cancel_deleted: This post has been undeleted.
     post_pin: This post has been pinned.
     post_unpin: This post has been unpinned.
+    post_mark_featured: This post is now marked as featured.
+    post_unmark_featured: The featured mark has been removed from this post.
     post_hide_list: This post has been hidden from list.
     post_show_list: This post has been shown to list.
     post_reopen: This post has been reopened.
@@ -2483,6 +2520,8 @@ ui:
     user_inactive: This user is already inactive.
     user_normal: This user is already normal.
     user_suspended: This user has been suspended.
+    user_muted: This user has been muted.
+    user_mute_cleared: This user's mute has been cleared.
     user_deleted: This user has been deleted.
     user_added: User has been added successfully.
     badge_activated: This badge has been activated.

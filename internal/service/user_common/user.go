@@ -22,6 +22,7 @@ package usercommon
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/pkg/converter"
@@ -230,12 +231,18 @@ func (us *UserCommon) CacheLoginUserInfo(ctx context.Context, userID string, use
 		log.Error(err)
 	}
 
+	mutedUntil := int64(0)
+	if u, exist, e := us.userRepo.GetByUserID(ctx, userID); e == nil && exist && entity.UserMuteActive(u.MutedUntil, time.Now()) {
+		mutedUntil = u.MutedUntil.Unix()
+	}
+
 	userCacheInfo = &entity.UserCacheInfo{
 		UserID:      userID,
 		EmailStatus: emailStatus,
 		UserStatus:  userStatus,
 		RoleID:      roleID,
 		ExternalID:  externalID,
+		MutedUntil:  mutedUntil,
 	}
 
 	accessToken, _, err = us.authService.SetUserCacheInfo(ctx, userCacheInfo)

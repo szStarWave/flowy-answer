@@ -237,7 +237,7 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	contentRevisionService := content.NewRevisionService(revisionRepo, userCommon, questionCommon, answerService, objService, questionRepo, answerRepo, tagRepo, tagCommonService, noticequeueService, service, reportRepo, reviewService, reviewActivityRepo)
 	revisionController := controller.NewRevisionController(contentRevisionService, rankService)
 	rankController := controller.NewRankController(rankService)
-	userAdminRepo := user.NewUserAdminRepo(dataData, authRepo)
+	userAdminRepo := user.NewUserAdminRepo(dataData)
 	notificationRepo := notification2.NewNotificationRepo(dataData)
 	pluginUserConfigRepo := plugin_config.NewPluginUserConfigRepo(dataData)
 	badgeAwardRepo := badge_award.NewBadgeAwardRepo(dataData, uniqueIDRepo)

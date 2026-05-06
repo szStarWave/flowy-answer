@@ -384,6 +384,7 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 			AcceptedAnswerID: questionInfo.AcceptedAnswerID,
 			LastAnswerID:     questionInfo.LastAnswerID,
 			Pin:              questionInfo.Pin,
+			Quality:          questionInfo.Quality,
 			Show:             questionInfo.Show,
 			Operator:         &schema.QuestionPageRespOperator{ID: questionInfo.UserID},
 		}
@@ -669,6 +670,10 @@ func (qs *QuestionCommon) ShowFormat(ctx context.Context, data *entity.Question)
 	}
 	info.Status = data.Status
 	info.Pin = data.Pin
+	info.Quality = data.Quality
+	if info.Quality == 0 {
+		info.Quality = entity.QuestionNotFeatured
+	}
 	info.Show = data.Show
 	info.UserID = data.UserID
 	info.LastEditUserID = data.LastEditUserID

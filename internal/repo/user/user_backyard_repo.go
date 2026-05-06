@@ -21,7 +21,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"xorm.io/builder"
@@ -30,23 +29,19 @@ import (
 	"github.com/apache/answer/internal/base/pager"
 	"github.com/apache/answer/internal/base/reason"
 	"github.com/apache/answer/internal/entity"
-	"github.com/apache/answer/internal/service/auth"
 	"github.com/apache/answer/internal/service/user_admin"
 	"github.com/segmentfault/pacman/errors"
-	"github.com/segmentfault/pacman/log"
 )
 
 // userAdminRepo user repository
 type userAdminRepo struct {
-	data     *data.Data
-	authRepo auth.AuthRepo
+	data *data.Data
 }
 
 // NewUserAdminRepo new repository
-func NewUserAdminRepo(data *data.Data, authRepo auth.AuthRepo) user_admin.UserAdminRepo {
+func NewUserAdminRepo(data *data.Data) user_admin.UserAdminRepo {
 	return &userAdminRepo{
-		data:     data,
-		authRepo: authRepo,
+		data: data,
 	}
 }
 
@@ -59,29 +54,60 @@ func (ur *userAdminRepo) UpdateUserStatus(ctx context.Context, userID string, us
 	case entity.UserStatusSuspended:
 		cond.SuspendedAt = time.Now()
 		cond.SuspendedUntil = suspendedUntil
+		cond.MutedAt = time.Time{}
+		cond.MutedUntil = time.Time{}
 	case entity.UserStatusDeleted:
 		cond.DeletedAt = time.Now()
+		cond.MutedAt = time.Time{}
+		cond.MutedUntil = time.Time{}
 	case entity.UserStatusAvailable:
 		// When restoring user status, clear suspended until time to zero
 		cond.SuspendedUntil = time.Time{}
+		cond.MutedAt = time.Time{}
+		cond.MutedUntil = time.Time{}
 	}
-	_, err = ur.data.DB.Context(ctx).ID(userID).MustCols("status", "mail_status", "e_mail", "suspended_at", "suspended_until", "deleted_at").Update(cond)
-	if err != nil {
-		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
-	}
-
-	userCacheInfo := &entity.UserCacheInfo{
-		UserID:      userID,
-		EmailStatus: mailStatus,
-		UserStatus:  userStatus,
-	}
-	t, _ := json.Marshal(userCacheInfo)
-	log.Infof("user change status: %s", string(t))
-	err = ur.authRepo.SetUserStatus(ctx, userID, userCacheInfo)
+	_, err = ur.data.DB.Context(ctx).ID(userID).MustCols(
+		"status", "mail_status", "e_mail", "suspended_at", "suspended_until", "deleted_at", "muted_at", "muted_until",
+	).Update(cond)
 	if err != nil {
 		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
 	return
+}
+
+// UpdateUserMute sets mute window while account stays active.
+func (ur *userAdminRepo) UpdateUserMute(ctx context.Context, userID string, mutedUntil time.Time) (err error) {
+	cond := &entity.User{MutedAt: time.Now(), MutedUntil: mutedUntil}
+	_, err = ur.data.DB.Context(ctx).ID(userID).Cols("muted_at", "muted_until").Update(cond)
+	if err != nil {
+		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return
+}
+
+// ClearUserMute clears mute timestamps.
+func (ur *userAdminRepo) ClearUserMute(ctx context.Context, userID string) (err error) {
+	cond := &entity.User{MutedAt: time.Time{}, MutedUntil: time.Time{}}
+	_, err = ur.data.DB.Context(ctx).ID(userID).Cols("muted_at", "muted_until").Update(cond)
+	if err != nil {
+		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return
+}
+
+// GetExpiredMutedUsers returns active users whose mute end time has passed (not permanent).
+func (ur *userAdminRepo) GetExpiredMutedUsers(ctx context.Context) (users []*entity.User, err error) {
+	users = make([]*entity.User, 0)
+	now := time.Now()
+	err = ur.data.DB.Context(ctx).
+		Where("status = ?", entity.UserStatusAvailable).
+		Where("muted_until > ?", time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)).
+		And("muted_until < ?", now).
+		Find(&users)
+	if err != nil {
+		return nil, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return users, nil
 }
 
 // AddUser add user

@@ -133,6 +133,13 @@ const handleHttpError = async (
       return Promise.reject(false);
     }
 
+    if (data?.type === 'muted') {
+      floppyNavigation.navigate(RouteAlias.muted, {
+        handler: 'replace',
+      });
+      return Promise.reject(false);
+    }
+
     if (data?.type === 'suspended') {
       loggedUserInfoStore.getState().clear();
       floppyNavigation.navigate(RouteAlias.suspended, {

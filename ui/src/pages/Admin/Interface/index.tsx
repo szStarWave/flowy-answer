@@ -126,9 +126,9 @@ const Interface: FC = () => {
     };
 
     updateInterfaceSetting(reqParams)
-      .then(() => {
+      .then(async () => {
         interfaceStore.getState().update(reqParams);
-        setupAppLanguage();
+        await setupAppLanguage();
         setupAppTimeZone();
         getLoggedUserInfo().then((info) => {
           loggedUserInfoStore.getState().update(info);

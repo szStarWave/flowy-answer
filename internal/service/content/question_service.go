@@ -380,6 +380,7 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	question.CreatedAt = now
 	question.PostUpdateTime = now
 	question.Pin = entity.QuestionUnPin
+	question.Quality = entity.QuestionNotFeatured
 	question.Show = entity.QuestionShow
 	// question.UpdatedAt = nil
 	err = qs.questionRepo.AddQuestion(ctx, question)
@@ -520,6 +521,10 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 		questionInfo.Pin = entity.QuestionPin
 	case schema.QuestionOperationUnPin:
 		questionInfo.Pin = entity.QuestionUnPin
+	case schema.QuestionOperationMarkFeatured:
+		questionInfo.Quality = entity.QuestionFeatured
+	case schema.QuestionOperationUnmarkFeatured:
+		questionInfo.Quality = entity.QuestionNotFeatured
 	}
 
 	err = qs.questionRepo.UpdateQuestionOperation(ctx, questionInfo)
@@ -1099,6 +1104,11 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 	if question.Pin == entity.QuestionUnPin {
 		per.CanUnPin = false
 	}
+	if question.Quality == entity.QuestionFeatured {
+		per.CanMarkFeatured = false
+	} else {
+		per.CanUnmarkFeatured = false
+	}
 	if question.Show == entity.QuestionShow {
 		per.CanShow = false
 	}
@@ -1124,6 +1134,7 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 	question.MemberActions = permission.GetQuestionPermission(ctx, userID, question.UserID, question.Status,
 		per.CanEdit, per.CanDelete,
 		per.CanClose, per.CanReopen, per.CanPin, per.CanHide, per.CanUnPin, per.CanShow,
+		per.CanMarkFeatured, per.CanUnmarkFeatured,
 		per.CanRecover)
 	question.ExtendsActions = permission.GetQuestionExtendsPermission(ctx, per.CanInviteOtherToAnswer)
 	return question, nil

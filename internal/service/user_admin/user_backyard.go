@@ -60,6 +60,8 @@ import (
 // UserAdminRepo user repository
 type UserAdminRepo interface {
 	UpdateUserStatus(ctx context.Context, userID string, userStatus, mailStatus int, email string, suspendedUntil time.Time) (err error)
+	UpdateUserMute(ctx context.Context, userID string, mutedUntil time.Time) (err error)
+	ClearUserMute(ctx context.Context, userID string) (err error)
 	GetUserInfo(ctx context.Context, userID string) (user *entity.User, exist bool, err error)
 	GetUserInfoByEmail(ctx context.Context, email string) (user *entity.User, exist bool, err error)
 	GetUserPage(ctx context.Context, page, pageSize int, user *entity.User,
@@ -69,6 +71,7 @@ type UserAdminRepo interface {
 	UpdateUserPassword(ctx context.Context, userID string, password string) (err error)
 	DeletePermanentlyUsers(ctx context.Context) (err error)
 	GetExpiredSuspendedUsers(ctx context.Context) (users []*entity.User, err error)
+	GetExpiredMutedUsers(ctx context.Context) (users []*entity.User, err error)
 }
 
 // UserAdminService user service
@@ -124,6 +127,31 @@ func NewUserAdminService(
 	}
 }
 
+func (us *UserAdminService) publishUserAuthStatusSnapshot(ctx context.Context, userID string) (err error) {
+	user, exist, err := us.userRepo.GetUserInfo(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !exist || user.Status == entity.UserStatusDeleted {
+		return nil
+	}
+	roleID, e := us.userRoleRelService.GetUserRole(ctx, userID)
+	if e != nil {
+		log.Error(e)
+	}
+	mutedUntil := int64(0)
+	if entity.UserMuteActive(user.MutedUntil, time.Now()) {
+		mutedUntil = user.MutedUntil.Unix()
+	}
+	return us.authService.SetUserStatus(ctx, &entity.UserCacheInfo{
+		UserID:      userID,
+		UserStatus:  user.Status,
+		EmailStatus: user.MailStatus,
+		RoleID:      roleID,
+		MutedUntil:  mutedUntil,
+	})
+}
+
 // UpdateUserStatus update user
 func (us *UserAdminService) UpdateUserStatus(ctx context.Context, req *schema.UpdateUserStatusReq) (err error) {
 	// Admin cannot modify their status
@@ -140,6 +168,24 @@ func (us *UserAdminService) UpdateUserStatus(ctx context.Context, req *schema.Up
 	// if user status is deleted
 	if userInfo.Status == entity.UserStatusDeleted {
 		return nil
+	}
+
+	if req.IsMuteCleared() {
+		if err = us.userRepo.ClearUserMute(ctx, req.UserID); err != nil {
+			return err
+		}
+		return us.publishUserAuthStatusSnapshot(ctx, req.UserID)
+	}
+
+	if req.IsMuted() {
+		if userInfo.Status == entity.UserStatusSuspended {
+			return errors.BadRequest(reason.RequestFormatError)
+		}
+		until := req.GetMutedUntil()
+		if err = us.userRepo.UpdateUserMute(ctx, req.UserID, until); err != nil {
+			return err
+		}
+		return us.publishUserAuthStatusSnapshot(ctx, req.UserID)
 	}
 
 	if req.IsInactive() {
@@ -160,6 +206,9 @@ func (us *UserAdminService) UpdateUserStatus(ctx context.Context, req *schema.Up
 	suspendedUntil := req.GetSuspendedUntil()
 	err = us.userRepo.UpdateUserStatus(ctx, userInfo.ID, userInfo.Status, userInfo.MailStatus, userInfo.EMail, suspendedUntil)
 	if err != nil {
+		return err
+	}
+	if err = us.publishUserAuthStatusSnapshot(ctx, userInfo.ID); err != nil {
 		return err
 	}
 
@@ -537,6 +586,12 @@ func (us *UserAdminService) GetUserPage(ctx context.Context, req *schema.GetUser
 		default:
 			t.Status = constant.UserNormal
 		}
+		if !u.MutedAt.IsZero() {
+			t.MutedAt = u.MutedAt.Unix()
+		}
+		if !u.MutedUntil.IsZero() {
+			t.MutedUntil = u.MutedUntil.Unix()
+		}
 		resp = append(resp, t)
 	}
 	us.setUserRoleInfo(ctx, resp)
@@ -659,8 +714,29 @@ func (us *UserAdminService) CheckAndUnsuspendExpiredUsers(ctx context.Context) e
 					user.Username, user.ID, err)
 				continue
 			}
+			if err = us.publishUserAuthStatusSnapshot(ctx, user.ID); err != nil {
+				log.Errorf("Failed to publish auth snapshot for user %s: %v", user.ID, err)
+			}
 		}
 	}
 
+	return nil
+}
+
+// CheckAndUnmuteExpiredUsers clears expired mutes for active accounts.
+func (us *UserAdminService) CheckAndUnmuteExpiredUsers(ctx context.Context) error {
+	expired, err := us.userRepo.GetExpiredMutedUsers(ctx)
+	if err != nil {
+		return err
+	}
+	for _, user := range expired {
+		if err = us.userRepo.ClearUserMute(ctx, user.ID); err != nil {
+			log.Errorf("Failed to clear mute for user %s: %v", user.ID, err)
+			continue
+		}
+		if err = us.publishUserAuthStatusSnapshot(ctx, user.ID); err != nil {
+			log.Errorf("Failed to publish auth snapshot after unmute for user %s: %v", user.ID, err)
+		}
+	}
 	return nil
 }

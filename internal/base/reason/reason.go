@@ -86,6 +86,7 @@ const (
 	LangNotFound                     = "error.lang.not_found"
 	ReportHandleFailed               = "error.report.handle_failed"
 	ReportNotFound                   = "error.report.not_found"
+	ReviewSubmitterSitePolicy        = "error.review.site_policy_submitter"
 	ReadConfigFailed                 = "error.config.read_config_failed"
 	DatabaseConnectionFailed         = "error.database.connection_failed"
 	InstallCreateTableFailed         = "error.database.create_table_failed"
@@ -116,6 +117,7 @@ const (
 	UserStatusInactive               = "error.user.status_inactive"
 	UserStatusSuspendedForever       = "error.user.status_suspended_forever"
 	UserStatusSuspendedUntil         = "error.user.status_suspended_until"
+	UserMuted                        = "error.user.muted"
 	UserStatusDeleted                = "error.user.status_deleted"
 	ErrFeatureDisabled               = "error.feature.disabled"
 )

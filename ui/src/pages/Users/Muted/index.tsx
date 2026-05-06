@@ -17,17 +17,28 @@
  * under the License.
  */
 
-package schema
+import { useTranslation } from 'react-i18next';
+import { Button } from 'react-bootstrap';
 
-const (
-	ForbiddenReasonTypeInactive      = "inactive"
-	ForbiddenReasonTypeURLExpired    = "url_expired"
-	ForbiddenReasonTypeUserSuspended = "suspended"
-	ForbiddenReasonTypeUserMuted     = "muted"
-)
+import { siteInfoStore } from '@/stores';
+import { usePageTags } from '@/hooks';
 
-// ForbiddenResp forbidden response
-type ForbiddenResp struct {
-	// forbidden reason type
-	Type string `json:"type" enums:"inactive,url_expired"`
-}
+const Muted = () => {
+  const { contact_email = '' } = siteInfoStore((state) => state.siteInfo);
+  const { t } = useTranslation('translation', { keyPrefix: 'muted' });
+  usePageTags({
+    title: t('account_muted', { keyPrefix: 'page_title' }),
+  });
+
+  return (
+    <div className="d-flex flex-column align-items-center mt-5 pt-3">
+      <h3 className="mb-5">{t('title')}</h3>
+      <p className="text-center">{t('desc')}</p>
+      <Button href={`mailto:${contact_email}`} variant="link">
+        {t('contact_us')}
+      </Button>
+    </div>
+  );
+};
+
+export default Muted;

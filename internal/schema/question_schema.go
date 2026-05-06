@@ -33,10 +33,12 @@ import (
 )
 
 const (
-	QuestionOperationPin   = "pin"
-	QuestionOperationUnPin = "unpin"
-	QuestionOperationHide  = "hide"
-	QuestionOperationShow  = "show"
+	QuestionOperationPin            = "pin"
+	QuestionOperationUnPin          = "unpin"
+	QuestionOperationHide           = "hide"
+	QuestionOperationShow          = "show"
+	QuestionOperationMarkFeatured   = "mark_featured"
+	QuestionOperationUnmarkFeatured = "unmark_featured"
 )
 
 // RemoveQuestionReq delete question request
@@ -58,10 +60,12 @@ type CloseQuestionReq struct {
 
 type OperationQuestionReq struct {
 	ID        string `validate:"required" json:"id"`
-	Operation string `json:"operation"` // operation [pin unpin hide show]
+	Operation string `json:"operation"` // operation [pin unpin hide show mark_featured unmark_featured]
 	UserID    string `json:"-"`         // user_id
 	CanPin    bool   `json:"-"`
 	CanList   bool   `json:"-"`
+	CanMarkFeatured   bool `json:"-"`
+	CanUnmarkFeatured bool `json:"-"`
 }
 
 type CloseQuestionMeta struct {
@@ -165,6 +169,8 @@ type QuestionPermission struct {
 	CanInviteOtherToAnswer bool `json:"-"`
 	CanAddTag              bool `json:"-"`
 	CanRecover             bool `json:"-"`
+	CanMarkFeatured        bool `json:"-"`
+	CanUnmarkFeatured      bool `json:"-"`
 }
 
 type CheckCanQuestionUpdate struct {
@@ -249,6 +255,7 @@ type QuestionInfoResp struct {
 	PostUpdateTime       int64          `json:"update_time"`
 	QuestionUpdateTime   int64          `json:"edit_time"`
 	Pin                  int            `json:"pin"`
+	Quality              int            `json:"quality"` // 1 normal, 2 featured (优质)
 	Show                 int            `json:"show"`
 	Status               int            `json:"status"`
 	Operation            *Operation     `json:"operation,omitempty"`
@@ -281,6 +288,7 @@ type AdminQuestionInfo struct {
 	VoteCount        int            `json:"vote_count"`
 	Show             int            `json:"show"`
 	Pin              int            `json:"pin"`
+	Quality          int            `json:"quality"`
 	AnswerCount      int            `json:"answer_count"`
 	AcceptedAnswerID string         `json:"accepted_answer_id"`
 	CreateTime       int64          `json:"create_time"`
@@ -390,7 +398,8 @@ type QuestionPageResp struct {
 	Title       string     `json:"title"`
 	UrlTitle    string     `json:"url_title"`
 	Description string     `json:"description"`
-	Pin         int        `json:"pin"`  // 1: unpin, 2: pin
+	Pin         int        `json:"pin"`     // 1: unpin, 2: pin
+	Quality     int        `json:"quality"` // 1: normal, 2: featured
 	Show        int        `json:"show"` // 0: show, 1: hide
 	Status      int        `json:"status"`
 	Tags        []*TagResp `json:"tags"`

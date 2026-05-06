@@ -25,14 +25,13 @@ import (
 	"time"
 
 	"github.com/apache/answer/internal/entity"
-	"github.com/apache/answer/internal/repo/auth"
 	"github.com/apache/answer/internal/repo/user"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_userAdminRepo_GetUserInfo(t *testing.T) {
-	userAdminRepo := user.NewUserAdminRepo(testDataSource, auth.NewAuthRepo(testDataSource))
+	userAdminRepo := user.NewUserAdminRepo(testDataSource)
 	got, exist, err := userAdminRepo.GetUserInfo(context.TODO(), "1")
 	require.NoError(t, err)
 	assert.True(t, exist)
@@ -40,7 +39,7 @@ func Test_userAdminRepo_GetUserInfo(t *testing.T) {
 }
 
 func Test_userAdminRepo_GetUserPage(t *testing.T) {
-	userAdminRepo := user.NewUserAdminRepo(testDataSource, auth.NewAuthRepo(testDataSource))
+	userAdminRepo := user.NewUserAdminRepo(testDataSource)
 	got, total, err := userAdminRepo.GetUserPage(context.TODO(), 1, 1, &entity.User{Username: "admin"}, "", false)
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
@@ -48,7 +47,7 @@ func Test_userAdminRepo_GetUserPage(t *testing.T) {
 }
 
 func Test_userAdminRepo_UpdateUserStatus(t *testing.T) {
-	userAdminRepo := user.NewUserAdminRepo(testDataSource, auth.NewAuthRepo(testDataSource))
+	userAdminRepo := user.NewUserAdminRepo(testDataSource)
 	got, exist, err := userAdminRepo.GetUserInfo(context.TODO(), "1")
 	require.NoError(t, err)
 	assert.True(t, exist)

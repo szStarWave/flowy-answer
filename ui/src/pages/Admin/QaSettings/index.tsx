@@ -61,6 +61,11 @@ const QaSettings = () => {
         title: t('restrict_answer.label'),
         description: t('restrict_answer.text'),
       },
+      require_review_for_new_questions: {
+        type: 'boolean',
+        title: t('require_review_for_new_questions.label'),
+        description: t('require_review_for_new_questions.text'),
+      },
     },
   };
   const uiSchema: UISchema = {
@@ -82,6 +87,12 @@ const QaSettings = () => {
         label: t('restrict_answer.label'),
       },
     },
+    require_review_for_new_questions: {
+      'ui:widget': 'switch',
+      'ui:options': {
+        label: t('require_review_for_new_questions.label'),
+      },
+    },
   };
   const [formData, setFormData] = useState<Type.FormDataType>(
     initFormData(schema),
@@ -99,6 +110,8 @@ const QaSettings = () => {
       min_tags: formData.min_tags.value,
       min_content: formData.min_content.value,
       restrict_answer: formData.restrict_answer.value,
+      require_review_for_new_questions:
+        formData.require_review_for_new_questions.value,
     };
     updateQuestionSetting(reqParams)
       .then(() => {
@@ -125,7 +138,8 @@ const QaSettings = () => {
         formMeta.min_tags.value = res.min_tags;
         formMeta.min_content.value = res.min_content;
         formMeta.restrict_answer.value = res.restrict_answer;
-        console.log('res', res, formMeta);
+        formMeta.require_review_for_new_questions.value =
+          res.require_review_for_new_questions ?? false;
         setFormData(formMeta);
       }
     });

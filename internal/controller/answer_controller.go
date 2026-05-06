@@ -207,6 +207,9 @@ func (ac *AnswerController) AddAnswer(ctx *gin.Context) {
 	}()
 	req.QuestionID = uid.DeShortID(req.QuestionID)
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
+	if middleware.UserForbiddenIfMuted(ctx) {
+		return
+	}
 
 	canList, err := ac.rankService.CheckOperationPermissions(ctx, req.UserID, []string{
 		permission.AnswerEdit,

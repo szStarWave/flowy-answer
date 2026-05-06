@@ -129,6 +129,8 @@ var (
 		{ID: 39, Name: "recover answer", PowerType: permission.AnswerUnDelete, Description: "recover deleted answer"},
 		{ID: 40, Name: "recover question", PowerType: permission.QuestionUnDelete, Description: "recover deleted question"},
 		{ID: 41, Name: "recover tag", PowerType: permission.TagUnDelete, Description: "recover deleted tag"},
+		{ID: 42, Name: "question mark featured", PowerType: permission.QuestionMarkFeatured, Description: "mark question as featured for tag ordering"},
+		{ID: 43, Name: "question unmark featured", PowerType: permission.QuestionUnmarkFeatured, Description: "remove featured mark from question"},
 	}
 
 	rolePowerRels = []*entity.RolePowerRel{
@@ -170,6 +172,8 @@ var (
 		{RoleID: 2, PowerType: permission.QuestionHide},
 		{RoleID: 2, PowerType: permission.QuestionUnPin},
 		{RoleID: 2, PowerType: permission.QuestionShow},
+		{RoleID: 2, PowerType: permission.QuestionMarkFeatured},
+		{RoleID: 2, PowerType: permission.QuestionUnmarkFeatured},
 		{RoleID: 2, PowerType: permission.AnswerInviteSomeoneToAnswer},
 		{RoleID: 2, PowerType: permission.AnswerUnDelete},
 		{RoleID: 2, PowerType: permission.QuestionUnDelete},
@@ -212,6 +216,8 @@ var (
 		{RoleID: 3, PowerType: permission.QuestionHide},
 		{RoleID: 3, PowerType: permission.QuestionUnPin},
 		{RoleID: 3, PowerType: permission.QuestionShow},
+		{RoleID: 3, PowerType: permission.QuestionMarkFeatured},
+		{RoleID: 3, PowerType: permission.QuestionUnmarkFeatured},
 		{RoleID: 3, PowerType: permission.AnswerInviteSomeoneToAnswer},
 		{RoleID: 3, PowerType: permission.AnswerUnDelete},
 		{RoleID: 3, PowerType: permission.QuestionUnDelete},
@@ -354,6 +360,10 @@ var (
 		{ID: 129, Key: "rank.question.undeleted", Value: `-1`},
 		{ID: 130, Key: "rank.tag.undeleted", Value: `-1`},
 		{ID: 131, Key: "ai_config.provider", Value: `[{"default_api_host":"https://api.openai.com","display_name":"OpenAI","name":"openai"},{"default_api_host":"https://generativelanguage.googleapis.com","display_name":"Gemini","name":"gemini"},{"default_api_host":"https://api.anthropic.com","display_name":"Anthropic","name":"anthropic"}]`},
+		{ID: 200, Key: "question.mark_featured", Value: `0`},
+		{ID: 201, Key: "question.unmark_featured", Value: `0`},
+		{ID: 202, Key: "rank.question.mark_featured", Value: `-1`},
+		{ID: 203, Key: "rank.question.unmark_featured", Value: `-1`},
 	}
 
 	defaultBadgeGroupTable = []*entity.BadgeGroup{

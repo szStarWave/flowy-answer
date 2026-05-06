@@ -102,12 +102,12 @@ const Index = () => {
       language: formData.language.value,
       color_scheme: formData.color_scheme.value,
     };
-    updateUserInterface(params).then(() => {
+    updateUserInterface(params).then(async () => {
       loggedUserInfoStore.getState().update({
         ...loggedUserInfo,
         ...params,
       });
-      localize.setupAppLanguage();
+      await localize.setupAppLanguage();
       localize.setupAppTheme();
       toast.onShow({
         msg: t('update', { keyPrefix: 'toast' }),

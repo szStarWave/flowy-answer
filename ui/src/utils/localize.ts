@@ -91,7 +91,7 @@ const addI18nResource = async (langName) => {
     }
   } else if (storageResource && storageResource.lng === res.lng) {
     res.resources = storageResource.resources;
-    pullLanguageConf(res);
+    await pullLanguageConf(res);
   } else {
     await pullLanguageConf(res);
   }

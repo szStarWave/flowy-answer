@@ -17,17 +17,19 @@
  * under the License.
  */
 
-package schema
+package migrations
 
-const (
-	ForbiddenReasonTypeInactive      = "inactive"
-	ForbiddenReasonTypeURLExpired    = "url_expired"
-	ForbiddenReasonTypeUserSuspended = "suspended"
-	ForbiddenReasonTypeUserMuted     = "muted"
+import (
+	"context"
+	"fmt"
+
+	"github.com/apache/answer/internal/entity"
+	"xorm.io/xorm"
 )
 
-// ForbiddenResp forbidden response
-type ForbiddenResp struct {
-	// forbidden reason type
-	Type string `json:"type" enums:"inactive,url_expired"`
+func addUserMuteColumns(ctx context.Context, x *xorm.Engine) error {
+	if err := x.Context(ctx).Sync(new(entity.User)); err != nil {
+		return fmt.Errorf("sync user mute columns failed: %w", err)
+	}
+	return nil
 }

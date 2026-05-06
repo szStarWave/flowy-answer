@@ -685,7 +685,13 @@ export interface MemberActionItem {
 
 export interface QuestionOperationReq {
   id: string;
-  operation: 'pin' | 'unpin' | 'hide' | 'show';
+  operation:
+    | 'pin'
+    | 'unpin'
+    | 'hide'
+    | 'show'
+    | 'mark_featured'
+    | 'unmark_featured';
 }
 
 export interface OauthBindEmailReq {
@@ -884,6 +890,7 @@ export interface AdminQuestionSetting {
   min_tags: number;
   min_content: number;
   restrict_answer: boolean;
+  require_review_for_new_questions: boolean;
 }
 
 export interface AdminTagsSetting {

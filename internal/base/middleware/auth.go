@@ -22,6 +22,7 @@ package middleware
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/role"
@@ -272,6 +273,17 @@ func GetUserIsAdminModerator(ctx *gin.Context) (isAdminModerator bool) {
 func GetLoginUserIDInt64FromContext(ctx *gin.Context) (userID int64) {
 	userIDStr := GetLoginUserIDFromContext(ctx)
 	return converter.StringToInt64(userIDStr)
+}
+
+// UserForbiddenIfMuted responds with 403 when the current user is muted (cannot post or comment).
+func UserForbiddenIfMuted(ctx *gin.Context) bool {
+	u := GetUserInfoFromContext(ctx)
+	if u == nil || !u.MuteActiveAt(time.Now()) {
+		return false
+	}
+	handler.HandleResponse(ctx, errors.Forbidden(reason.UserMuted),
+		&schema.ForbiddenResp{Type: schema.ForbiddenReasonTypeUserMuted})
+	return true
 }
 
 // ExtractToken extract token from context

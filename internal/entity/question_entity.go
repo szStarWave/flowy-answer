@@ -32,6 +32,8 @@ const (
 	QuestionPin             = 2
 	QuestionShow            = 1
 	QuestionHide            = 2
+	QuestionNotFeatured     = 1
+	QuestionFeatured        = 2
 )
 
 var AdminQuestionSearchStatus = map[string]int{
@@ -60,6 +62,7 @@ type Question struct {
 	OriginalText     string    `xorm:"not null MEDIUMTEXT original_text"`
 	ParsedText       string    `xorm:"not null MEDIUMTEXT parsed_text"`
 	Pin              int       `xorm:"not null default 1 INT(11) pin"`
+	Quality          int       `xorm:"not null default 1 INT(11) quality"`
 	Show             int       `xorm:"not null default 1 INT(11) show"`
 	Status           int       `xorm:"not null default 1 INT(11) status"`
 	ViewCount        int       `xorm:"not null default 0 INT(11) view_count"`

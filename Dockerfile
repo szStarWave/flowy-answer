@@ -22,8 +22,8 @@
 FROM golang:1.24-alpine AS golang-builder
 LABEL maintainer="linkinstar@apache.org"
 
-# 多源回退；goproxy.io 偶发 502，国内优先 goproxy.cn。全挂时可：--build-arg GOPROXY=direct
-ARG GOPROXY=https://goproxy.cn,https://goproxy.io,https://mirrors.aliyun.com/goproxy/,direct
+# 多源回退；goproxy.cn 偶发 unexpected EOF，故不把其放首位。国内可：--build-arg GOPROXY=https://goproxy.cn,direct
+ARG GOPROXY=https://proxy.golang.org,https://goproxy.io,https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 ENV GOPROXY=${GOPROXY}
 ARG GOSUMDB=sum.golang.google.cn
 ENV GOSUMDB=${GOSUMDB}

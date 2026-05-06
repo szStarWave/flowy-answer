@@ -23,6 +23,7 @@ import (
 	"github.com/apache/answer/internal/base/handler"
 	"github.com/apache/answer/internal/base/middleware"
 	"github.com/apache/answer/internal/base/reason"
+	"github.com/apache/answer/internal/base/translator"
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/action"
 	"github.com/apache/answer/internal/service/rank"
@@ -78,6 +79,7 @@ func (rc *ReviewController) GetUnreviewedPostPage(ctx *gin.Context) {
 		req.ReviewerMapping[info.SlugName] = info.Name.Translate(ctx)
 		return nil
 	})
+	req.ReviewerMapping["site_policy"] = translator.Tr(handler.GetLangByCtx(ctx), reason.ReviewSubmitterSitePolicy)
 
 	resp, err := rc.reviewService.GetUnreviewedPostPage(ctx, req)
 	handler.HandleResponse(ctx, err, resp)

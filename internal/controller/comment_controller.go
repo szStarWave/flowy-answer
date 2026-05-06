@@ -88,6 +88,9 @@ func (cc *CommentController) AddComment(ctx *gin.Context) {
 	}()
 	req.ObjectID = uid.DeShortID(req.ObjectID)
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
+	if middleware.UserForbiddenIfMuted(ctx) {
+		return
+	}
 
 	canList, err := cc.rankService.CheckOperationPermissions(ctx, req.UserID, []string{
 		permission.CommentAdd,

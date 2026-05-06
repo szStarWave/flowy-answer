@@ -19,6 +19,8 @@
 
 package entity
 
+import "time"
+
 // UserCacheInfo User Cache Information
 type UserCacheInfo struct {
 	UserID      string `json:"user_id"`
@@ -27,4 +29,14 @@ type UserCacheInfo struct {
 	RoleID      int    `json:"role_id"`
 	ExternalID  string `json:"external_id"`
 	VisitToken  string `json:"visit_token"`
+	// MutedUntil is Unix seconds when posting/comment is blocked; 0 means not muted.
+	MutedUntil int64 `json:"muted_until"`
+}
+
+// MuteActiveAt returns true if the cache indicates an active mute at time `now`.
+func (u *UserCacheInfo) MuteActiveAt(now time.Time) bool {
+	if u == nil || u.MutedUntil <= 0 {
+		return false
+	}
+	return now.Unix() < u.MutedUntil
 }

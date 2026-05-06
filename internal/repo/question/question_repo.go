@@ -204,7 +204,7 @@ func (qr *questionRepo) RecoverQuestion(ctx context.Context, questionID string) 
 
 func (qr *questionRepo) UpdateQuestionOperation(ctx context.Context, question *entity.Question) (err error) {
 	question.ID = uid.DeShortID(question.ID)
-	_, err = qr.data.DB.Context(ctx).Where("id =?", question.ID).Cols("pin", "show").Update(question)
+	_, err = qr.data.DB.Context(ctx).Where("id =?", question.ID).Cols("pin", "show", "quality").Update(question)
 	if err != nil {
 		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
@@ -425,22 +425,22 @@ func (qr *questionRepo) GetQuestionPage(ctx context.Context, page, pageSize int,
 
 	switch orderCond {
 	case "newest":
-		session.OrderBy("question.pin desc,question.created_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.created_at DESC")
 	case "active":
 		if inDays == 0 {
 			session.And("question.created_at > ?", time.Now().AddDate(0, 0, -180))
 		}
 		session.And("question.post_update_time > ?", time.Now().AddDate(0, 0, -90))
-		session.OrderBy("question.pin desc,question.post_update_time DESC, question.updated_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.post_update_time DESC, question.updated_at DESC")
 	case "hot":
-		session.OrderBy("question.pin desc,question.hot_score DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.hot_score DESC")
 	case "score":
-		session.OrderBy("question.pin desc,question.vote_count DESC, question.view_count DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.vote_count DESC, question.view_count DESC")
 	case "unanswered":
 		session.Where("question.answer_count = 0")
-		session.OrderBy("question.pin desc,question.created_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.created_at DESC")
 	case "frequent":
-		session.OrderBy("question.pin DESC, question.linked_count DESC, question.updated_at DESC")
+		session.OrderBy("question.pin DESC, question.quality DESC, question.linked_count DESC, question.updated_at DESC")
 	}
 
 	session.GroupBy("question.id")
@@ -460,7 +460,7 @@ func (qr *questionRepo) GetQuestionPage(ctx context.Context, page, pageSize int,
 func (qr *questionRepo) GetRecommendQuestionPageByTags(ctx context.Context, userID string, tagIDs, followedQuestionIDs []string, page, pageSize int) (
 	questionList []*entity.Question, total int64, err error) {
 	questionList = make([]*entity.Question, 0)
-	orderBySQL := "question.pin DESC, question.created_at DESC"
+	orderBySQL := "question.pin DESC, question.quality DESC, question.created_at DESC"
 
 	// Please Make sure every question has at least one tag
 	selectSQL := entity.Question{}.TableName() + ".*"
@@ -838,22 +838,22 @@ func (qr *questionRepo) GetQuestionLink(ctx context.Context, page, pageSize int,
 
 	switch orderCond {
 	case "newest":
-		session.OrderBy("question.pin desc,question.created_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.created_at DESC")
 	case "active":
 		if inDays == 0 {
 			session.And("question.created_at > ?", time.Now().AddDate(0, 0, -180))
 		}
 		session.And("question.post_update_time > ?", time.Now().AddDate(0, 0, -90))
-		session.OrderBy("question.pin desc,question.post_update_time DESC, question.updated_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.post_update_time DESC, question.updated_at DESC")
 	case "hot":
-		session.OrderBy("question.pin desc,question.hot_score DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.hot_score DESC")
 	case "score":
-		session.OrderBy("question.pin desc,question.vote_count DESC, question.view_count DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.vote_count DESC, question.view_count DESC")
 	case "unanswered":
 		session.Where("question.answer_count = 0")
-		session.OrderBy("question.pin desc,question.created_at DESC")
+		session.OrderBy("question.pin desc,question.quality desc,question.created_at DESC")
 	case "frequent":
-		session.OrderBy("question.pin DESC, question.linked_count DESC, question.updated_at DESC")
+		session.OrderBy("question.pin DESC, question.quality DESC, question.linked_count DESC, question.updated_at DESC")
 	}
 
 	if page > 0 && pageSize > 0 {

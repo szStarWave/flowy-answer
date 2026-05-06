@@ -39,6 +39,11 @@ const (
 // PermanentSuspensionTime is a fixed time representing permanent suspension (2099-12-31 23:59:59)
 var PermanentSuspensionTime = time.Date(2099, 12, 31, 23, 59, 59, 0, time.UTC)
 
+// UserMuteActive returns true if mute end time is set and still after `now`.
+func UserMuteActive(mutedUntil time.Time, now time.Time) bool {
+	return !mutedUntil.IsZero() && mutedUntil.After(now)
+}
+
 // User user
 type User struct {
 	ID             string    `xorm:"not null pk autoincr BIGINT(20) id"`
@@ -46,6 +51,8 @@ type User struct {
 	UpdatedAt      time.Time `xorm:"updated TIMESTAMP updated_at"`
 	SuspendedAt    time.Time `xorm:"TIMESTAMP suspended_at"`
 	SuspendedUntil time.Time `xorm:"DATETIME suspended_until"`
+	MutedAt        time.Time `xorm:"TIMESTAMP muted_at"`
+	MutedUntil     time.Time `xorm:"DATETIME muted_until"`
 	DeletedAt      time.Time `xorm:"TIMESTAMP deleted_at"`
 	LastLoginDate  time.Time `xorm:"TIMESTAMP last_login_date"`
 	Username       string    `xorm:"not null default '' VARCHAR(50) UNIQUE username"`

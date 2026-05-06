@@ -20,10 +20,12 @@
 package constant
 
 const (
-	UserNormal    = "normal"
-	UserSuspended = "suspended"
-	UserDeleted   = "deleted"
-	UserInactive  = "inactive"
+	UserNormal       = "normal"
+	UserSuspended    = "suspended"
+	UserDeleted      = "deleted"
+	UserInactive     = "inactive"
+	UserMuted       = "muted"
+	UserMuteCleared = "mute_cleared"
 )
 const (
 	EmailStatusAvailable    = 1

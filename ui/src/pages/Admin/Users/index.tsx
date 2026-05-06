@@ -74,9 +74,14 @@ const Users: FC = () => {
     show: false,
     userId: '',
   });
-  const [suspenseUserModalState, setSuspenseUserModalState] = useState({
+  const [suspenseUserModalState, setSuspenseUserModalState] = useState<{
+    show: boolean;
+    userId: string;
+    variant: 'suspend' | 'mute';
+  }>({
     show: false,
     userId: '',
+    variant: 'suspend',
   });
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const curFilter = urlSearchParams.get('filter') || UserFilterKeys[0];
@@ -188,8 +193,13 @@ const Users: FC = () => {
   const handleSuspenseUserModalState = (modalData: {
     show: boolean;
     userId: string;
+    variant?: 'suspend' | 'mute';
   }) => {
-    setSuspenseUserModalState(modalData);
+    setSuspenseUserModalState({
+      show: modalData.show,
+      userId: modalData.userId,
+      variant: modalData.variant || 'suspend',
+    });
   };
 
   const showAddUser =
@@ -282,6 +292,9 @@ const Users: FC = () => {
         </thead>
         <tbody className="align-middle">
           {data?.list.map((user) => {
+            const muteActive =
+              user.muted_until > 0 &&
+              user.muted_until * 1000 > new Date().getTime();
             return (
               <tr key={user.user_id}>
                 <td>
@@ -326,6 +339,11 @@ const Users: FC = () => {
                   <span className={classNames('badge', bgMap[user.status])}>
                     {t(user.status)}
                   </span>
+                  {muteActive ? (
+                    <span className="badge text-bg-warning ms-1">
+                      {t('muted_badge')}
+                    </span>
+                  ) : null}
                 </td>
                 {curFilter !== 'suspended' && curFilter !== 'deleted' && (
                   <td>
@@ -378,8 +396,10 @@ const Users: FC = () => {
           handleSuspenseUserModalState({
             show: false,
             userId: '',
+            variant: 'suspend',
           });
         }}
+        variant={suspenseUserModalState.variant}
         refreshUsers={refreshUsers}
       />
     </>

@@ -18,7 +18,7 @@
  */
 
 import { FC, useEffect, useState } from 'react';
-import { ListGroup, Dropdown } from 'react-bootstrap';
+import { ListGroup, Dropdown, Badge } from 'react-bootstrap';
 import { NavLink, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -169,12 +169,19 @@ const QuestionList: FC<Props> = ({
                   </div>
                   <h5 className="text-wrap text-break">
                     <NavLink
-                      className="link-dark d-block"
+                      className="link-dark align-middle"
                       onClick={(e) => e.stopPropagation()}
                       to={pathFactory.questionLanding(li.id, li.url_title)}>
                       {li.title}
                       {li.status === 2 ? ` [${t('closed')}]` : ''}
                     </NavLink>
+                    {li.quality === 2 ? (
+                      <Badge
+                        bg="info"
+                        className="ms-2 align-middle fw-normal text-nowrap">
+                        {t('featured_badge')}
+                      </Badge>
+                    ) : null}
                   </h5>
                   {viewType === 'card' && (
                     <div className="text-truncate-2 mb-2">

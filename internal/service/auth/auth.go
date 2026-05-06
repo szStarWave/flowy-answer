@@ -73,6 +73,7 @@ func (as *AuthService) GetUserCacheInfo(ctx context.Context, accessToken string)
 		userCacheInfo.UserStatus = cacheInfo.UserStatus
 		userCacheInfo.EmailStatus = cacheInfo.EmailStatus
 		userCacheInfo.RoleID = cacheInfo.RoleID
+		userCacheInfo.MutedUntil = cacheInfo.MutedUntil
 		// update current user cache info
 		err := as.authRepo.SetUserCacheInfo(ctx, accessToken, userCacheInfo.VisitToken, userCacheInfo)
 		if err != nil {

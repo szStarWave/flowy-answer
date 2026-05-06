@@ -90,6 +90,9 @@ func (s *ScheduledTaskManager) Run() {
 		if err != nil {
 			log.Errorf("failed to check expired user suspensions: %v", err)
 		}
+		if err := s.userAdminService.CheckAndUnmuteExpiredUsers(ctx); err != nil {
+			log.Errorf("failed to check expired user mutes: %v", err)
+		}
 	})
 	if err != nil {
 		log.Error(err)

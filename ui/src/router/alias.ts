@@ -32,6 +32,7 @@ export const RouteAlias = {
   activationSuccess: '/users/account-activation/success',
   activationFailed: '/users/account-activation/failed',
   suspended: '/users/account-suspended',
+  muted: '/users/account-muted',
   confirmNewEmail: '/users/confirm-new-email',
   confirmEmail: '/users/confirm-email',
   authLanding: '/users/auth-landing',

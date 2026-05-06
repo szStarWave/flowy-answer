@@ -252,6 +252,12 @@ const Index: FC<IProps> = ({
     if (params.operation === 'show') {
       msg = t('post_show_list', { keyPrefix: 'messages' });
     }
+    if (params.operation === 'mark_featured') {
+      msg = t('post_mark_featured', { keyPrefix: 'messages' });
+    }
+    if (params.operation === 'unmark_featured') {
+      msg = t('post_unmark_featured', { keyPrefix: 'messages' });
+    }
     toastStore.getState().show({
       msg,
       variant: 'success',
@@ -273,6 +279,30 @@ const Index: FC<IProps> = ({
         content: t('content', { keyPrefix: 'question_detail.pin' }),
         cancelBtnVariant: 'link',
         confirmText: t('confirm_btn', { keyPrefix: 'question_detail.pin' }),
+        onConfirm: () => {
+          handleCommon(params);
+        },
+      });
+    } else if (action === 'mark_featured') {
+      Modal.confirm({
+        title: t('title', { keyPrefix: 'question_detail.mark_featured' }),
+        content: t('content', { keyPrefix: 'question_detail.mark_featured' }),
+        cancelBtnVariant: 'link',
+        confirmText: t('confirm_btn', {
+          keyPrefix: 'question_detail.mark_featured',
+        }),
+        onConfirm: () => {
+          handleCommon(params);
+        },
+      });
+    } else if (action === 'unmark_featured') {
+      Modal.confirm({
+        title: t('title', { keyPrefix: 'question_detail.unmark_featured' }),
+        content: t('content', { keyPrefix: 'question_detail.unmark_featured' }),
+        cancelBtnVariant: 'link',
+        confirmText: t('confirm_btn', {
+          keyPrefix: 'question_detail.unmark_featured',
+        }),
         onConfirm: () => {
           handleCommon(params);
         },
@@ -310,7 +340,9 @@ const Index: FC<IProps> = ({
       action === 'pin' ||
       action === 'unpin' ||
       action === 'hide' ||
-      action === 'show'
+      action === 'show' ||
+      action === 'mark_featured' ||
+      action === 'unmark_featured'
     ) {
       handlOtherActions(action);
     }
@@ -332,7 +364,9 @@ const Index: FC<IProps> = ({
         v.action === 'pin' ||
         v.action === 'unpin' ||
         v.action === 'hide' ||
-        v.action === 'show',
+        v.action === 'show' ||
+        v.action === 'mark_featured' ||
+        v.action === 'unmark_featured',
     ) || [];
 
   return (

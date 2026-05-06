@@ -139,6 +139,8 @@ func (qc *QuestionController) OperationQuestion(ctx *gin.Context) {
 		permission.QuestionUnPin,
 		permission.QuestionHide,
 		permission.QuestionShow,
+		permission.QuestionMarkFeatured,
+		permission.QuestionUnmarkFeatured,
 	})
 	if err != nil {
 		handler.HandleResponse(ctx, err, nil)
@@ -146,11 +148,21 @@ func (qc *QuestionController) OperationQuestion(ctx *gin.Context) {
 	}
 	req.CanPin = canList[0]
 	req.CanList = canList[1]
+	req.CanMarkFeatured = canList[4]
+	req.CanUnmarkFeatured = canList[5]
 	if (req.Operation == schema.QuestionOperationPin || req.Operation == schema.QuestionOperationUnPin) && !req.CanPin {
 		handler.HandleResponse(ctx, errors.Forbidden(reason.RankFailToMeetTheCondition), nil)
 		return
 	}
 	if (req.Operation == schema.QuestionOperationHide || req.Operation == schema.QuestionOperationShow) && !req.CanList {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.RankFailToMeetTheCondition), nil)
+		return
+	}
+	if (req.Operation == schema.QuestionOperationMarkFeatured) && !req.CanMarkFeatured {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.RankFailToMeetTheCondition), nil)
+		return
+	}
+	if (req.Operation == schema.QuestionOperationUnmarkFeatured) && !req.CanUnmarkFeatured {
 		handler.HandleResponse(ctx, errors.Forbidden(reason.RankFailToMeetTheCondition), nil)
 		return
 	}
@@ -245,6 +257,8 @@ func (qc *QuestionController) GetQuestion(ctx *gin.Context) {
 		permission.QuestionShow,
 		permission.AnswerInviteSomeoneToAnswer,
 		permission.QuestionUnDelete,
+		permission.QuestionMarkFeatured,
+		permission.QuestionUnmarkFeatured,
 	})
 	if err != nil {
 		handler.HandleResponse(ctx, err, nil)
@@ -262,6 +276,8 @@ func (qc *QuestionController) GetQuestion(ctx *gin.Context) {
 	req.CanShow = canList[7]
 	req.CanInviteOtherToAnswer = canList[8]
 	req.CanRecover = canList[9]
+	req.CanMarkFeatured = canList[10]
+	req.CanUnmarkFeatured = canList[11]
 
 	info, err := qc.questionService.GetQuestionAndAddPV(ctx, id, userID, req)
 	if err != nil {
@@ -398,6 +414,9 @@ func (qc *QuestionController) AddQuestion(ctx *gin.Context) {
 	}()
 
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
+	if middleware.UserForbiddenIfMuted(ctx) {
+		return
+	}
 	canList, requireRanks, err := qc.rankService.CheckOperationPermissionsForRanks(ctx, req.UserID, []string{
 		permission.QuestionAdd,
 		permission.QuestionEdit,
@@ -502,6 +521,9 @@ func (qc *QuestionController) AddQuestionByAnswer(ctx *gin.Context) {
 		return
 	}
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
+	if middleware.UserForbiddenIfMuted(ctx) {
+		return
+	}
 
 	canList, err := qc.rankService.CheckOperationPermissions(ctx, req.UserID, []string{
 		permission.QuestionAdd,

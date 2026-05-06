@@ -325,6 +325,10 @@ const routes: RouteNode[] = [
       {
         path: '/users/account-suspended',
         page: 'pages/Users/Suspended',
+      },
+      {
+        path: '/users/account-muted',
+        page: 'pages/Users/Muted',
         guard: () => {
           return guard.notLogged();
         },

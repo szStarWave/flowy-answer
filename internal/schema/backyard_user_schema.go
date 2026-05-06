@@ -36,8 +36,9 @@ import (
 // UpdateUserStatusReq update user request
 type UpdateUserStatusReq struct {
 	UserID           string `validate:"required" json:"user_id"`
-	Status           string `validate:"required,oneof=normal suspended deleted inactive" json:"status" enums:"normal,suspended,deleted,inactive"`
+	Status           string `validate:"required,oneof=normal suspended deleted inactive muted mute_cleared" json:"status" enums:"normal,suspended,deleted,inactive,muted,mute_cleared"`
 	SuspendDuration  string `validate:"omitempty,oneof=24h 48h 72h 7d 14d 1m 2m 3m 6m 1y forever" json:"suspend_duration"`
+	MuteDuration     string `validate:"omitempty,oneof=24h 48h 72h 7d 14d 1m 2m 3m 6m 1y forever" json:"mute_duration"`
 	RemoveAllContent bool   `validate:"omitempty" json:"remove_all_content"`
 	LoginUserID      string `json:"-"`
 }
@@ -45,7 +46,11 @@ type UpdateUserStatusReq struct {
 func (r *UpdateUserStatusReq) IsNormal() bool    { return r.Status == constant.UserNormal }
 func (r *UpdateUserStatusReq) IsSuspended() bool { return r.Status == constant.UserSuspended }
 func (r *UpdateUserStatusReq) IsDeleted() bool   { return r.Status == constant.UserDeleted }
-func (r *UpdateUserStatusReq) IsInactive() bool  { return r.Status == constant.UserInactive }
+func (r *UpdateUserStatusReq) IsInactive() bool { return r.Status == constant.UserInactive }
+func (r *UpdateUserStatusReq) IsMuted() bool     { return r.Status == constant.UserMuted }
+func (r *UpdateUserStatusReq) IsMuteCleared() bool {
+	return r.Status == constant.UserMuteCleared
+}
 
 // GetSuspendedUntil calculates the suspended until time based on duration
 func (r *UpdateUserStatusReq) GetSuspendedUntil() time.Time {
@@ -80,6 +85,38 @@ func (r *UpdateUserStatusReq) GetSuspendedUntil() time.Time {
 	}
 }
 
+// GetMutedUntil calculates mute end time from mute_duration (same rules as suspension).
+func (r *UpdateUserStatusReq) GetMutedUntil() time.Time {
+	if !r.IsMuted() || r.MuteDuration == "" || r.MuteDuration == "forever" {
+		return entity.PermanentSuspensionTime
+	}
+	now := time.Now()
+	switch r.MuteDuration {
+	case "24h":
+		return now.Add(24 * time.Hour)
+	case "48h":
+		return now.Add(48 * time.Hour)
+	case "72h":
+		return now.Add(72 * time.Hour)
+	case "7d":
+		return now.Add(7 * 24 * time.Hour)
+	case "14d":
+		return now.Add(14 * 24 * time.Hour)
+	case "1m":
+		return now.AddDate(0, 1, 0)
+	case "2m":
+		return now.AddDate(0, 2, 0)
+	case "3m":
+		return now.AddDate(0, 3, 0)
+	case "6m":
+		return now.AddDate(0, 6, 0)
+	case "1y":
+		return now.AddDate(1, 0, 0)
+	default:
+		return entity.PermanentSuspensionTime
+	}
+}
+
 // GetUserPageReq get user list page request
 type GetUserPageReq struct {
 	// page
@@ -110,6 +147,10 @@ type GetUserPageResp struct {
 	SuspendedAt int64 `json:"suspended_at"`
 	// suspended until time
 	SuspendedUntil int64 `json:"suspended_until"`
+	// muted at (unix), 0 if never muted
+	MutedAt int64 `json:"muted_at"`
+	// muted until (unix), 0 if not muted
+	MutedUntil int64 `json:"muted_until"`
 	// username
 	Username string `json:"username"`
 	// email

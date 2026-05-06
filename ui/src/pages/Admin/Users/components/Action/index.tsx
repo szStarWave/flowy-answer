@@ -42,7 +42,11 @@ interface Props {
   currentUser;
   refreshUsers: () => void;
   showDeleteModal: (val) => void;
-  showSuspenseModal: (val) => void;
+  showSuspenseModal: (val: {
+    show: boolean;
+    userId: string;
+    variant?: 'suspend' | 'mute';
+  }) => void;
   userData;
 }
 
@@ -111,19 +115,27 @@ const UserOperation = ({
 
   const activationEmailModal = useActivationEmailModal();
 
-  const postUserStatus = (statusType) => {
+  const postUserStatus = (statusType: string) => {
     changeUserStatus({
       user_id: userData.user_id,
       status: statusType,
     }).then(() => {
+      const msgKey =
+        statusType === 'mute_cleared'
+          ? 'user_mute_cleared'
+          : `user_${statusType}`;
       toastStore.getState().show({
-        msg: t(`user_${statusType}`, { keyPrefix: 'messages' }),
+        msg: t(msgKey, { keyPrefix: 'messages' }),
         variant: 'success',
       });
       refreshUsers?.();
       // onClose();
     });
   };
+
+  const muteActive =
+    userData.muted_until > 0 &&
+    userData.muted_until * 1000 > new Date().getTime();
 
   const handleAction = (type) => {
     const { user_id, role_id, username } = userData;
@@ -171,11 +183,23 @@ const UserOperation = ({
     }
 
     if (type === 'suspend') {
-      // cons
       showSuspenseModal({
         show: true,
         userId: userData.user_id,
+        variant: 'suspend',
       });
+    }
+
+    if (type === 'mute') {
+      showSuspenseModal({
+        show: true,
+        userId: userData.user_id,
+        variant: 'mute',
+      });
+    }
+
+    if (type === 'unmute') {
+      postUserStatus('mute_cleared');
     }
 
     if (type === 'active' || type === 'unsuspend') {
@@ -232,6 +256,16 @@ const UserOperation = ({
               {userData.status === 'normal' && (
                 <Dropdown.Item onClick={() => handleAction('suspend')}>
                   {t('suspend', { keyPrefix: 'btns' })}
+                </Dropdown.Item>
+              )}
+              {userData.status === 'normal' && !muteActive && (
+                <Dropdown.Item onClick={() => handleAction('mute')}>
+                  {t('mute')}
+                </Dropdown.Item>
+              )}
+              {userData.status === 'normal' && muteActive && (
+                <Dropdown.Item onClick={() => handleAction('unmute')}>
+                  {t('unmute')}
                 </Dropdown.Item>
               )}
               {userData.status === 'suspended' && (

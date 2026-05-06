@@ -430,7 +430,7 @@ export const setupApp = async () => {
    */
   await Promise.allSettled([initAppSettingsStore(), pullLoggedUser(true)]);
   await Promise.allSettled([pullUcAgent()]);
-  setupAppLanguage();
+  await setupAppLanguage();
   setupAppTimeZone();
   setupAppTheme();
   /**

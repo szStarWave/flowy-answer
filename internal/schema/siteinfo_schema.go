@@ -112,6 +112,9 @@ type SiteQuestionsReq struct {
 	MinimumTags    int  `validate:"omitempty,gte=0,lte=5" json:"min_tags"`
 	MinimumContent int  `validate:"omitempty,gte=0,lte=65535" json:"min_content"`
 	RestrictAnswer bool `validate:"omitempty" json:"restrict_answer"`
+	// RequireReviewForNewQuestions when true, users with default User role (not admin/moderator)
+	// enter the moderation queue for new questions after reviewer plugins (plugin may still reject/delete).
+	RequireReviewForNewQuestions bool `validate:"omitempty" json:"require_review_for_new_questions"`
 }
 
 // SiteAdvancedReq site advanced settings request

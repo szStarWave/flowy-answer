@@ -51,6 +51,10 @@ backend:
       other: 列表隐藏
     unpin:
       other: 取消置顶
+    mark_featured:
+      other: 标记为优质
+    unmark_featured:
+      other: 取消优质标记
     show:
       other: 列表显示
     invite_someone_to_answer:
@@ -248,6 +252,9 @@ backend:
         other: 报告处理失败。
       not_found:
         other: 报告未找到。
+    review:
+      site_policy_submitter:
+        other: 站点策略（新问题需审核）
     tag:
       already_exist:
         other: 标签已存在。
@@ -290,6 +297,8 @@ backend:
         other: 用户未找到。
       suspended:
         other: 用户已被封禁。
+      muted:
+        other: 您已被禁言，暂时不能发布问题、回答或评论。
       username_invalid:
         other: 用户名无效。
       username_duplicate:
@@ -834,6 +843,7 @@ ui:
     account_activation: 账号激活
     confirm_email: 确认电子邮件
     account_suspended: 账号已被封禁
+    account_muted: 账号已被禁言
     admin: 后台管理
     change_email: 修改邮箱
     install: Answer 安装
@@ -877,6 +887,10 @@ ui:
     until_time: "你的账号被封禁直到 {{ time }}。"
     forever: 你的账号已被永久封禁。
     end: 你违反了我们的社区准则。
+    contact_us: 联系我们
+  muted:
+    title: 你的账号已被禁言
+    desc: 在禁言期间你不能发布新问题、回答或发表评论，但可以正常浏览站点。
     contact_us: 联系我们
   editor:
     blockquote:
@@ -1471,6 +1485,14 @@ ui:
       title: 置顶该帖子
       content: 你确定要全局置顶吗？这个帖子将出现在所有帖子列表的顶部。
       confirm_btn: 置顶
+    mark_featured:
+      title: 标记为优质
+      content: 优质帖子在所属标签下的列表中会排序靠前（仅次于置顶帖），不会在整站所有列表中全局置顶。
+      confirm_btn: 标记优质
+    unmark_featured:
+      title: 取消优质标记
+      content: 确定要取消该帖子的优质标记吗？
+      confirm_btn: 取消标记
   delete:
     title: 删除
     question: >-
@@ -1610,6 +1632,7 @@ ui:
     answered: 回答于
     asked: 提问于
     closed: 已关闭
+    featured_badge: 优质
     follow_a_tag: 关注一个标签
     more: 更多
   personal:
@@ -1985,6 +2008,14 @@ ui:
         content: 被封禁的用户将无法登录。
         label: 用户将被封禁多长时间？
         forever: 永久
+      mute_user:
+        title: 禁言此用户
+        content: 被禁言的用户仍可登录与浏览，但不能发布问题、回答或评论。
+        label: 禁言时长
+        forever: 永久
+      muted_badge: 禁言中
+      mute: 禁言
+      unmute: 解除禁言
     questions:
       page_title: 问题
       unlisted: 已隐藏
@@ -2130,6 +2161,9 @@ ui:
         title: 回答编辑
         label: 每个用户对于每个问题只能有一个回答
         text: "用户可以使用编辑按钮优化已有的回答"
+      require_review_for_new_questions:
+        label: 普通用户新问题需管理员审核
+        text: "开启后，默认「用户」角色发表的新问题会先进入审核队列；管理员与版主发帖仍直接公开。审核入口：侧栏「审查」中的待审帖子，或管理后台问题列表筛选「待审核」。"
       min_tags:
         label: "问题的最少标签数"
         text: "一个问题所需标签的最小数量。"
@@ -2434,6 +2468,8 @@ ui:
     post_cancel_deleted: 此帖子已被删除
     post_pin: 该帖子已被置顶。
     post_unpin: 该帖子已被取消置顶。
+    post_mark_featured: 该帖子已标记为优质。
+    post_unmark_featured: 已取消该帖子的优质标记。
     post_hide_list: 此帖子已经从列表中隐藏。
     post_show_list: 该帖子已显示到列表中。
     post_reopen: 这个帖子已被重新打开.
@@ -2447,6 +2483,8 @@ ui:
     user_inactive: 此用户已经处于未激活状态。
     user_normal: 此用户已经是正常的。
     user_suspended: 此用户已被封禁。
+    user_muted: 此用户已被禁言。
+    user_mute_cleared: 已解除该用户的禁言。
     user_deleted: 此用户已被删除
     user_added: 用户添加成功。
     badge_activated: 此徽章已被激活。

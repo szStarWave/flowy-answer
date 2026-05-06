@@ -20,7 +20,7 @@
 import { memo, FC, useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import {
   Tag,
@@ -47,6 +47,9 @@ interface Props {
 const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'question_detail',
+  });
+  const { t: tQuestion } = useTranslation('translation', {
+    keyPrefix: 'question',
   });
   const [searchParams] = useSearchParams();
   const [followed, setFollowed] = useState(data?.is_followed);
@@ -91,15 +94,24 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   return (
     <div>
       <h1 className="h3 mb-2 text-wrap text-break pb-1">
-        <Link
-          className="link-dark"
-          reloadDocument
-          to={pathFactory.questionLanding(data.id, data.url_title)}>
-          {data.title}
-          {data.status === 2
-            ? ` [${t('closed', { keyPrefix: 'question' })}]`
-            : ''}
-        </Link>
+        <span className="d-inline align-middle">
+          <Link
+            className="link-dark align-middle"
+            reloadDocument
+            to={pathFactory.questionLanding(data.id, data.url_title)}>
+            {data.title}
+            {data.status === 2
+              ? ` [${t('closed', { keyPrefix: 'question' })}]`
+              : ''}
+          </Link>
+          {data.quality === 2 ? (
+            <Badge
+              bg="info"
+              className="ms-2 align-middle fs-6 fw-normal text-nowrap">
+              {tQuestion('featured_badge')}
+            </Badge>
+          ) : null}
+        </span>
       </h1>
 
       <div className="d-flex flex-wrap align-items-center small mb-4 text-secondary border-bottom pb-3">
