@@ -41,8 +41,11 @@ ARG CGO_EXTRA_CFLAGS
 COPY . ${BUILD_DIR}
 WORKDIR ${BUILD_DIR}
 ENV npm_config_cache=/npm-cache
-# apk 与 BuildKit cache 同层在 Windows/Docker Desktop 上偶发 extract I/O、integrity 错误，拆成两步。
-RUN apk update && apk --no-cache add build-base git bash nodejs npm
+# apk 与 BuildKit 在 Windows/Docker Desktop 上偶发 gcc 解压 I/O / integrity 错误：先 update，再分包安装，
+# build-base（含 gcc）单独一层便于仅重试该层；仍失败时请 docker builder prune、检查磁盘与 WSL2。
+RUN apk update
+RUN apk --no-cache add git bash nodejs npm
+RUN apk --no-cache add build-base
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \

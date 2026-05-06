@@ -140,7 +140,11 @@ const routes: RouteNode[] = [
             path: 'tags/create',
             page: 'pages/Tags/Create',
             guard: () => {
-              return guard.isAdminOrModerator();
+              const g = guard.activated();
+              if (!g.ok) {
+                return g;
+              }
+              return guard.admin();
             },
           },
           {
@@ -159,7 +163,11 @@ const routes: RouteNode[] = [
             path: 'tags/:tagId/edit',
             page: 'pages/Tags/Edit',
             guard: () => {
-              return guard.activated();
+              const g = guard.activated();
+              if (!g.ok) {
+                return g;
+              }
+              return guard.admin();
             },
           },
           // for users

@@ -1046,6 +1046,11 @@ ui:
             empty: URL slug cannot be empty.
             range: URL slug up to 35 characters.
             character: URL slug contains unallowed character set.
+        display_order:
+          label: Sort order
+          desc: Lower numbers appear first in the Categories list (home sidebar). Default 0.
+          msg:
+            invalid: Enter a non-negative whole number (0 or greater).
         desc:
           label: Description
         revision:
@@ -1234,10 +1239,10 @@ ui:
       review: Review
       bookmark: Bookmarks
       moderation: Moderation
-      popular_tags: Popular tags
+      popular_tags: Categories
       popular_tags_loading: Loading…
-      popular_tags_error: Couldn't load tags. Try again or open the tags page.
-      popular_tags_none: No tags to show yet. Visit the tags page to explore.
+      popular_tags_error: Couldn't load categories. Try again later.
+      popular_tags_none: No categories to show yet.
       show_more_tags: Show more
       view_all_tags: View all tags
     search:

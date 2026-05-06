@@ -95,7 +95,7 @@ const Tags = () => {
                 />
               </Form.Group>
             </Form>
-            {role_id === 2 || role_id === 3 ? (
+            {role_id === 2 ? (
               <Link
                 className="btn btn-outline-primary btn-sm"
                 to="/tags/create">

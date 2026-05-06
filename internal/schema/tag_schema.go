@@ -88,6 +88,7 @@ type GetTagResp struct {
 	MainTagSlugName string `json:"main_tag_slug_name"`
 	Recommend       bool   `json:"recommend"`
 	Reserved        bool   `json:"reserved"`
+	DisplayOrder    int    `json:"display_order"`
 }
 
 func (tr *GetTagResp) GetExcerpt() {
@@ -125,8 +126,9 @@ type GetTagPageResp struct {
 	CreatedAt int64 `json:"created_at"`
 	// updated time
 	UpdatedAt int64 `json:"updated_at"`
-	Recommend bool  `json:"recommend"`
-	Reserved  bool  `json:"reserved"`
+	Recommend    bool `json:"recommend"`
+	Reserved     bool `json:"reserved"`
+	DisplayOrder int  `json:"display_order"`
 }
 
 func (tr *GetTagPageResp) GetExcerpt() {
@@ -174,6 +176,8 @@ type AddTagReq struct {
 	OriginalText string `validate:"required,gt=0,lte=65536" json:"original_text"`
 	// parsed text
 	ParsedText string `json:"-"`
+	// sidebar / category sort (smaller first)
+	DisplayOrder *int `json:"display_order,omitempty" validate:"omitempty,gte=0"`
 	// user id
 	UserID string `json:"-"`
 }
@@ -203,6 +207,8 @@ type UpdateTagReq struct {
 	ParsedText string `json:"-"`
 	// edit summary
 	EditSummary string `validate:"omitempty" json:"edit_summary"`
+	// sidebar / category sort (smaller first); omit to leave unchanged
+	DisplayOrder *int `json:"display_order,omitempty" validate:"omitempty,gte=0"`
 	// user id
 	UserID       string `json:"-"`
 	NoNeedReview bool   `json:"-"`
@@ -235,7 +241,7 @@ type GetTagWithPageReq struct {
 	// display_name
 	DisplayName string `validate:"omitempty,gt=0,lte=35" form:"display_name"`
 	// query condition
-	QueryCond string `validate:"omitempty,oneof=popular name newest" form:"query_cond"`
+	QueryCond string `validate:"omitempty,oneof=popular name newest category" form:"query_cond"`
 	// user id
 	UserID string `json:"-"`
 }

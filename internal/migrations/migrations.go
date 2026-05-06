@@ -109,6 +109,7 @@ var migrations = []Migration{
 	NewMigration("v1.8.1", "ai feat", aiFeat, true),
 	NewMigration("v1.8.2", "add user mute columns", addUserMuteColumns, true),
 	NewMigration("v1.8.3", "add question featured (quality) for tag ordering", addQuestionQuality, true),
+	NewMigration("v1.8.4", "add tag display_order for sidebar category sort", addTagDisplayOrder, true),
 }
 
 func GetMigrations() []Migration {

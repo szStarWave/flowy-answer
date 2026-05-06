@@ -51,6 +51,8 @@ export interface TagBase {
   original_text?: string;
   recommend?: boolean;
   reserved?: boolean;
+  /** Sidebar category list sort; smaller first */
+  display_order?: number;
 }
 
 export interface Tag extends TagBase {

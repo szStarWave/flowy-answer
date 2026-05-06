@@ -35,6 +35,7 @@ import { useTagInfo, modifyTag, useQueryRevisions } from '@/services';
 interface FormDataItem {
   displayName: Type.FormValue<string>;
   slugName: Type.FormValue<string>;
+  displayOrder: Type.FormValue<string>;
   description: Type.FormValue<string>;
   editSummary: Type.FormValue<string>;
 }
@@ -46,6 +47,11 @@ const initFormData = {
   },
   slugName: {
     value: '',
+    isInvalid: false,
+    errorMsg: '',
+  },
+  displayOrder: {
+    value: '0',
     isInvalid: false,
     errorMsg: '',
   },
@@ -84,24 +90,54 @@ const Index = () => {
   });
 
   useEffect(() => {
-    initFormData.displayName.value = data?.display_name || '';
-    initFormData.slugName.value = data?.slug_name || '';
-    initFormData.description.value = data?.original_text || '';
-    setFormData(initFormData);
-    setImmData(initFormData);
+    if (!data) {
+      return;
+    }
+    const next: FormDataItem = {
+      displayName: {
+        value: data.display_name || '',
+        isInvalid: false,
+        errorMsg: '',
+      },
+      slugName: {
+        value: data.slug_name || '',
+        isInvalid: false,
+        errorMsg: '',
+      },
+      displayOrder: {
+        value: String(data.display_order ?? 0),
+        isInvalid: false,
+        errorMsg: '',
+      },
+      description: {
+        value: data.original_text || '',
+        isInvalid: false,
+        errorMsg: '',
+      },
+      editSummary: {
+        value: '',
+        isInvalid: false,
+        errorMsg: '',
+      },
+    };
+    setFormData(next);
+    setImmData(next);
   }, [data]);
 
   useEffect(() => {
-    const { displayName, slugName, description, editSummary } = formData;
+    const { displayName, slugName, displayOrder, description, editSummary } =
+      formData;
     const {
       displayName: display_name,
       slugName: slug_name,
+      displayOrder: order_imm,
       description: original_text,
     } = immData;
 
     if (
       display_name.value !== displayName.value ||
       slug_name.value !== slugName.value ||
+      order_imm.value !== displayOrder.value ||
       original_text.value !== description.value ||
       editSummary.value
     ) {
@@ -112,6 +148,7 @@ const Index = () => {
   }, [
     formData.displayName.value,
     formData.slugName.value,
+    formData.displayOrder.value,
     formData.description.value,
     formData.editSummary.value,
   ]);
@@ -124,7 +161,7 @@ const Index = () => {
 
   const checkValidated = (): boolean => {
     let bol = true;
-    const { displayName, slugName } = formData;
+    const { displayName, slugName, displayOrder } = formData;
 
     if (!displayName.value) {
       bol = false;
@@ -178,6 +215,24 @@ const Index = () => {
       };
     }
 
+    const orderRaw = displayOrder.value.trim();
+    if (orderRaw !== '' && !/^\d+$/.test(orderRaw)) {
+      bol = false;
+      formData.displayOrder = {
+        value: displayOrder.value,
+        isInvalid: true,
+        errorMsg: t('form.fields.display_order.msg.invalid', {
+          keyPrefix: 'tag_modal',
+        }),
+      };
+    } else {
+      formData.displayOrder = {
+        value: orderRaw === '' ? '0' : orderRaw,
+        isInvalid: false,
+        errorMsg: '',
+      };
+    }
+
     setFormData({
       ...formData,
     });
@@ -193,9 +248,12 @@ const Index = () => {
       return;
     }
 
+    const orderVal = formData.displayOrder.value.trim();
+    const display_order = orderVal === '' ? 0 : parseInt(orderVal, 10);
     const params = {
       display_name: formData.displayName.value,
       slug_name: formData.slugName.value,
+      display_order,
       original_text: formData.description.value,
       parsed_text: editorRef.current.getHtml(),
       tag_id: data?.tag_id,
@@ -210,13 +268,47 @@ const Index = () => {
   };
 
   const handleSelectedRevision = (e) => {
-    const index = e.target.value;
+    const index = Number(e.target.value);
     const revision = revisions[index];
-    formData.description.value = revision.content.original_text;
-    formData.displayName.value = revision.content.display_name;
-    formData.slugName.value = revision.content.slug_name;
-    setImmData({ ...formData });
-    setFormData({ ...formData });
+    if (!revision) {
+      return;
+    }
+    const { content } = revision;
+    setFormData((prev) => {
+      const next: FormDataItem = {
+        ...prev,
+        description: {
+          ...prev.description,
+          value: content.original_text,
+          isInvalid: false,
+          errorMsg: '',
+        },
+        displayName: {
+          ...prev.displayName,
+          value: content.display_name,
+          isInvalid: false,
+          errorMsg: '',
+        },
+        slugName: {
+          ...prev.slugName,
+          value: content.slug_name,
+          isInvalid: false,
+          errorMsg: '',
+        },
+        displayOrder: {
+          ...prev.displayOrder,
+          value:
+            content.display_order !== undefined &&
+            content.display_order !== null
+              ? String(content.display_order)
+              : prev.displayOrder.value,
+          isInvalid: false,
+          errorMsg: '',
+        },
+      };
+      queueMicrotask(() => setImmData(next));
+      return next;
+    });
   };
 
   const handleDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,6 +329,18 @@ const Index = () => {
     setFormData({
       ...formData,
       slugName: { ...formData.slugName, value: e.currentTarget.value },
+    });
+  };
+
+  const handleDisplayOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      displayOrder: {
+        ...formData.displayOrder,
+        value: e.currentTarget.value,
+        isInvalid: false,
+        errorMsg: '',
+      },
     });
   };
 
@@ -283,7 +387,7 @@ const Index = () => {
               <Form.Control
                 value={formData.displayName.value}
                 isInvalid={formData.displayName.isInvalid}
-                disabled={role_id !== 2 && role_id !== 3}
+                disabled={role_id !== 2}
                 onChange={handleDisplayNameChange}
               />
 
@@ -298,7 +402,7 @@ const Index = () => {
               <Form.Control
                 value={formData.slugName.value}
                 isInvalid={formData.slugName.isInvalid}
-                disabled={role_id !== 2 && role_id !== 3}
+                disabled={role_id !== 2}
                 onChange={handleSlugNameChange}
               />
               <Form.Text as="div">
@@ -306,6 +410,30 @@ const Index = () => {
               </Form.Text>
               <Form.Control.Feedback type="invalid">
                 {formData.slugName.errorMsg}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group controlId="display_order" className="mb-3">
+              <Form.Label>
+                {t('form.fields.display_order.label', {
+                  keyPrefix: 'tag_modal',
+                })}
+              </Form.Label>
+              <Form.Control
+                type="text"
+                inputMode="numeric"
+                value={formData.displayOrder.value}
+                isInvalid={formData.displayOrder.isInvalid}
+                disabled={role_id !== 2}
+                onChange={handleDisplayOrderChange}
+              />
+              <Form.Text as="div">
+                {t('form.fields.display_order.desc', {
+                  keyPrefix: 'tag_modal',
+                })}
+              </Form.Text>
+              <Form.Control.Feedback type="invalid">
+                {formData.displayOrder.errorMsg}
               </Form.Control.Feedback>
             </Form.Group>
 

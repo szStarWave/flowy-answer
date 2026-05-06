@@ -35,6 +35,7 @@ import { TAG_SLUG_NAME_MAX_LENGTH } from '@/common/constants';
 interface FormDataItem {
   displayName: Type.FormValue<string>;
   slugName: Type.FormValue<string>;
+  displayOrder: Type.FormValue<string>;
   description: Type.FormValue<string>;
 }
 
@@ -47,6 +48,11 @@ const Index = () => {
     },
     slugName: {
       value: '',
+      isInvalid: false,
+      errorMsg: '',
+    },
+    displayOrder: {
+      value: '0',
       isInvalid: false,
       errorMsg: '',
     },
@@ -74,19 +80,18 @@ const Index = () => {
   });
 
   useEffect(() => {
-    const { displayName, slugName, description } = formData;
+    const { displayName, slugName, displayOrder, description } = formData;
     const {
       displayName: display_name,
       slugName: slug_name,
+      displayOrder: order_imm,
       description: original_text,
     } = immData;
-    if (!display_name || !slug_name || !original_text) {
-      return;
-    }
 
     if (
       display_name.value !== displayName.value ||
       slug_name.value !== slugName.value ||
+      order_imm.value !== displayOrder.value ||
       original_text.value !== description.value
     ) {
       setContentChanged(true);
@@ -96,6 +101,7 @@ const Index = () => {
   }, [
     formData.displayName.value,
     formData.slugName.value,
+    formData.displayOrder.value,
     formData.description.value,
   ]);
 
@@ -158,6 +164,23 @@ const Index = () => {
       };
     }
 
+    const orderRaw = formData.displayOrder.value.trim();
+    if (orderRaw !== '' && !/^\d+$/.test(orderRaw)) {
+      bol = false;
+      errObjKey = 'display_order';
+      formData.displayOrder = {
+        value: formData.displayOrder.value,
+        isInvalid: true,
+        errorMsg: t('form.fields.display_order.msg.invalid'),
+      };
+    } else {
+      formData.displayOrder = {
+        value: orderRaw === '' ? '0' : orderRaw,
+        isInvalid: false,
+        errorMsg: '',
+      };
+    }
+
     setFormData({
       ...formData,
     });
@@ -179,10 +202,13 @@ const Index = () => {
       return;
     }
 
+    const orderVal = formData.displayOrder.value.trim();
+    const display_order = orderVal === '' ? 0 : parseInt(orderVal, 10);
     const params = {
       display_name: formData.displayName.value,
       slug_name: formData.slugName.value,
       original_text: formData.description.value,
+      display_order,
     };
     createTag(params)
       .then((res) => {
@@ -195,6 +221,7 @@ const Index = () => {
           const data = handleFormError(err, formData, [
             { from: 'display_name', to: 'displayName' },
             { from: 'slug_name', to: 'slugName' },
+            { from: 'display_order', to: 'displayOrder' },
             { from: 'original_text', to: 'description' },
           ]);
           setFormData({ ...data });
@@ -226,6 +253,18 @@ const Index = () => {
     });
   };
 
+  const handleDisplayOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      displayOrder: {
+        ...formData.displayOrder,
+        value: e.currentTarget.value,
+        isInvalid: false,
+        errorMsg: '',
+      },
+    });
+  };
+
   usePageTags({
     title: t('create_tag', { keyPrefix: 'page_title' }),
   });
@@ -242,7 +281,7 @@ const Index = () => {
                 type="text"
                 value={formData.displayName.value}
                 isInvalid={formData.displayName.isInvalid}
-                disabled={role_id !== 2 && role_id !== 3}
+                disabled={role_id !== 2}
                 onChange={handleDisplayNameChange}
               />
 
@@ -256,12 +295,30 @@ const Index = () => {
                 type="text"
                 value={formData.slugName.value}
                 isInvalid={formData.slugName.isInvalid}
-                disabled={role_id !== 2 && role_id !== 3}
+                disabled={role_id !== 2}
                 onChange={handleSlugNameChange}
               />
               <Form.Text as="div">{t('form.fields.slug_name.desc')}</Form.Text>
               <Form.Control.Feedback type="invalid">
                 {formData.slugName.errorMsg}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group controlId="display_order" className="mb-3">
+              <Form.Label>{t('form.fields.display_order.label')}</Form.Label>
+              <Form.Control
+                type="text"
+                inputMode="numeric"
+                value={formData.displayOrder.value}
+                isInvalid={formData.displayOrder.isInvalid}
+                disabled={role_id !== 2}
+                onChange={handleDisplayOrderChange}
+              />
+              <Form.Text as="div">
+                {t('form.fields.display_order.desc')}
+              </Form.Text>
+              <Form.Control.Feedback type="invalid">
+                {formData.displayOrder.errorMsg}
               </Form.Control.Feedback>
             </Form.Group>
 

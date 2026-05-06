@@ -11,7 +11,7 @@
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
@@ -22,7 +22,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from 'react-bootstrap';
 
-import Tag from '@/components/Tag';
+import { pathFactory } from '@/router/pathFactory';
 import type { TagInfo } from '@/common/interface';
 import { useQueryTags } from '@/services';
 
@@ -39,7 +39,7 @@ const Index: FC = () => {
   } = useQueryTags({
     page: 1,
     page_size: SIDEBAR_TAG_PAGE_SIZE,
-    query_cond: 'popular',
+    query_cond: 'category',
   });
 
   const { tags, total } = useMemo(() => {
@@ -67,9 +67,7 @@ const Index: FC = () => {
           {t('popular_tags_error')}
         </div>
         <div className="small">
-          <Link
-            className="link-secondary text-decoration-none"
-            to="/tags?sort=popular">
+          <Link className="link-secondary text-decoration-none" to="/tags">
             {t('view_all_tags')}
           </Link>
         </div>
@@ -82,9 +80,7 @@ const Index: FC = () => {
           {t('popular_tags_none')}
         </div>
         <div className="small">
-          <Link
-            className="link-secondary text-decoration-none"
-            to="/tags?sort=popular">
+          <Link className="link-secondary text-decoration-none" to="/tags">
             {t('view_all_tags')}
           </Link>
         </div>
@@ -93,16 +89,20 @@ const Index: FC = () => {
   } else {
     body = (
       <>
-        <div className="m-n1 px-1 side-nav-popular-tags__chips d-flex flex-wrap">
+        <div className="side-nav-popular-tags__list d-flex flex-column gap-1 px-1">
           {tags.map((item) => (
-            <Tag key={item.slug_name} className="m-1" data={item} />
+            <Link
+              key={item.slug_name}
+              className="side-nav-popular-tags__link small text-decoration-none text-body text-truncate"
+              to={pathFactory.tagLanding(item.slug_name)}
+              title={item.display_name}>
+              {item.display_name || item.slug_name}
+            </Link>
           ))}
         </div>
         {total > tags.length ? (
           <div className="pt-1 small">
-            <Link
-              className="link-secondary text-decoration-none"
-              to="/tags?sort=popular">
+            <Link className="link-secondary text-decoration-none" to="/tags">
               {t('view_all_tags')}
             </Link>
           </div>

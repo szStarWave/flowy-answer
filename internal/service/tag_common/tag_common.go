@@ -349,11 +349,16 @@ func (ts *TagCommonService) AddTag(ctx context.Context, req *schema.AddTagReq) (
 	}
 	slugName := strings.ReplaceAll(req.SlugName, " ", "-")
 	slugName = strings.ToLower(slugName)
+	displayOrder := 0
+	if req.DisplayOrder != nil {
+		displayOrder = *req.DisplayOrder
+	}
 	tagInfo := &entity.Tag{
 		SlugName:     slugName,
 		DisplayName:  req.DisplayName,
 		OriginalText: req.OriginalText,
 		ParsedText:   req.ParsedText,
+		DisplayOrder: displayOrder,
 		Status:       entity.TagStatusAvailable,
 		UserID:       req.UserID,
 	}
@@ -883,20 +888,32 @@ func (ts *TagCommonService) UpdateTag(ctx context.Context, req *schema.UpdateTag
 	}
 
 	// Adding equivalent slug formatting for tag update
-	slugName := strings.ReplaceAll(req.SlugName, " ", "-")
+	slugName := strings.ReplaceAll(strings.TrimSpace(req.SlugName), " ", "-")
 	slugName = strings.ToLower(slugName)
+	if slugName == "" {
+		slugName = tagInfo.SlugName
+	}
 
-	// If the content is the same, ignore it
-	if tagInfo.OriginalText == req.OriginalText &&
+	contentSame := tagInfo.OriginalText == req.OriginalText &&
 		tagInfo.DisplayName == req.DisplayName &&
-		tagInfo.SlugName == slugName {
+		tagInfo.SlugName == slugName
+	orderSame := true
+	if req.DisplayOrder != nil {
+		orderSame = *req.DisplayOrder == tagInfo.DisplayOrder
+	}
+	if contentSame && orderSame {
 		return nil
 	}
 
-	tagInfo.SlugName = slugName
-	tagInfo.DisplayName = req.DisplayName
-	tagInfo.OriginalText = req.OriginalText
-	tagInfo.ParsedText = req.ParsedText
+	if req.DisplayOrder != nil {
+		tagInfo.DisplayOrder = *req.DisplayOrder
+	}
+	if !contentSame {
+		tagInfo.SlugName = slugName
+		tagInfo.DisplayName = req.DisplayName
+		tagInfo.OriginalText = req.OriginalText
+		tagInfo.ParsedText = req.ParsedText
+	}
 
 	revisionDTO := &schema.AddRevisionDTO{
 		UserID:   req.UserID,
@@ -911,7 +928,7 @@ func (ts *TagCommonService) UpdateTag(ctx context.Context, req *schema.UpdateTag
 		if err != nil {
 			return err
 		}
-		if tagInfo.MainTagID == 0 && len(req.SlugName) > 0 {
+		if tagInfo.MainTagID == 0 && !contentSame {
 			log.Debugf("tag %s update slug_name", tagInfo.SlugName)
 			tagList, err := ts.tagRepo.GetTagList(ctx, &entity.Tag{MainTagID: converter.StringToInt64(tagInfo.ID)})
 			if err != nil {

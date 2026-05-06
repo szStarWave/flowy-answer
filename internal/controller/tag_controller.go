@@ -101,6 +101,11 @@ func (tc *TagController) RemoveTag(ctx *gin.Context) {
 		return
 	}
 
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
+		return
+	}
+
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
 	can, err := tc.rankService.CheckOperationPermission(ctx, req.UserID, permission.TagDelete, "")
 	if err != nil {
@@ -128,6 +133,11 @@ func (tc *TagController) RemoveTag(ctx *gin.Context) {
 func (tc *TagController) AddTag(ctx *gin.Context) {
 	req := &schema.AddTagReq{}
 	if handler.BindAndCheck(ctx, req) {
+		return
+	}
+
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
 		return
 	}
 
@@ -161,6 +171,11 @@ func (tc *TagController) AddTag(ctx *gin.Context) {
 func (tc *TagController) UpdateTag(ctx *gin.Context) {
 	req := &schema.UpdateTagReq{}
 	if handler.BindAndCheck(ctx, req) {
+		return
+	}
+
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
 		return
 	}
 
@@ -202,6 +217,12 @@ func (tc *TagController) RecoverTag(ctx *gin.Context) {
 	if handler.BindAndCheck(ctx, req) {
 		return
 	}
+
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
+		return
+	}
+
 	req.UserID = middleware.GetLoginUserIDFromContext(ctx)
 
 	canList, err := tc.rankService.CheckOperationPermissions(ctx, req.UserID, []string{
@@ -250,6 +271,12 @@ func (tc *TagController) GetTagInfo(ctx *gin.Context) {
 	req.CanDelete = canList[1]
 	req.CanRecover = canList[2]
 	req.CanMerge = middleware.GetUserIsAdminModerator(ctx)
+	if !middleware.GetIsAdminFromContext(ctx) {
+		req.CanEdit = false
+		req.CanDelete = false
+		req.CanRecover = false
+		req.CanMerge = false
+	}
 
 	resp, err := tc.tagService.GetTagInfo(ctx, req)
 	handler.HandleResponse(ctx, err, resp)
@@ -263,7 +290,7 @@ func (tc *TagController) GetTagInfo(ctx *gin.Context) {
 // @Param page query int false "page size"
 // @Param page_size query int false "page size"
 // @Param slug_name query string false "slug_name"
-// @Param query_cond query string false "query condition" Enums(popular, name, newest)
+// @Param query_cond query string false "query condition" Enums(popular, name, newest, category)
 // @Success 200 {object} handler.RespBody{data=pager.PageModel{list=[]schema.GetTagPageResp}}
 // @Router /answer/api/v1/tags/page [get]
 func (tc *TagController) GetTagWithPage(ctx *gin.Context) {
@@ -321,6 +348,9 @@ func (tc *TagController) GetTagSynonyms(ctx *gin.Context) {
 		return
 	}
 	req.CanEdit = can
+	if !middleware.GetIsAdminFromContext(ctx) {
+		req.CanEdit = false
+	}
 
 	resp, err := tc.tagService.GetTagSynonyms(ctx, req)
 	handler.HandleResponse(ctx, err, resp)
@@ -339,6 +369,11 @@ func (tc *TagController) GetTagSynonyms(ctx *gin.Context) {
 func (tc *TagController) UpdateTagSynonym(ctx *gin.Context) {
 	req := &schema.UpdateTagSynonymReq{}
 	if handler.BindAndCheck(ctx, req) {
+		return
+	}
+
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
 		return
 	}
 
@@ -373,9 +408,8 @@ func (tc *TagController) MergeTag(ctx *gin.Context) {
 		return
 	}
 
-	isAdminModerator := middleware.GetUserIsAdminModerator(ctx)
-	if !isAdminModerator {
-		handler.HandleResponse(ctx, errors.Forbidden(reason.RankFailToMeetTheCondition), nil)
+	if !middleware.GetIsAdminFromContext(ctx) {
+		handler.HandleResponse(ctx, errors.Forbidden(reason.ForbiddenError), nil)
 		return
 	}
 

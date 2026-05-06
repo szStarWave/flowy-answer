@@ -17,21 +17,19 @@
  * under the License.
  */
 
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g main.go -d . -o ../../docs --parseInternal
-
-package main
+package migrations
 
 import (
-	answercmd "github.com/apache/answer/cmd"
+	"context"
+	"fmt"
+
+	"github.com/apache/answer/internal/entity"
+	"xorm.io/xorm"
 )
 
-// main godoc
-// @title Apache Answer
-// @description Apache Answer API
-// @BasePath /
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-func main() {
-	answercmd.Main()
+func addTagDisplayOrder(ctx context.Context, x *xorm.Engine) error {
+	if err := x.Context(ctx).Sync(new(entity.Tag)); err != nil {
+		return fmt.Errorf("sync tag display_order column failed: %w", err)
+	}
+	return nil
 }

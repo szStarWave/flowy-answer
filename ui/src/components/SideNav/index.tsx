@@ -61,14 +61,16 @@ const Index: FC = () => {
         </NavLink>
       )}
 
-      <NavLink
-        to="/tags"
-        className={() =>
-          pathname === '/tags' ? 'nav-link active' : 'nav-link'
-        }>
-        <Icon name="tags-fill" className="me-2" />
-        <span>{t('header.nav.tag')}</span>
-      </NavLink>
+      {userInfo?.role_id === 2 ? (
+        <NavLink
+          to="/tags"
+          className={() =>
+            pathname === '/tags' ? 'nav-link active' : 'nav-link'
+          }>
+          <Icon name="tags-fill" className="me-2" />
+          <span>{t('header.nav.tag')}</span>
+        </NavLink>
+      ) : null}
 
       <NavLink to="/users" className="nav-link">
         <Icon name="people-fill" className="me-2" />

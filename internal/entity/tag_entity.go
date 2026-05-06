@@ -47,6 +47,7 @@ type Tag struct {
 	Status          int       `xorm:"not null default 1 INT(11) status"`
 	Recommend       bool      `xorm:"not null default false BOOL recommend"`
 	Reserved        bool      `xorm:"not null default false BOOL reserved"`
+	DisplayOrder    int       `xorm:"not null default 0 INT(11) display_order"`
 	RevisionID      string    `xorm:"not null default 0 BIGINT(20) revision_id"`
 	UserID          string    `xorm:"not null default 0 BIGINT(20) user_id"`
 }

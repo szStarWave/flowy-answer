@@ -1035,6 +1035,11 @@ ui:
             empty: URL 固定链接不能为空。
             range: URL 固定链接不能超过 35 个字符。
             character: URL 固定链接包含非法字符。
+        display_order:
+          label: 排序
+          desc: 数字越小在首页「类别」列表中越靠前，默认 0。
+          msg:
+            invalid: 请输入非负整数（0 及以上）。
         desc:
           label: 描述
         revision:
@@ -1216,10 +1221,10 @@ ui:
       review: 审查
       bookmark: 收藏夹
       moderation: 管理
-      popular_tags: 热门标签
+      popular_tags: 类别
       popular_tags_loading: 加载中…
-      popular_tags_error: 加载失败，请稍后重试或前往标签页。
-      popular_tags_none: 暂无热门标签，可前往标签页浏览。
+      popular_tags_error: 加载失败，请稍后重试。
+      popular_tags_none: 暂无类别展示。
       show_more_tags: 显示更多
       view_all_tags: 查看全部标签
     search:

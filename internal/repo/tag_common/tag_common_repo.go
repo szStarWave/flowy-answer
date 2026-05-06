@@ -111,7 +111,7 @@ func (tr *tagCommonRepo) GetRecommendTagList(ctx context.Context) (tagList []*en
 	session := tr.data.DB.Context(ctx).Where("")
 	cond.Recommend = true
 	// session.Where(builder.Eq{"status": entity.TagStatusAvailable})
-	session.Asc("slug_name")
+	session.Asc("display_order").Asc("slug_name")
 	session.UseBool("recommend")
 	err = session.Find(&tagList, cond)
 	if err != nil {
@@ -196,6 +196,8 @@ func (tr *tagCommonRepo) GetTagPage(ctx context.Context, page, pageSize int, tag
 		session.Asc("slug_name")
 	case "newest":
 		session.Desc("created_at")
+	case "category":
+		session.Asc("display_order").Asc("slug_name")
 	}
 
 	total, err = pager.Help(page, pageSize, &tagList, tag, session)

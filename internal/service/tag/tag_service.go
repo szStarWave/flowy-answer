@@ -184,6 +184,7 @@ func (ts *TagService) GetTagInfo(ctx context.Context, req *schema.GetTagInfoReq)
 	resp.QuestionCount = tagInfo.QuestionCount
 	resp.Recommend = tagInfo.Recommend
 	resp.Reserved = tagInfo.Reserved
+	resp.DisplayOrder = tagInfo.DisplayOrder
 	resp.IsFollower = ts.checkTagIsFollow(ctx, req.UserID, tagInfo.ID)
 	resp.Status = entity.TagStatusDisplayMapping[tagInfo.Status]
 	resp.MemberActions = permission.GetTagPermission(ctx, tagInfo.Status, req.CanEdit, req.CanDelete, req.CanMerge, req.CanRecover)
@@ -429,6 +430,7 @@ func (ts *TagService) GetTagWithPage(ctx context.Context, req *schema.GetTagWith
 			UpdatedAt:     tag.UpdatedAt.Unix(),
 			Recommend:     tag.Recommend,
 			Reserved:      tag.Reserved,
+			DisplayOrder:  tag.DisplayOrder,
 		}
 		item.GetExcerpt()
 		resp = append(resp, item)
