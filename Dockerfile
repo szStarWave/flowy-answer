@@ -23,7 +23,7 @@ FROM golang:1.24-alpine AS golang-builder
 LABEL maintainer="linkinstar@apache.org"
 
 # 多源回退；goproxy.cn 偶发 unexpected EOF，故不把其放首位。国内可：--build-arg GOPROXY=https://goproxy.cn,direct
-ARG GOPROXY=https://proxy.golang.org,https://goproxy.io,https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+ARG GOPROXY=https://goproxy.cn,https://proxy.golang.org,https://goproxy.io,direct
 ENV GOPROXY=${GOPROXY}
 ARG GOSUMDB=sum.golang.google.cn
 ENV GOSUMDB=${GOSUMDB}

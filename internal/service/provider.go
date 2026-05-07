@@ -40,6 +40,7 @@ import (
 	"github.com/apache/answer/internal/service/export"
 	"github.com/apache/answer/internal/service/feature_toggle"
 	"github.com/apache/answer/internal/service/file_record"
+	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/follow"
 	"github.com/apache/answer/internal/service/importer"
 	"github.com/apache/answer/internal/service/meta"
@@ -120,6 +121,7 @@ var ProviderSetService = wire.NewSet(
 	noticequeue.NewService,
 	activityqueue.NewService,
 	user_notification_config.NewUserNotificationConfigService,
+	forum_inbox.NewClient,
 	notification.NewExternalNotificationService,
 	noticequeue.NewExternalService,
 	review.NewReviewService,

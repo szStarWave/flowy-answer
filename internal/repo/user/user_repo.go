@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/apache/answer/internal/base/data"
+	"github.com/apache/answer/internal/base/pager"
 	"github.com/apache/answer/internal/base/reason"
 	"github.com/apache/answer/internal/entity"
 	"github.com/apache/answer/internal/schema"
@@ -255,6 +256,23 @@ func (ur *userRepo) GetUserCount(ctx context.Context) (count int64, err error) {
 		return count, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
 	return count, nil
+}
+
+// ListAvailableUsersWithEmailPage returns active users with non-empty email, ordered by id, for outbound integrations.
+func (ur *userRepo) ListAvailableUsersWithEmailPage(ctx context.Context, page, pageSize int) (
+	users []*entity.User, total int64, err error) {
+	users = make([]*entity.User, 0)
+	// LENGTH(TRIM(...)) 在 SQLite / MySQL 上行为一致，避免仅 TRIM 比较在部分驱动下不命中
+	session := ur.data.DB.Context(ctx).
+		Where("status = ?", entity.UserStatusAvailable).
+		And("LENGTH(TRIM(COALESCE(e_mail, ''))) > 0")
+	session.OrderBy("`user`.id ASC")
+	total, err = pager.Help(page, pageSize, &users, &entity.User{}, session)
+	if err != nil {
+		return nil, 0, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	tryToDecorateUserListFromUserCenter(ctx, ur.data, users)
+	return users, total, nil
 }
 
 func (ur *userRepo) SearchUserListByName(ctx context.Context, name string, limit int,

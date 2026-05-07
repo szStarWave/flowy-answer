@@ -28,6 +28,7 @@ import (
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/activity_common"
 	"github.com/apache/answer/internal/service/export"
+	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/noticequeue"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	usercommon "github.com/apache/answer/internal/service/user_common"
@@ -45,6 +46,7 @@ type ExternalNotificationService struct {
 	notificationQueueService   noticequeue.ExternalService
 	userExternalLoginRepo      user_external_login.UserExternalLoginRepo
 	siteInfoService            siteinfo_common.SiteInfoCommonService
+	forumInboxClient           *forum_inbox.Client
 }
 
 func NewExternalNotificationService(
@@ -56,6 +58,7 @@ func NewExternalNotificationService(
 	notificationQueueService noticequeue.ExternalService,
 	userExternalLoginRepo user_external_login.UserExternalLoginRepo,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
+	forumInboxClient *forum_inbox.Client,
 ) *ExternalNotificationService {
 	n := &ExternalNotificationService{
 		data:                       data,
@@ -66,6 +69,7 @@ func NewExternalNotificationService(
 		notificationQueueService:   notificationQueueService,
 		userExternalLoginRepo:      userExternalLoginRepo,
 		siteInfoService:            siteInfoService,
+		forumInboxClient:           forumInboxClient,
 	}
 	notificationQueueService.RegisterHandler(n.Handler)
 	return n

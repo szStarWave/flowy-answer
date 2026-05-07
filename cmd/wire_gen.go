@@ -92,6 +92,7 @@ import (
 	"github.com/apache/answer/internal/service/feature_toggle"
 	file_record2 "github.com/apache/answer/internal/service/file_record"
 	"github.com/apache/answer/internal/service/follow"
+	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/importer"
 	meta2 "github.com/apache/answer/internal/service/meta"
 	"github.com/apache/answer/internal/service/meta_common"
@@ -211,7 +212,8 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	tagService := tag2.NewTagService(tagRepo, tagCommonService, revisionService, followRepo, siteInfoCommonService, service)
 	answerActivityRepo := activity.NewAnswerActivityRepo(dataData, activityRepo, userRankRepo, noticequeueService)
 	answerActivityService := activity2.NewAnswerActivityService(answerActivityRepo, configService)
-	externalNotificationService := notification.NewExternalNotificationService(dataData, userNotificationConfigRepo, followRepo, emailService, userRepo, externalService, userExternalLoginRepo, siteInfoCommonService)
+	forumInboxClient := forum_inbox.NewClient()
+	externalNotificationService := notification.NewExternalNotificationService(dataData, userNotificationConfigRepo, followRepo, emailService, userRepo, externalService, userExternalLoginRepo, siteInfoCommonService, forumInboxClient)
 	questionService := content.NewQuestionService(activityRepo, questionRepo, answerRepo, tagCommonService, tagService, questionCommon, userCommon, userRepo, userRoleRelService, revisionService, metaCommonService, collectionCommon, answerActivityService, emailService, noticequeueService, externalService, service, siteInfoCommonService, externalNotificationService, reviewService, configService, eventqueueService, reviewRepo)
 	answerService := content.NewAnswerService(answerRepo, questionRepo, questionCommon, userCommon, collectionCommon, userRepo, revisionService, answerActivityService, answerCommon, voteRepo, emailService, userRoleRelService, noticequeueService, externalService, service, reviewService, eventqueueService)
 	reportHandle := report_handle.NewReportHandle(questionService, answerService, commentService)

@@ -44,6 +44,8 @@ type NewQuestionSubscriber struct {
 func (ns *ExternalNotificationService) handleNewQuestionNotification(ctx context.Context,
 	msg *schema.ExternalNotificationMsg) error {
 	log.Debugf("try to send new question notification %+v", msg)
+	defer ns.tryForumInboxBroadcastNewQuestion(ctx, msg)
+
 	subscribers, err := ns.getNewQuestionSubscribers(ctx, msg)
 	if err != nil {
 		return err

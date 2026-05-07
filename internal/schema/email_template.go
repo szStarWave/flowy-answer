@@ -133,6 +133,7 @@ type NewQuestionTemplateRawData struct {
 	QuestionID           string
 	UnsubscribeCode      string
 	Tags                 []string
+	TagDisplayNames      []string
 	TagIDs               []string
 }
 

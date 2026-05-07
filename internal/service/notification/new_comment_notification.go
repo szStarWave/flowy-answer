@@ -32,21 +32,22 @@ import (
 func (ns *ExternalNotificationService) handleNewCommentNotification(ctx context.Context,
 	msg *schema.ExternalNotificationMsg) error {
 	log.Debugf("try to send new comment notification %+v", msg)
+	// 主站站内信与「站内邮件通知配置」无关；defer 保证读取配置失败时仍会尝试投递。
+	defer ns.tryForumInboxNewComment(ctx, msg)
 
 	notificationConfig, exist, err := ns.userNotificationConfigRepo.GetByUserIDAndSource(ctx, msg.ReceiverUserID, constant.InboxSource)
 	if err != nil {
 		return err
 	}
-	if !exist {
-		return nil
-	}
-	channels := schema.NewNotificationChannelsFormJson(notificationConfig.Channels)
-	for _, channel := range channels {
-		if !channel.Enable {
-			continue
-		}
-		if channel.Key == constant.EmailChannel {
-			ns.sendNewCommentNotificationEmail(ctx, msg.ReceiverUserID, msg.ReceiverEmail, msg.ReceiverLang, msg.NewCommentTemplateRawData)
+	if exist {
+		channels := schema.NewNotificationChannelsFormJson(notificationConfig.Channels)
+		for _, channel := range channels {
+			if !channel.Enable {
+				continue
+			}
+			if channel.Key == constant.EmailChannel {
+				ns.sendNewCommentNotificationEmail(ctx, msg.ReceiverUserID, msg.ReceiverEmail, msg.ReceiverLang, msg.NewCommentTemplateRawData)
+			}
 		}
 	}
 	return nil

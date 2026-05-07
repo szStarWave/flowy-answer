@@ -47,6 +47,7 @@ func CreateNewQuestionNotificationMsg(
 	}
 	for _, tag := range tags {
 		msg.NewQuestionTemplateRawData.Tags = append(msg.NewQuestionTemplateRawData.Tags, tag.SlugName)
+		msg.NewQuestionTemplateRawData.TagDisplayNames = append(msg.NewQuestionTemplateRawData.TagDisplayNames, tag.DisplayName)
 		msg.NewQuestionTemplateRawData.TagIDs = append(msg.NewQuestionTemplateRawData.TagIDs, tag.ID)
 	}
 	return msg

@@ -32,21 +32,21 @@ import (
 func (ns *ExternalNotificationService) handleNewAnswerNotification(ctx context.Context,
 	msg *schema.ExternalNotificationMsg) error {
 	log.Debugf("try to send new comment notification %+v", msg)
+	defer ns.tryForumInboxNewAnswer(ctx, msg)
 
 	notificationConfig, exist, err := ns.userNotificationConfigRepo.GetByUserIDAndSource(ctx, msg.ReceiverUserID, constant.InboxSource)
 	if err != nil {
 		return err
 	}
-	if !exist {
-		return nil
-	}
-	channels := schema.NewNotificationChannelsFormJson(notificationConfig.Channels)
-	for _, channel := range channels {
-		if !channel.Enable {
-			continue
-		}
-		if channel.Key == constant.EmailChannel {
-			ns.sendNewAnswerNotificationEmail(ctx, msg.ReceiverUserID, msg.ReceiverEmail, msg.ReceiverLang, msg.NewAnswerTemplateRawData)
+	if exist {
+		channels := schema.NewNotificationChannelsFormJson(notificationConfig.Channels)
+		for _, channel := range channels {
+			if !channel.Enable {
+				continue
+			}
+			if channel.Key == constant.EmailChannel {
+				ns.sendNewAnswerNotificationEmail(ctx, msg.ReceiverUserID, msg.ReceiverEmail, msg.ReceiverLang, msg.NewAnswerTemplateRawData)
+			}
 		}
 	}
 	return nil

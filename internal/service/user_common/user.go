@@ -60,6 +60,7 @@ type UserRepo interface {
 	GetByUsernames(ctx context.Context, usernames []string) ([]*entity.User, error)
 	GetByEmail(ctx context.Context, email string) (userInfo *entity.User, exist bool, err error)
 	GetUserCount(ctx context.Context) (count int64, err error)
+	ListAvailableUsersWithEmailPage(ctx context.Context, page, pageSize int) (users []*entity.User, total int64, err error)
 	SearchUserListByName(ctx context.Context, name string, limit int, onlyStaff bool) (userList []*entity.User, err error)
 	IsAvatarFileUsed(ctx context.Context, filePath string) (bool, error)
 }
