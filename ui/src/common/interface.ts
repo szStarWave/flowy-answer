@@ -237,11 +237,19 @@ export interface NotificationStatus {
   badge_award: NotificationBadgeAward | null;
 }
 
+export interface ContentHeading {
+  id: string;
+  level: number;
+  text: string;
+}
+
 export interface QuestionDetailRes {
   id: string;
   title: string;
   content: string;
   html: string;
+  content_outline?: ContentHeading[];
+  renderer_version?: string;
   tags: any[];
   view_count: number;
   unique_view_count?: number;
@@ -270,6 +278,8 @@ export interface AnswerItem {
   question_id: string;
   content: string;
   html: string;
+  content_outline?: ContentHeading[];
+  renderer_version?: string;
   create_time: string;
   update_time: string;
   user_info: UserInfoBase;

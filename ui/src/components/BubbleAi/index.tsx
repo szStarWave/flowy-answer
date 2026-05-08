@@ -21,11 +21,11 @@ import { FC, useEffect, useState, useRef } from 'react';
 import { Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import { marked } from 'marked';
 import copy from 'copy-to-clipboard';
+import { marked } from 'marked';
 
-import { voteConversation } from '@/services';
 import { Icon, htmlRender } from '@/components';
+import { voteConversation, renderPostMarkdown } from '@/services';
 
 interface IProps {
   canType?: boolean;
@@ -67,6 +67,7 @@ const BubbleAi: FC<IProps> = ({
   const fmtContainer = useRef<HTMLDivElement>(null);
   // add ref for ScrollIntoView
   const containerRef = useRef<HTMLDivElement>(null);
+  const [completedHtml, setCompletedHtml] = useState('');
 
   const handleCopy = () => {
     const res = copy(displayContent);
@@ -200,18 +201,42 @@ const BubbleAi: FC<IProps> = ({
   }, [actionData]);
 
   useEffect(() => {
-    if (fmtContainer.current && isCompleted) {
-      htmlRender(fmtContainer.current, {
-        copySuccessText: t('copied', { keyPrefix: 'messages' }),
-        copyText: t('copy', { keyPrefix: 'messages' }),
-      });
-      const links = fmtContainer.current.querySelectorAll('a');
-      links.forEach((link) => {
-        link.setAttribute('target', '_blank');
-      });
-      setCanShowAction(true);
+    if (!isCompleted || !content) {
+      setCompletedHtml('');
+      return undefined;
     }
-  }, [isCompleted, fmtContainer.current]);
+    let cancelled = false;
+    renderPostMarkdown(content)
+      .then((r) => {
+        if (cancelled) {
+          return;
+        }
+        setCompletedHtml(typeof r === 'string' ? r : r.html);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCompletedHtml('');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isCompleted, content, chatId]);
+
+  useEffect(() => {
+    if (!fmtContainer.current || !isCompleted) {
+      return;
+    }
+    htmlRender(fmtContainer.current, {
+      copySuccessText: t('copied', { keyPrefix: 'messages' }),
+      copyText: t('copy', { keyPrefix: 'messages' }),
+    });
+    const links = fmtContainer.current.querySelectorAll('a');
+    links.forEach((link) => {
+      link.setAttribute('target', '_blank');
+    });
+    setCanShowAction(true);
+  }, [isCompleted, completedHtml, t]);
 
   return (
     <div
@@ -223,7 +248,12 @@ const BubbleAi: FC<IProps> = ({
           className="fmt text-break text-wrap"
           ref={fmtContainer}
           style={{ transition: 'all 0.2s ease' }}
-          dangerouslySetInnerHTML={{ __html: marked.parse(displayContent) }}
+          dangerouslySetInnerHTML={{
+            __html:
+              isCompleted && completedHtml
+                ? completedHtml
+                : marked.parse(displayContent),
+          }}
         />
 
         {canShowAction && (

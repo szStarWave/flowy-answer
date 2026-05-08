@@ -17,10 +17,21 @@
  * under the License.
  */
 
+/* Editor + live preview: always stacked (editor first, preview below) so preview is not mistaken for a second input */
+.md-editor-with-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.md-editor-preview-outer {
+  width: 100%;
+}
+
 .md-editor-wrap {
   display: flex;
   flex-direction: column;
-  background-color: var(-bs-body-bg);
+  background-color: var(--bs-body-bg);
   border: 1px solid var(--an-ced4da);
   overflow: hidden;
   .toolbar-wrap {
@@ -166,7 +177,36 @@
       color: var(--an-editor-placeholder-color);
     }
   }
+
+  .mdx-visual-post-editor {
+    flex: 1 1 auto;
+    min-height: 14rem;
+    max-height: min(82vh, 960px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 15px;
+    line-height: 1.55;
+
+    .mdx-visual-post-editor__root {
+      min-height: 28rem;
+    }
+
+    .mdxeditor {
+      font-size: 15px;
+    }
+
+    .mdxeditor-root-contenteditable {
+      min-height: 26rem;
+    }
+
+    /* MDXEditor ships light UI; keep readable in dark theme */
+    [data-bs-theme='dark'] & {
+      --basePageBg: var(--bs-body-bg, #212529);
+      --baseText: var(--bs-body-color, #dee2e6);
+    }
+  }
 }
+
 .preview-wrap {
   overflow-y: auto;
   min-height: 20px;
@@ -174,4 +214,42 @@
   img {
     max-width: 100%;
   }
+
+  .an-diagram {
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    .an-diagram__out {
+      max-width: 100%;
+    }
+    .an-diagram__out svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+}
+
+/* Preview below editor: long HTML scrolls inside the preview pane */
+.md-editor-preview-outer > .img-viewer,
+.md-editor-preview-outer .md-editor-preview-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-editor-preview-outer .editor-preview-scroll-region {
+  max-height: min(75vh, 840px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.md-editor-preview-outer .editor-preview-scroll-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.md-editor-preview-outer .editor-preview-scroll-region .preview-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
 }

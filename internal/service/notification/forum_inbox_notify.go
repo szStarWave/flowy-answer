@@ -43,7 +43,7 @@ func (ns *ExternalNotificationService) tryForumInboxNewAnswer(ctx context.Contex
 		return
 	}
 	userInfo, exist, err := ns.userRepo.GetByUserID(ctx, msg.ReceiverUserID)
-	if err != nil || !exist {
+	if err != nil || !exist || userInfo == nil {
 		if err != nil {
 			log.Errorf("forum inbox: load receiver for new-answer push: %v", err)
 		}
@@ -78,7 +78,7 @@ func (ns *ExternalNotificationService) tryForumInboxNewComment(ctx context.Conte
 		return
 	}
 	userInfo, exist, err := ns.userRepo.GetByUserID(ctx, msg.ReceiverUserID)
-	if err != nil || !exist {
+	if err != nil || !exist || userInfo == nil {
 		if err != nil {
 			log.Errorf("forum inbox: load receiver for new-comment push: %v", err)
 		}
@@ -213,38 +213,51 @@ func (ns *ExternalNotificationService) ctxWithUserLanguage(ctx context.Context, 
 }
 
 func (ns *ExternalNotificationService) buildQuestionLinkURL(ctx context.Context, questionID, title string) string {
+	if ns.siteInfoService == nil {
+		return ""
+	}
 	siteInfo, err := ns.siteInfoService.GetSiteGeneral(ctx)
-	if err != nil {
-		log.Errorf("forum inbox question link: %v", err)
+	if err != nil || siteInfo == nil {
+		if err != nil {
+			log.Errorf("forum inbox question link: %v", err)
+		}
 		return ""
 	}
 	seoInfo, err := ns.siteInfoService.GetSiteSeo(ctx)
-	if err != nil {
-		log.Errorf("forum inbox question link: %v", err)
+	if err != nil || seoInfo == nil {
+		if err != nil {
+			log.Errorf("forum inbox question link: %v", err)
+		}
 		return ""
 	}
 	return display.QuestionURL(seoInfo.Permalink, siteInfo.SiteUrl, questionID, title)
 }
 
 func (ns *ExternalNotificationService) buildAnswerLinkURL(ctx context.Context, questionID, title, answerID string) string {
+	if ns.siteInfoService == nil {
+		return ""
+	}
 	siteInfo, err := ns.siteInfoService.GetSiteGeneral(ctx)
-	if err != nil {
+	if err != nil || siteInfo == nil {
 		return ""
 	}
 	seoInfo, err := ns.siteInfoService.GetSiteSeo(ctx)
-	if err != nil {
+	if err != nil || seoInfo == nil {
 		return ""
 	}
 	return display.AnswerURL(seoInfo.Permalink, siteInfo.SiteUrl, questionID, title, answerID)
 }
 
 func (ns *ExternalNotificationService) buildCommentLinkURL(ctx context.Context, questionID, title, answerID, commentID string) string {
+	if ns.siteInfoService == nil {
+		return ""
+	}
 	siteInfo, err := ns.siteInfoService.GetSiteGeneral(ctx)
-	if err != nil {
+	if err != nil || siteInfo == nil {
 		return ""
 	}
 	seoInfo, err := ns.siteInfoService.GetSiteSeo(ctx)
-	if err != nil {
+	if err != nil || seoInfo == nil {
 		return ""
 	}
 	return display.CommentURL(seoInfo.Permalink, siteInfo.SiteUrl, questionID, title, answerID, commentID)

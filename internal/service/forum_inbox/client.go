@@ -117,7 +117,7 @@ func NewClient() *Client {
 
 // Enabled is true when outbound forum inbox integration is configured.
 func (c *Client) Enabled() bool {
-	return c != nil && c.ingestURL != "" && c.secret != ""
+	return c != nil && c.httpClient != nil && c.ingestURL != "" && c.secret != ""
 }
 
 // BroadcastTagNames returns the configured tag display/slug names that trigger site-wide inbox delivery.
@@ -132,6 +132,9 @@ func (c *Client) BroadcastTagNames() map[string]struct{} {
 func (c *Client) Send(ctx context.Context, email, forumMessageID, title, body, linkURL string, occurredAt time.Time) error {
 	if !c.Enabled() {
 		return nil
+	}
+	if c.httpClient == nil {
+		return fmt.Errorf("forum inbox: HTTP client is not initialized")
 	}
 	email = strings.ToLower(strings.TrimSpace(email))
 	if email == "" {
@@ -168,6 +171,9 @@ func (c *Client) Send(ctx context.Context, email, forumMessageID, title, body, l
 	if err != nil {
 		log.Errorf("forum inbox: HTTP request failed: %v", err)
 		return err
+	}
+	if resp == nil || resp.Body == nil {
+		return fmt.Errorf("forum inbox: empty HTTP response")
 	}
 	defer func() { _ = resp.Body.Close() }()
 	respBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))

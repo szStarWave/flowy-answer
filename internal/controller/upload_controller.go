@@ -102,13 +102,34 @@ func (uc *UploadController) UploadFile(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param data body schema.PostRenderReq true "PostRenderReq"
-// @Success 200 {object} handler.RespBody
+// @Param data body schema.PostRenderReq true "PostRenderReq (set legacy_plain_html for string data)"
+// @Success 200 {object} handler.RespBody{data=schema.PostRenderResp}
 // @Router /answer/api/v1/post/render [post]
 func (uc *UploadController) PostRender(ctx *gin.Context) {
 	req := &schema.PostRenderReq{}
 	if handler.BindAndCheck(ctx, req) {
 		return
 	}
-	handler.HandleResponse(ctx, nil, converter.Markdown2HTML(req.Content))
+	html, outline, err := converter.RenderPostMarkdownForAPI(req.Content)
+	if err != nil {
+		handler.HandleResponse(ctx, err, nil)
+		return
+	}
+	if req.LegacyPlainHTML {
+		handler.HandleResponse(ctx, nil, html)
+		return
+	}
+	heads := make([]schema.ContentHeading, len(outline))
+	for i := range outline {
+		heads[i] = schema.ContentHeading{
+			ID:    outline[i].ID,
+			Level: outline[i].Level,
+			Text:  outline[i].Text,
+		}
+	}
+	handler.HandleResponse(ctx, nil, &schema.PostRenderResp{
+		HTML:            html,
+		ContentOutline:  heads,
+		RendererVersion: converter.PostRendererVersion,
+	})
 }

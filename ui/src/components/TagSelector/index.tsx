@@ -23,12 +23,11 @@ import { Dropdown, Button, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import debounce from 'lodash/debounce';
-import { marked } from 'marked';
 import classNames from 'classnames';
 
 import { useTagModal, useToast } from '@/hooks';
 import type * as Type from '@/common/interface';
-import { queryTags, useUserPermission } from '@/services';
+import { queryTags, renderPostMarkdown, useUserPermission } from '@/services';
 import { writeSettingStore } from '@/stores';
 
 import TagSelectorPicklist from './Picklist';
@@ -95,14 +94,29 @@ const TagSelectorTypeahead: FC<ITypeaheadProps> = ({
         (item) => item.slug_name.toLowerCase() === data.slug_name.toLowerCase(),
       );
       if (findIndex === -1) {
-        onChange([
-          ...value,
-          {
-            ...data,
-            parsed_text: marked(data.original_text),
-          },
-        ]);
-        setSearchValue('');
+        const md = data.original_text || '';
+        renderPostMarkdown(md)
+          .then((r) => {
+            const parsed = typeof r === 'string' ? r : r.html;
+            onChange([
+              ...value,
+              {
+                ...data,
+                parsed_text: parsed,
+              },
+            ]);
+            setSearchValue('');
+          })
+          .catch(() => {
+            onChange([
+              ...value,
+              {
+                ...data,
+                parsed_text: '',
+              },
+            ]);
+            setSearchValue('');
+          });
       } else {
         setRepeatIndex(findIndex);
         clearTimeout(timer);

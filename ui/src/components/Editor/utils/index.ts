@@ -29,6 +29,7 @@ import Tooltip from 'bootstrap/js/dist/tooltip';
 
 import { Editor } from '../types';
 import { isDarkTheme } from '@/utils/common';
+import { enrichFormattedContent } from '@/utils/enrichFormattedContent';
 
 import { createCodeMirrorAdapter } from './codemirror/adapter';
 
@@ -39,6 +40,7 @@ interface htmlRenderConfig {
 }
 export function htmlRender(el: HTMLElement | null, config?: htmlRenderConfig) {
   if (!el) return;
+  delete el.dataset.anMathAutorender;
   const { copyText = '', copySuccessText = '' } = config || {
     copyText: 'Copy to clipboard',
     copySuccessText: 'Copied!',
@@ -82,6 +84,12 @@ export function htmlRender(el: HTMLElement | null, config?: htmlRenderConfig) {
 
   // Add copy button to all pre tags
   el.querySelectorAll('pre').forEach((pre) => {
+    if (
+      pre.closest('.an-diagram') ||
+      pre.classList.contains('an-diagram__src')
+    ) {
+      return;
+    }
     // Create copy button
     const codeWrap = document.createElement('div');
     codeWrap.className = 'position-relative a-code-wrap';
@@ -120,6 +128,10 @@ export function htmlRender(el: HTMLElement | null, config?: htmlRenderConfig) {
         tooltipInstance.setContent({ '.tooltip-inner': copyText });
       });
     });
+  });
+
+  enrichFormattedContent(el).catch(() => {
+    /* Mermaid/KaTeX are optional client enhancements */
   });
 }
 

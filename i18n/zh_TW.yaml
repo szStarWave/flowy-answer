@@ -878,6 +878,93 @@ ui:
     forever: 你的帳號已被永久停權。
     end: 違反了我們的社群準則。
     contact_us: Contact us
+  mdx_editor:
+    contentArea:
+      editableMarkdown: 可編輯的 Markdown 內容
+    toolbar:
+      bold: 粗體
+      removeBold: 取消粗體
+      italic: 斜體
+      removeItalic: 取消斜體
+      underline: 底線
+      removeUnderline: 取消底線
+      strikethrough: 刪除線
+      removeStrikethrough: 取消刪除線
+      superscript: 上標
+      removeSuperscript: 取消上標
+      subscript: 下標
+      removeSubscript: 取消下標
+      bulletedList: 無序清單
+      numberedList: 有序清單
+      checkList: 工作清單
+      undo: 復原 {{shortcut}}
+      redo: 重做 {{shortcut}}
+      image: 插入圖片
+      link: 插入連結
+      table: 插入表格
+      thematicBreak: 插入分隔線
+      codeBlock: 插入程式碼區塊
+      richText: 富文本
+      source: 原始碼
+      diffMode: 對比模式
+      blockTypes:
+        paragraph: 內文
+        quote: 引用
+        heading: 標題 {{level}}
+      blockTypeSelect:
+        selectBlockTypeTooltip: 選擇區塊類型
+        placeholder: 區塊類型
+    createLink:
+      url: 連結網址
+      urlPlaceholder: 選擇或貼上 URL
+      text: 錨點文字
+      textTooltip: 連結在頁面上顯示的文字
+      title: 連結標題
+      titleTooltip: 連結的 title 屬性，懸停時顯示
+      saveTooltip: 儲存連結
+      cancelTooltip: 取消
+    linkPreview:
+      open: 在新視窗開啟 {{url}}
+      edit: 編輯連結
+      copyToClipboard: 複製到剪貼簿
+      copied: 已複製
+      remove: 移除連結
+    uploadImage:
+      dialogTitle: 上傳圖片
+      uploadInstructions: 從本機上傳圖片：
+      addViaUrlInstructions: 或透過 URL 新增圖片：
+      addViaUrlInstructionsNoUpload: 透過 URL 新增圖片：
+      autoCompletePlaceholder: 選擇或貼上圖片網址
+      alt: 替代文字：
+      title: 標題：
+      width: 寬度：
+      height: 高度：
+    dialogControls:
+      save: 儲存
+      cancel: 取消
+    codeBlock:
+      language: 程式碼區塊語言
+      selectLanguage: 選擇程式碼區塊語言
+    code_languages:
+      text: 純文字
+      md: Markdown
+      mermaid: Mermaid
+      math: 數學公式
+      latex: LaTeX
+      tex: TeX
+      js: JavaScript
+      ts: TypeScript
+      tsx: TypeScript（React）
+      jsx: JavaScript（React）
+      json: JSON
+      html: HTML
+      css: CSS
+      go: Go
+      python: Python
+      bash: Shell
+      sql: SQL
+      yaml: YAML
+      xml: XML
   editor:
     blockquote:
       text: 引用
@@ -1411,6 +1498,7 @@ ui:
     Follow: 關注
     Following: 已關注
     follow_tip: Follow this question to receive notifications
+    table_of_contents: 本文目錄
     answered: 回答於
     closed_in: 關閉於
     show_exist: 顯示現有問題。

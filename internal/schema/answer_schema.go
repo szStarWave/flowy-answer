@@ -137,6 +137,9 @@ type AnswerInfo struct {
 
 	// MemberActions
 	MemberActions []*PermissionMemberAction `json:"member_actions"`
+
+	ContentOutline  []ContentHeading `json:"content_outline,omitempty"`
+	RendererVersion string           `json:"renderer_version,omitempty"`
 }
 
 type AdminAnswerInfo struct {

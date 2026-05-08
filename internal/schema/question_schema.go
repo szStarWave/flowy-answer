@@ -274,6 +274,10 @@ type QuestionInfoResp struct {
 	// MemberActions
 	MemberActions  []*PermissionMemberAction `json:"member_actions"`
 	ExtendsActions []*PermissionMemberAction `json:"extends_actions"`
+
+	// ContentOutline and RendererVersion are set for detail/read APIs that ship full markdown source.
+	ContentOutline  []ContentHeading `json:"content_outline,omitempty"`
+	RendererVersion string           `json:"renderer_version,omitempty"`
 }
 
 // UpdateQuestionResp update question resp

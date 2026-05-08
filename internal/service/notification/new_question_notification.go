@@ -171,7 +171,7 @@ func (ns *ExternalNotificationService) sendNewQuestionNotificationEmail(ctx cont
 		log.Error(err)
 		return
 	}
-	if !exist {
+	if !exist || userInfo == nil {
 		log.Errorf("user %s not exist", userID)
 		return
 	}
@@ -299,7 +299,7 @@ func (ns *ExternalNotificationService) newPluginQuestionNotification(
 			log.Errorf("get trigger user basic info failed: %v", err)
 			return
 		}
-		if exist {
+		if exist && triggerUser != nil {
 			raw.TriggerUserID = triggerUser.ID
 			raw.TriggerUserDisplayName = triggerUser.DisplayName
 			raw.TriggerUserUrl = display.UserURL(siteInfo.SiteUrl, triggerUser.Username)

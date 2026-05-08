@@ -29,8 +29,6 @@ import (
 	"github.com/segmentfault/pacman/log"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
 	goldmarkHTML "github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
@@ -38,21 +36,15 @@ import (
 
 // Markdown2HTML convert markdown to html
 func Markdown2HTML(source string) string {
-	mdConverter := goldmark.New(
-		goldmark.WithExtensions(&DangerousHTMLFilterExtension{}, extension.GFM, extension.Footnote),
-		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
-		),
-		goldmark.WithRendererOptions(
-			goldmarkHTML.WithHardWraps(),
-		),
-	)
-	var buf bytes.Buffer
-	if err := mdConverter.Convert([]byte(source), &buf); err != nil {
+	html, err := markdownToHTMLFromSource([]byte(source))
+	if err != nil {
 		log.Error(err)
 		return source
 	}
-	html := buf.String()
+	return html
+}
+
+func sanitizePostHTML(html string) string {
 	filter := bluemonday.UGCPolicy()
 	filter.AllowStyling()
 	filter.RequireNoFollowOnLinks(false)
@@ -61,8 +53,7 @@ func Markdown2HTML(source string) string {
 	filter.AllowElements("kbd")
 	filter.AllowAttrs("title").Matching(regexp.MustCompile(`^[\p{L}\p{N}\s\-_',\[\]!\./\\\(\)]*$|^@embed?$`)).Globally()
 	filter.AllowAttrs("start").OnElements("ol")
-	html = strings.TrimSpace(filter.Sanitize(html))
-	return html
+	return strings.TrimSpace(filter.Sanitize(html))
 }
 
 // Markdown2BasicHTML convert markdown to html, Only basic syntax can be used

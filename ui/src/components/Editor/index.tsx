@@ -27,6 +27,7 @@ import {
   useEffect,
 } from 'react';
 import { Spinner } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 
 import classNames from 'classnames';
 
@@ -36,31 +37,12 @@ import {
   getReplacementPlugin,
 } from '@/utils/pluginKit';
 import { writeSettingStore } from '@/stores';
-import PluginRender, { PluginSlot } from '../PluginRender';
 
 import { useImageUpload } from './hooks/useImageUpload';
-import {
-  BlockQuote,
-  Bold,
-  Code,
-  Heading,
-  Help,
-  Hr,
-  Image,
-  Indent,
-  Italice,
-  Link as LinkItem,
-  OL,
-  Outdent,
-  Table,
-  UL,
-  File,
-} from './ToolBars';
+import { Help } from './ToolBars';
 import { htmlRender } from './utils';
 import Viewer from './Viewer';
-import { EditorContext } from './EditorContext';
-import MarkdownEditor from './MarkdownEditor';
-import { Editor } from './types';
+import MdxVisualPostEditor from './MdxVisualPostEditor';
 
 import './index.scss';
 
@@ -93,7 +75,7 @@ const MDEditor: ForwardRefRenderFunction<EditorRef, Props> = (
   },
   ref,
 ) => {
-  const [currentEditor, setCurrentEditor] = useState<Editor | null>(null);
+  const location = useLocation();
   const previewRef = useRef<{ getHtml; element } | null>(null);
   const [fullEditorPlugin, setFullEditorPlugin] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,7 +118,15 @@ const MDEditor: ForwardRefRenderFunction<EditorRef, Props> = (
     [getHtml],
   );
 
-  const EditorComponent = MarkdownEditor;
+  const handleVisualEditorImageUpload = useCallback(
+    async (file: File) => {
+      if (!verifyImageSize([file])) {
+        throw new Error('File validation failed');
+      }
+      return uploadSingleFile(file);
+    },
+    [uploadSingleFile, verifyImageSize],
+  );
 
   if (isLoading) {
     return (
@@ -185,41 +175,17 @@ const MDEditor: ForwardRefRenderFunction<EditorRef, Props> = (
     );
   }
 
+  const editorInstanceKey = location.pathname;
+
   return (
-    <>
+    <div className="md-editor-with-preview">
       <div className={classNames('md-editor-wrap rounded', className)}>
-        <div className="toolbar-wrap px-3 d-flex align-items-center flex-wrap">
-          <EditorContext.Provider value={currentEditor}>
-            <PluginRender
-              type={PluginType.Editor}
-              className="d-flex align-items-center flex-wrap"
-              editor={currentEditor}
-              previewElement={previewRef.current?.element}>
-              <Heading />
-              <Bold />
-              <Italice />
-              <div className="toolbar-divider" />
-              <Code />
-              <LinkItem />
-              <BlockQuote />
-              <Image />
-              <File />
-              <Table />
-              <div className="toolbar-divider" />
-              <OL />
-              <UL />
-              <Indent />
-              <Outdent />
-              <Hr />
-              <div className="toolbar-divider" />
-              <PluginSlot />
-              <Help />
-            </PluginRender>
-          </EditorContext.Provider>
+        <div className="toolbar-wrap px-3 py-2 d-flex align-items-center flex-wrap gap-2 justify-content-end">
+          <Help />
         </div>
 
-        <EditorComponent
-          key="markdown-editor"
+        <MdxVisualPostEditor
+          key={editorInstanceKey}
           value={value}
           onChange={(markdown) => {
             onChange?.(markdown);
@@ -228,13 +194,14 @@ const MDEditor: ForwardRefRenderFunction<EditorRef, Props> = (
           onBlur={onBlur}
           placeholder={editorPlaceholder}
           autoFocus={autoFocus}
-          onEditorReady={(editor) => {
-            setCurrentEditor(editor);
-          }}
+          onImageUpload={handleVisualEditorImageUpload}
+          onEditorReady={() => {}}
         />
       </div>
-      <Viewer ref={previewRef} value={value} />
-    </>
+      <div className="md-editor-preview-outer">
+        <Viewer ref={previewRef} value={value} />
+      </div>
+    </div>
   );
 };
 export { htmlRender };

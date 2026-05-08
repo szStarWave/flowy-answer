@@ -31,6 +31,7 @@ import {
   FormatTime,
   htmlRender,
   ImgViewer,
+  ContentToc,
 } from '@/components';
 import { useRenderHtmlPlugin } from '@/utils/pluginKit';
 import { formatCount, guard } from '@/utils';
@@ -53,9 +54,10 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   });
   const [searchParams] = useSearchParams();
   const [followed, setFollowed] = useState(data?.is_followed);
-  const ref = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLDivElement | null>(null);
+  const [tocRoot, setTocRoot] = useState<HTMLElement | null>(null);
 
-  useRenderHtmlPlugin(ref.current);
+  useRenderHtmlPlugin(articleRef.current);
 
   const handleFollow = (e) => {
     e.preventDefault();
@@ -77,15 +79,16 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
   }, [data]);
 
   useEffect(() => {
-    if (!ref.current) {
+    const el = articleRef.current;
+    if (!el) {
       return;
     }
 
-    htmlRender(ref.current, {
+    htmlRender(el, {
       copySuccessText: t('copied', { keyPrefix: 'messages' }),
       copyText: t('copy', { keyPrefix: 'messages' }),
     });
-  }, [ref.current]);
+  }, [data?.html, t]);
 
   if (!data?.id) {
     return null;
@@ -170,11 +173,33 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
       </div>
 
       <ImgViewer>
-        <article
-          ref={ref}
-          className="fmt text-break text-wrap last-p mb-4"
-          dangerouslySetInnerHTML={{ __html: data?.html }}
-        />
+        {Array.isArray(data?.content_outline) &&
+          data.content_outline.length > 0 && (
+            <ContentToc
+              className="d-xl-none mb-3 w-100"
+              headings={data.content_outline}
+              contentRoot={tocRoot}
+            />
+          )}
+        <div className="d-flex flex-column flex-xl-row gap-3 align-items-start question-body-with-toc">
+          {Array.isArray(data?.content_outline) &&
+            data.content_outline.length > 0 && (
+              <ContentToc
+                className="flex-shrink-0 d-none d-xl-block"
+                style={{ width: '13.5rem' }}
+                headings={data.content_outline}
+                contentRoot={tocRoot}
+              />
+            )}
+          <article
+            ref={(el: HTMLDivElement | null) => {
+              articleRef.current = el;
+              setTocRoot(el);
+            }}
+            className="fmt text-break text-wrap last-p mb-4 flex-grow-1 min-w-0"
+            dangerouslySetInnerHTML={{ __html: data?.html }}
+          />
+        </div>
       </ImgViewer>
 
       <div className="m-n1">

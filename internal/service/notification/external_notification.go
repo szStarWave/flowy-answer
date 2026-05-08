@@ -107,7 +107,7 @@ func (ns *ExternalNotificationService) checkUserStatusBeforeNotification(ctx con
 		log.Errorf("get user %s info error: %v", userID, err)
 		return true
 	}
-	if !exist || userInfo.Status != entity.UserStatusAvailable {
+	if !exist || userInfo == nil || userInfo.Status != entity.UserStatusAvailable {
 		return true
 	}
 	return false

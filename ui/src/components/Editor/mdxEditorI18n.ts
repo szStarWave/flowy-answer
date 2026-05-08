@@ -17,18 +17,24 @@
  * under the License.
  */
 
-package schema
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
-// PostRenderReq post render request
-type PostRenderReq struct {
-	Content string `json:"content"`
-	// LegacyPlainHTML if true, API returns data as a plain HTML string (pre–PostRenderResp contract for older clients).
-	LegacyPlainHTML bool `json:"legacy_plain_html,omitempty"`
-}
+/**
+ * MDXEditor `translation` callback: (key, defaultValue, interpolations?) => string.
+ * Keys follow MDXEditor defaults (e.g. toolbar.bold, createLink.url).
+ * Strings live under `translation.mdx_editor.*` in locale YAML.
+ */
+export function useMdxEditorTranslation(): (
+  key: string,
+  defaultValue: string,
+  interpolations?: Record<string, unknown>,
+) => string {
+  const { t } = useTranslation('translation', { keyPrefix: 'mdx_editor' });
 
-// PostRenderResp unified markdown render result (preview and server contract).
-type PostRenderResp struct {
-	HTML            string           `json:"html"`
-	ContentOutline  []ContentHeading `json:"content_outline,omitempty"`
-	RendererVersion string           `json:"renderer_version"`
+  return useCallback(
+    (key, defaultValue, interpolations = {}) =>
+      String(t(key, { defaultValue, ...interpolations })),
+    [t],
+  );
 }

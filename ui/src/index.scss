@@ -214,6 +214,8 @@ img[src=''] {
 
 .fmt {
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   hr {
     height: 3px;
     border: none;
@@ -251,26 +253,32 @@ img[src=''] {
   h1 {
     @extend .fs-3;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   h2 {
     @extend .fs-4;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   h3 {
     @extend .fs-5;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   h4 {
     @extend .fs-6;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   h5 {
     @extend .small;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   h6 {
     @extend .fs-12;
     margin-top: 2rem;
+    scroll-margin-top: 5rem;
   }
   img {
     max-width: 100%;
@@ -312,9 +320,24 @@ img[src=''] {
     }
   }
   table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
     td,
     th {
-      word-break: initial;
+      word-break: break-word;
+      white-space: normal;
+      border: 1px solid var(--bs-border-color);
+      padding: 0.5rem 0.75rem;
+      vertical-align: top;
+    }
+    th {
+      background-color: var(--bs-tertiary-bg);
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td {
+      background-color: rgba(var(--bs-emphasis-color-rgb), 0.035);
     }
   }
   ol ol,

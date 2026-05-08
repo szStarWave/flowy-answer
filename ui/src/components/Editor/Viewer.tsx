@@ -27,27 +27,42 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { markdownToHtml } from '@/services';
 import ImgViewer from '@/components/ImgViewer';
+import ContentToc from '@/components/ContentToc';
+import type { ContentHeading } from '@/common/interface';
+import { renderPostMarkdown } from '@/services';
 
 import { htmlRender } from './utils';
 
 let scrollTop = 0;
-let renderTimer;
+let renderTimer: ReturnType<typeof setTimeout>;
 
 const Index = ({ value }, ref) => {
   const [html, setHtml] = useState('');
-  const previewRef = useRef<HTMLDivElement>(null);
+  const [outline, setOutline] = useState<ContentHeading[]>([]);
+  const [tocRoot, setTocRoot] = useState<HTMLElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
   const { t } = useTranslation('translation', { keyPrefix: 'messages' });
 
-  const renderMarkdown = (markdown) => {
+  const renderMarkdown = (markdown: string) => {
     clearTimeout(renderTimer);
     const timeout = renderTimer ? 1000 : 0;
     renderTimer = setTimeout(() => {
-      markdownToHtml(markdown).then((resp) => {
-        scrollTop = previewRef.current?.scrollTop || 0;
-        setHtml(resp);
-      });
+      renderPostMarkdown(markdown)
+        .then((resp) => {
+          scrollTop = previewRef.current?.scrollTop || 0;
+          if (typeof resp === 'string') {
+            setHtml(resp);
+            setOutline([]);
+            return;
+          }
+          setHtml(resp.html);
+          setOutline(resp.content_outline ?? []);
+        })
+        .catch(() => {
+          setHtml('');
+          setOutline([]);
+        });
     }, timeout);
   };
   useEffect(() => {
@@ -65,7 +80,7 @@ const Index = ({ value }, ref) => {
       copySuccessText: t('copied', { keyPrefix: 'messages' }),
       copyText: t('copy', { keyPrefix: 'messages' }),
     });
-  }, [html]);
+  }, [html, t]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -75,12 +90,34 @@ const Index = ({ value }, ref) => {
   });
 
   return (
-    <ImgViewer>
-      <div
-        ref={previewRef}
-        className="preview-wrap position-relative p-3 rounded text-break text-wrap mt-2 fmt"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+    <ImgViewer className="md-editor-preview-stack">
+      {outline.length > 0 && (
+        <ContentToc
+          className="d-xl-none mb-2 w-100"
+          headings={outline}
+          contentRoot={tocRoot}
+        />
+      )}
+      <div className="d-flex flex-column flex-xl-row gap-2 align-items-start editor-preview-scroll-region">
+        {outline.length > 0 && (
+          <ContentToc
+            className="flex-shrink-0 d-none d-xl-block"
+            style={{ width: '12rem' }}
+            headings={outline}
+            contentRoot={tocRoot}
+          />
+        )}
+        <div className="flex-grow-1 min-w-0 w-100 editor-preview-scroll-column">
+          <div
+            ref={(el: HTMLDivElement | null) => {
+              previewRef.current = el;
+              setTocRoot(el);
+            }}
+            className="preview-wrap position-relative p-3 rounded text-break text-wrap mt-2 fmt bg-body-tertiary bg-opacity-25"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </div>
+      </div>
     </ImgViewer>
   );
 };

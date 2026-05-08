@@ -21,3 +21,8 @@
 declare module '*.yaml';
 
 declare module '*.ico';
+
+declare module 'katex/dist/katex.min.css';
+declare module 'katex/contrib/auto-render';
+
+declare module '@mdxeditor/editor/style.css';

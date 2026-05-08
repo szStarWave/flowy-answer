@@ -38,6 +38,7 @@ import (
 	questioncommon "github.com/apache/answer/internal/service/question_common"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	tagcommon "github.com/apache/answer/internal/service/tag_common"
+	"github.com/apache/answer/pkg/converter"
 	"github.com/apache/answer/plugin"
 	"github.com/go-resty/resty/v2"
 	"github.com/jinzhu/copier"
@@ -269,6 +270,9 @@ func (s *SiteInfoService) SaveSiteTags(ctx context.Context, req *schema.SiteTags
 
 // SaveSitePolicies save site policies configuration
 func (s *SiteInfoService) SaveSitePolicies(ctx context.Context, req *schema.SitePoliciesReq) (err error) {
+	// Always derive parsed HTML server-side so storage matches the same pipeline as posts (goldmark + bluemonday).
+	req.TermsOfServiceParsedText = converter.Markdown2HTML(req.TermsOfServiceOriginalText)
+	req.PrivacyPolicyParsedText = converter.Markdown2HTML(req.PrivacyPolicyOriginalText)
 	content, _ := json.Marshal(req)
 	data := &entity.SiteInfo{
 		Type:    constant.SiteTypePolicies,

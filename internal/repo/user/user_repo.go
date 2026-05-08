@@ -333,6 +333,9 @@ func tryToDecorateUserListFromUserCenter(ctx context.Context, data *data.Data, o
 	ids := make([]string, 0)
 	originalUserIDMapping := make(map[string]*entity.User, 0)
 	for _, user := range original {
+		if user == nil {
+			continue
+		}
 		originalUserIDMapping[user.ID] = user
 		ids = append(ids, user.ID)
 	}
@@ -349,7 +352,12 @@ func tryToDecorateUserListFromUserCenter(ctx context.Context, data *data.Data, o
 	userExternalIDs := make([]string, 0)
 	originalExternalIDMapping := make(map[string]*entity.User, 0)
 	for _, u := range userExternalLoginList {
-		originalExternalIDMapping[u.ExternalID] = originalUserIDMapping[u.UserID]
+		if u == nil {
+			continue
+		}
+		if orig := originalUserIDMapping[u.UserID]; orig != nil {
+			originalExternalIDMapping[u.ExternalID] = orig
+		}
 		userExternalIDs = append(userExternalIDs, u.ExternalID)
 	}
 	if len(userExternalIDs) == 0 {
@@ -363,6 +371,9 @@ func tryToDecorateUserListFromUserCenter(ctx context.Context, data *data.Data, o
 	}
 
 	for _, ucUser := range ucUsers {
+		if ucUser == nil {
+			continue
+		}
 		decorateByUserCenterUser(originalExternalIDMapping[ucUser.ExternalID], ucUser)
 	}
 }

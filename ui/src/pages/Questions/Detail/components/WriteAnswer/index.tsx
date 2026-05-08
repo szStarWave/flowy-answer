@@ -22,7 +22,6 @@ import { Form, Button, Alert } from 'react-bootstrap';
 import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { marked } from 'marked';
 import classNames from 'classnames';
 
 import { usePromptWithUnload } from '@/hooks';
@@ -161,7 +160,6 @@ const Index: FC<Props> = ({ visible = false, data, callback }) => {
     const params: PostAnswerReq = {
       question_id: data?.qid,
       content: formData.content.value,
-      html: marked.parse(formData.content.value),
     };
     const imgCode = aCaptcha?.getCaptcha();
     if (imgCode?.verify) {

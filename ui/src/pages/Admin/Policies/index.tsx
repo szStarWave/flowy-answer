@@ -20,8 +20,6 @@
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { marked } from 'marked';
-
 import type * as Type from '@/common/interface';
 import {
   SchemaForm,
@@ -79,11 +77,9 @@ const Legal: FC = () => {
 
     const reqParams: Type.AdminSettingsLegal = {
       terms_of_service_original_text: formData.terms_of_service.value,
-      terms_of_service_parsed_text: marked.parse(
-        formData.terms_of_service.value,
-      ),
+      terms_of_service_parsed_text: '',
       privacy_policy_original_text: formData.privacy_policy.value,
-      privacy_policy_parsed_text: marked.parse(formData.privacy_policy.value),
+      privacy_policy_parsed_text: '',
     };
 
     putPoliciesSetting(reqParams)

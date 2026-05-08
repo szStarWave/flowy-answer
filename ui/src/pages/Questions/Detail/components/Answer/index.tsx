@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { memo, FC, useEffect, useRef } from 'react';
+import { memo, FC, useEffect, useRef, useState } from 'react';
 import { Button, Alert, Badge } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -30,6 +30,7 @@ import {
   Comment,
   htmlRender,
   ImgViewer,
+  ContentToc,
 } from '@/components';
 import { scrollToElementTop, bgFadeOut } from '@/utils';
 import { AnswerItem } from '@/common/interface';
@@ -58,6 +59,7 @@ const Index: FC<Props> = ({
   });
   const [searchParams] = useSearchParams();
   const answerRef = useRef<HTMLDivElement>(null);
+  const [tocRoot, setTocRoot] = useState<HTMLElement | null>(null);
 
   useRenderHtmlPlugin(answerRef.current?.querySelector('.fmt') as HTMLElement);
 
@@ -131,10 +133,30 @@ const Index: FC<Props> = ({
         )}
       </div>
       <ImgViewer>
-        <article
-          className="fmt text-break text-wrap"
-          dangerouslySetInnerHTML={{ __html: data?.html }}
-        />
+        {Array.isArray(data?.content_outline) &&
+          data.content_outline.length > 0 && (
+            <ContentToc
+              className="d-xl-none mb-3 w-100"
+              headings={data.content_outline}
+              contentRoot={tocRoot}
+            />
+          )}
+        <div className="d-flex flex-column flex-xl-row gap-3 align-items-start">
+          {Array.isArray(data?.content_outline) &&
+            data.content_outline.length > 0 && (
+              <ContentToc
+                className="flex-shrink-0 d-none d-xl-block"
+                style={{ width: '13.5rem' }}
+                headings={data.content_outline}
+                contentRoot={tocRoot}
+              />
+            )}
+          <article
+            ref={setTocRoot}
+            className="fmt text-break text-wrap flex-grow-1 min-w-0"
+            dangerouslySetInnerHTML={{ __html: data?.html }}
+          />
+        </div>
       </ImgViewer>
       <div className="d-flex align-items-center my-4">
         <Actions

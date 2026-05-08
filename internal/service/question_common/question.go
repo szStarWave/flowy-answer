@@ -39,6 +39,7 @@ import (
 	metacommon "github.com/apache/answer/internal/service/meta_common"
 	"github.com/apache/answer/internal/service/revision"
 	"github.com/apache/answer/pkg/checker"
+	"github.com/apache/answer/pkg/converter"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/uid"
 	"github.com/segmentfault/pacman/errors"
@@ -338,6 +339,7 @@ func (qs *QuestionCommon) Info(ctx context.Context, questionID string, loginUser
 	resp.UpdateUserInfo = userInfoMap[questionInfo.LastEditUserID]
 	resp.LastAnsweredUserInfo = userInfoMap[resp.LastAnsweredUserID]
 	if len(loginUserID) == 0 {
+		enrichQuestionContentMeta(resp)
 		return resp, nil
 	}
 
@@ -360,7 +362,16 @@ func (qs *QuestionCommon) Info(ctx context.Context, questionID string, loginUser
 	if len(collectedMap) > 0 {
 		resp.Collected = true
 	}
+	enrichQuestionContentMeta(resp)
 	return resp, nil
+}
+
+func enrichQuestionContentMeta(resp *schema.QuestionInfoResp) {
+	if resp == nil || resp.Content == "" {
+		return
+	}
+	resp.RendererVersion = converter.PostRendererVersion
+	resp.ContentOutline = schema.ContentHeadingsFromPost(resp.Content, resp.HTML)
 }
 
 func (qs *QuestionCommon) FormatQuestionsPage(

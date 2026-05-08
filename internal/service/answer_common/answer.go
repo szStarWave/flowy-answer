@@ -25,6 +25,7 @@ import (
 	"github.com/apache/answer/internal/base/handler"
 	"github.com/apache/answer/internal/entity"
 	"github.com/apache/answer/internal/schema"
+	"github.com/apache/answer/pkg/converter"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/uid"
 )
@@ -115,7 +116,16 @@ func (as *AnswerCommon) ShowFormat(ctx context.Context, data *entity.Answer) *sc
 	info.UpdateUserID = data.LastEditUserID
 	info.Status = data.Status
 	info.MemberActions = make([]*schema.PermissionMemberAction, 0)
+	enrichAnswerContentMeta(&info)
 	return &info
+}
+
+func enrichAnswerContentMeta(info *schema.AnswerInfo) {
+	if info == nil || info.Content == "" {
+		return
+	}
+	info.RendererVersion = converter.PostRendererVersion
+	info.ContentOutline = schema.ContentHeadingsFromPost(info.Content, info.HTML)
 }
 
 func (as *AnswerCommon) AdminShowFormat(ctx context.Context, data *entity.Answer) *schema.AdminAnswerInfo {

@@ -114,5 +114,6 @@ export interface BaseEditorProps {
   onBlur?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
-  onEditorReady?: (editor: Editor) => void;
+  /** CodeMirror passes a real editor; rich editors may pass null when no CM instance exists. */
+  onEditorReady?: (editor: Editor | null) => void;
 }

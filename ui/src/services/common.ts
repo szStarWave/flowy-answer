@@ -379,9 +379,35 @@ export const unsubscribe = (code: string) => {
   return request.put(apiUrl, { code });
 };
 
-export const markdownToHtml = (content: string) => {
-  const apiUrl = '/answer/api/v1/post/render';
-  return request.post(apiUrl, { content });
+export type PostRenderResult = {
+  html: string;
+  content_outline?: Type.ContentHeading[];
+  renderer_version: string;
+};
+
+export interface PostRenderRequestOptions {
+  /** Pre–PostRenderResp API: response `data` is a plain HTML string. */
+  legacyPlainHtml?: boolean;
+}
+
+/** Server markdown render: sanitized HTML + optional outline (same pipeline as persistence). */
+export const renderPostMarkdown = (
+  content: string,
+  options?: PostRenderRequestOptions,
+): Promise<PostRenderResult | string> => {
+  return request.post<PostRenderResult | string>('/answer/api/v1/post/render', {
+    content,
+    legacy_plain_html: options?.legacyPlainHtml === true,
+  });
+};
+
+/** Legacy helper: response is a plain HTML string (for callers that only need HTML). */
+export const markdownToHtml = async (content: string) => {
+  const r = await renderPostMarkdown(content, { legacyPlainHtml: true });
+  if (typeof r === 'string') {
+    return r;
+  }
+  return r.html;
 };
 
 export const saveQuestionWithAnswer = (params: Type.QuestionWithAnswer) => {
