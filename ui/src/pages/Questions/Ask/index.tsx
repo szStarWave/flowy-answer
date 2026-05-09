@@ -28,7 +28,7 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import fm from 'front-matter';
 
-import { writeSettingStore } from '@/stores';
+import { loggedUserInfoStore, toastStore, writeSettingStore } from '@/stores';
 import { usePageTags, usePromptWithUnload } from '@/hooks';
 import { Editor, EditorRef, TagSelector } from '@/components';
 import type * as Type from '@/common/interface';
@@ -59,6 +59,25 @@ interface FormDataItem {
   content: Type.FormValue<string>;
   answer_content: Type.FormValue<string>;
   edit_summary: Type.FormValue<string>;
+}
+
+type PollOptionRow = {
+  id?: string;
+  label: string;
+  clientKey: string;
+};
+
+function newPollRowKey(): string {
+  return `poll-${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+}
+
+function emptyPollOptionRows(): PollOptionRow[] {
+  return [
+    { label: '', clientKey: newPollRowKey() },
+    { label: '', clientKey: newPollRowKey() },
+  ];
 }
 
 const saveDraft = new SaveDraft({ type: 'question' });
@@ -98,12 +117,31 @@ const Ask = () => {
   const [blockState, setBlockState] = useState(false);
   const [focusType, setForceType] = useState('');
   const [hasDraft, setHasDraft] = useState(false);
+  const [similarQuestions, setSimilarQuestions] = useState([]);
+
+  const userInfo = loggedUserInfoStore((s) => s.user);
+  const canManagePoll = userInfo?.role_id === 2 || userInfo?.role_id === 3;
+  const [postType, setPostType] = useState<'regular' | 'poll'>('regular');
+  const [pollOptions, setPollOptions] = useState<PollOptionRow[]>(() =>
+    emptyPollOptionRows(),
+  );
+  const [pollMaxChoices, setPollMaxChoices] = useState(1);
+  const [pollAllowChange, setPollAllowChange] = useState(false);
+  const [pollVisibility, setPollVisibility] = useState<
+    'always' | 'after_vote' | 'after_close'
+  >('always');
+
   const resetForm = () => {
     setFormData(initFormData);
+    setImmData(initFormData);
     setCheckState(false);
     setForceType('');
+    setPostType('regular');
+    setPollOptions(emptyPollOptionRows());
+    setPollMaxChoices(1);
+    setPollAllowChange(false);
+    setPollVisibility('always');
   };
-  const [similarQuestions, setSimilarQuestions] = useState([]);
 
   const editorRef = useRef<EditorRef>({
     getHtml: () => '',
@@ -240,6 +278,26 @@ const Ask = () => {
           original_text: '',
         };
       });
+      if (res.post_type === 'poll' && res.poll) {
+        setPostType('poll');
+        setPollMaxChoices(res.poll.max_choices_per_user || 1);
+        setPollAllowChange(Boolean(res.poll.allow_change_vote));
+        setPollVisibility(
+          (res.poll.result_visibility as typeof pollVisibility) || 'always',
+        );
+        setPollOptions(
+          res.poll.options?.length
+            ? res.poll.options.map((o) => ({
+                id: o.id,
+                label: o.label,
+                clientKey: o.id || newPollRowKey(),
+              }))
+            : emptyPollOptionRows(),
+        );
+      } else {
+        setPostType('regular');
+        setPollOptions(emptyPollOptionRows());
+      }
       setImmData({ ...formData });
       setFormData({ ...formData });
     });
@@ -303,11 +361,36 @@ const Ask = () => {
 
   const submitModifyQuestion = (params) => {
     setBlockState(false);
-    const ep = {
+    const ep: Type.QuestionParams & {
+      id: string;
+      edit_summary: string;
+      poll?: Type.QuestionPollUpdatePayload;
+    } = {
       ...params,
       id: qid,
       edit_summary: formData.edit_summary.value,
     };
+    if (canManagePoll && postType === 'poll') {
+      const labeledCount = pollOptions.filter(
+        (o) => o.label.trim().length > 0,
+      ).length;
+      const maxCh = Math.max(
+        1,
+        Math.min(pollMaxChoices, Math.max(labeledCount, 1)),
+      );
+      ep.poll = {
+        max_choices_per_user: maxCh,
+        allow_change_vote: pollAllowChange,
+        result_visibility: pollVisibility,
+        options: pollOptions
+          .map((o) => ({
+            id: o.id,
+            label: o.label.trim(),
+            active: true,
+          }))
+          .filter((o) => o.label.length > 0 || Boolean(o.id)),
+      };
+    }
     const imgCode = editCaptcha?.getCaptcha();
     if (imgCode?.verify) {
       ep.captcha_code = imgCode.captcha_code;
@@ -389,6 +472,39 @@ const Ask = () => {
       content: formData.content.value,
       tags: formData.tags.value,
     };
+
+    if (canManagePoll && postType === 'poll') {
+      const opts = pollOptions
+        .map((o) => o.label.trim())
+        .filter((l) => l.length > 0);
+      if (opts.length < 2) {
+        toastStore.getState().show({
+          msg: t('poll.need_two_options'),
+          variant: 'danger',
+        });
+        return;
+      }
+      const emptyLabeledExisting = pollOptions.some(
+        (o) => Boolean(o.id) && !o.label.trim(),
+      );
+      if (emptyLabeledExisting) {
+        toastStore.getState().show({
+          msg: t('poll.option_label_required'),
+          variant: 'danger',
+        });
+        return;
+      }
+      const maxCh = Math.max(1, Math.min(pollMaxChoices, opts.length));
+      if (!isEdit) {
+        params.post_type = 'poll';
+        params.poll = {
+          max_choices_per_user: maxCh,
+          allow_change_vote: pollAllowChange,
+          result_visibility: pollVisibility,
+          options: opts.map((label) => ({ label })),
+        };
+      }
+    }
 
     if (isEdit) {
       if (!editCaptcha) {
@@ -519,6 +635,109 @@ const Ask = () => {
                 errMsg={formData.tags.errorMsg}
               />
             </Form.Group>
+            {canManagePoll && (
+              <Form.Group className="my-3">
+                <Form.Label>{t('post_type.label')}</Form.Label>
+                <Form.Select
+                  value={postType}
+                  disabled={isEdit}
+                  onChange={(e) =>
+                    setPostType(e.target.value as 'regular' | 'poll')
+                  }>
+                  <option value="regular">{t('post_type.regular')}</option>
+                  <option value="poll">{t('post_type.poll')}</option>
+                </Form.Select>
+                {isEdit ? (
+                  <Form.Text muted>{t('post_type.edit_locked_hint')}</Form.Text>
+                ) : null}
+              </Form.Group>
+            )}
+            {canManagePoll && postType === 'poll' && (
+              <div className="border rounded p-3 mb-3 bg-light">
+                <h6 className="mb-3">{t('poll.options_heading')}</h6>
+                {pollOptions.map((row, idx) => (
+                  <Form.Group className="mb-2" key={row.clientKey}>
+                    <div className="d-flex gap-2">
+                      <Form.Control
+                        value={row.label}
+                        placeholder={t('poll.option_placeholder')}
+                        onChange={(e) => {
+                          const next = [...pollOptions];
+                          next[idx] = {
+                            ...row,
+                            label: e.target.value,
+                          };
+                          setPollOptions(next);
+                        }}
+                      />
+                      <Button
+                        variant="outline-danger"
+                        type="button"
+                        disabled={pollOptions.length <= 2}
+                        onClick={() => {
+                          setPollOptions((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          );
+                        }}>
+                        {t('poll.remove_option')}
+                      </Button>
+                    </div>
+                  </Form.Group>
+                ))}
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  type="button"
+                  className="mb-3"
+                  disabled={pollOptions.length >= 30}
+                  onClick={() =>
+                    setPollOptions((prev) => [
+                      ...prev,
+                      { label: '', clientKey: newPollRowKey() },
+                    ])
+                  }>
+                  {t('poll.add_option')}
+                </Button>
+                <Form.Group className="mb-2">
+                  <Form.Label>{t('poll.max_choices')}</Form.Label>
+                  <Form.Control
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={pollMaxChoices}
+                    onChange={(e) =>
+                      setPollMaxChoices(Number(e.target.value) || 1)
+                    }
+                  />
+                </Form.Group>
+                <Form.Check
+                  type="switch"
+                  id="poll-allow-change"
+                  checked={pollAllowChange}
+                  onChange={(e) => setPollAllowChange(e.target.checked)}
+                  label={t('poll.allow_change')}
+                  className="mb-2"
+                />
+                <Form.Group>
+                  <Form.Label>{t('poll.visibility')}</Form.Label>
+                  <Form.Select
+                    value={pollVisibility}
+                    onChange={(e) =>
+                      setPollVisibility(e.target.value as typeof pollVisibility)
+                    }>
+                    <option value="always">
+                      {t('poll.visibility_always')}
+                    </option>
+                    <option value="after_vote">
+                      {t('poll.visibility_after_vote')}
+                    </option>
+                    <option value="after_close">
+                      {t('poll.visibility_after_close')}
+                    </option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            )}
             {!isEdit && (
               <>
                 <Form.Switch

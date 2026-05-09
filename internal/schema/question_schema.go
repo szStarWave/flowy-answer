@@ -80,6 +80,9 @@ type ReopenQuestionReq struct {
 }
 
 type QuestionAdd struct {
+	// PostType regular (default) or poll; poll allowed only for admin/moderator.
+	PostType string `validate:"omitempty,oneof=regular poll" json:"post_type"`
+	Poll     *PollCreateInput `json:"poll"`
 	// question title
 	Title string `validate:"required,notblank,gte=6,lte=150" json:"title"`
 	// content
@@ -108,6 +111,8 @@ func (req *QuestionAdd) Check() (errFields []*validator.FormErrorField, err erro
 }
 
 type QuestionAddByAnswer struct {
+	PostType string `validate:"omitempty,oneof=regular poll" json:"post_type"`
+	Poll     *PollCreateInput `json:"poll"`
 	// question title
 	Title string `validate:"required,notblank,gte=6,lte=150" json:"title"`
 	// content
@@ -184,6 +189,8 @@ type CheckCanQuestionUpdate struct {
 type QuestionUpdate struct {
 	// question id
 	ID string `validate:"required" json:"id"`
+	// Poll patch (admin/moderator, poll posts only); omit to leave unchanged.
+	Poll *PollUpdateInput `json:"poll"`
 	// question title
 	Title string `validate:"required,notblank,gte=6,lte=150" json:"title"`
 	// content
@@ -236,6 +243,8 @@ type QuestionBaseInfo struct {
 
 type QuestionInfoResp struct {
 	ID                   string         `json:"id" `
+	PostType             string         `json:"post_type"`
+	Poll                 *QuestionPollPublic `json:"poll,omitempty"`
 	Title                string         `json:"title"`
 	UrlTitle             string         `json:"url_title"`
 	Content              string         `json:"content"`
@@ -288,6 +297,7 @@ type UpdateQuestionResp struct {
 
 type AdminQuestionInfo struct {
 	ID               string         `json:"id"`
+	PostType         string         `json:"post_type"`
 	Title            string         `json:"title"`
 	VoteCount        int            `json:"vote_count"`
 	Show             int            `json:"show"`
@@ -398,6 +408,7 @@ const (
 
 type QuestionPageResp struct {
 	ID          string     `json:"id" `
+	PostType    string     `json:"post_type"`
 	CreatedAt   int64      `json:"created_at"`
 	Title       string     `json:"title"`
 	UrlTitle    string     `json:"url_title"`

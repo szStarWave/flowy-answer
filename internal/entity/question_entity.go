@@ -34,6 +34,11 @@ const (
 	QuestionHide            = 2
 	QuestionNotFeatured     = 1
 	QuestionFeatured        = 2
+
+	// QuestionPostTypeRegular default list/detail behaviour (no poll block).
+	QuestionPostTypeRegular = 1
+	// QuestionPostTypePoll question carries a structured poll (see question_poll).
+	QuestionPostTypePoll = 2
 )
 
 var AdminQuestionSearchStatus = map[string]int{
@@ -77,6 +82,7 @@ type Question struct {
 	PostUpdateTime   time.Time `xorm:"post_update_time TIMESTAMP"`
 	RevisionID       string    `xorm:"not null default 0 BIGINT(20) revision_id"`
 	LinkedCount      int       `xorm:"not null default 0 INT(11) linked_count"`
+	PostType         int       `xorm:"not null default 1 INT(11) post_type"`
 }
 
 // TableName question table name

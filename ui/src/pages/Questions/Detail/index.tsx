@@ -254,6 +254,9 @@ const Index = () => {
             initPage={initPage}
             hasAnswer={answers.count > 0}
             isLogged={isLogged}
+            onPollUpdate={(poll) =>
+              setQuestion((q) => (q ? { ...q, poll } : q))
+            }
           />
         )}
         {!isLoading && answers.count > 0 && (

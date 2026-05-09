@@ -123,6 +123,15 @@ const (
 	QuestionDailyLimitExceeded       = "error.question.daily_limit_exceeded"
 	QuestionPostIntervalTooShort     = "error.question.post_interval_too_short"
 	CommentPostIntervalTooShort      = "error.comment.post_interval_too_short"
+	PollNotFound                     = "error.poll.not_found"
+	PollNotPollQuestion              = "error.poll.not_poll_question"
+	PollClosed                       = "error.poll.closed"
+	PollOptionInvalid                = "error.poll.option_invalid"
+	PollMaxChoicesExceeded           = "error.poll.max_choices_exceeded"
+	PollAlreadyVotedNoChange         = "error.poll.already_voted_no_change"
+	PollForbiddenManage              = "error.poll.forbidden_manage"
+	PollOptionsInvalid               = "error.poll.options_invalid"
+	PollQuestionUnavailable          = "error.poll.question_unavailable"
 )
 
 // user external login reasons

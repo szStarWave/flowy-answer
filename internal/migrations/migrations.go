@@ -111,6 +111,8 @@ var migrations = []Migration{
 	NewMigration("v1.8.3", "add question featured (quality) for tag ordering", addQuestionQuality, true),
 	NewMigration("v1.8.4", "add tag display_order for sidebar category sort", addTagDisplayOrder, true),
 	NewMigration("v1.8.5", "add user question/comment rate limit settings", addQuestionPostRateLimitSettings, true),
+	NewMigration("v1.8.6", "add question poll posts and poll vote permission", addQuestionPollFeature, true),
+	NewMigration("v1.8.7", "ensure question.post_type column exists", addQuestionPostTypeColumn, true),
 }
 
 func GetMigrations() []Migration {

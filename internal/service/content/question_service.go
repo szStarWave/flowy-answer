@@ -96,6 +96,7 @@ type QuestionService struct {
 	configService                    *config.ConfigService
 	eventQueueService                eventqueue.Service
 	reviewRepo                       review.ReviewRepo
+	pollService                      *PollService
 }
 
 func NewQuestionService(
@@ -122,6 +123,7 @@ func NewQuestionService(
 	configService *config.ConfigService,
 	eventQueueService eventqueue.Service,
 	reviewRepo review.ReviewRepo,
+	pollService *PollService,
 ) *QuestionService {
 	return &QuestionService{
 		activityRepo:                     activityRepo,
@@ -147,7 +149,19 @@ func NewQuestionService(
 		configService:                    configService,
 		eventQueueService:                eventQueueService,
 		reviewRepo:                       reviewRepo,
+		pollService:                      pollService,
 	}
+}
+
+func (qs *QuestionService) userIsStaff(ctx context.Context, userID string) bool {
+	if len(userID) == 0 {
+		return false
+	}
+	rid, err := qs.userRoleRelService.GetUserRole(ctx, userID)
+	if err != nil {
+		return false
+	}
+	return rid == role.RoleAdminID || rid == role.RoleModeratorID
 }
 
 func (qs *QuestionService) CloseQuestion(ctx context.Context, req *schema.CloseQuestionReq) error {
@@ -172,6 +186,7 @@ func (qs *QuestionService) CloseQuestion(ctx context.Context, req *schema.CloseQ
 	if err != nil {
 		return err
 	}
+	qs.pollService.SyncQuestionClosed(ctx, questionInfo.ID)
 
 	closeMeta, _ := json.Marshal(schema.CloseQuestionMeta{
 		CloseType: req.CloseType,
@@ -209,6 +224,7 @@ func (qs *QuestionService) ReopenQuestion(ctx context.Context, req *schema.Reope
 	if err != nil {
 		return err
 	}
+	qs.pollService.SyncQuestionReopened(ctx, questionInfo.ID)
 	qs.questioncommon.RemoveQuestionLinkForReopen(ctx, questionInfo)
 	qs.activityQueueService.Send(ctx, &schema.ActivityMsg{
 		UserID:           req.UserID,
@@ -444,6 +460,19 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 		return rlErrList, rlErr
 	}
 
+	postType := schema.QuestionPostTypeFromStr(req.PostType)
+	if req.Poll != nil && postType != entity.QuestionPostTypePoll {
+		return nil, errors.BadRequest(reason.RequestFormatError)
+	}
+	if postType == entity.QuestionPostTypePoll {
+		if !qs.userIsStaff(ctx, req.UserID) {
+			return nil, errors.Forbidden(reason.PollForbiddenManage)
+		}
+		if req.Poll == nil {
+			return nil, errors.BadRequest(reason.PollOptionsInvalid)
+		}
+	}
+
 	question := &entity.Question{}
 	now := time.Now()
 	question.UserID = req.UserID
@@ -461,6 +490,7 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	question.Pin = entity.QuestionUnPin
 	question.Quality = entity.QuestionNotFeatured
 	question.Show = entity.QuestionShow
+	question.PostType = postType
 	// question.UpdatedAt = nil
 	err = qs.questionRepo.AddQuestion(ctx, question)
 	if err != nil {
@@ -487,6 +517,11 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	errorlist, err := qs.ChangeTag(ctx, &objectTagData)
 	if err != nil {
 		return errorlist, err
+	}
+	if postType == entity.QuestionPostTypePoll {
+		if err := qs.pollService.CreateForQuestion(ctx, question.ID, req.Poll); err != nil {
+			return nil, err
+		}
 	}
 	_ = qs.questionRepo.UpdateSearch(ctx, question.ID)
 
@@ -1045,8 +1080,20 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 
 	isChange := qs.tagCommon.CheckTagsIsChange(ctx, tagNameList, oldtagNameList)
 
-	// If the content is the same, ignore it
+	// If the content is the same, ignore it (unless staff edits poll settings/options).
 	if dbinfo.Title == req.Title && dbinfo.OriginalText == req.Content && !isChange {
+		if req.Poll != nil {
+			if dbinfo.PostType != entity.QuestionPostTypePoll {
+				return nil, errors.BadRequest(reason.PollNotPollQuestion)
+			}
+			if !qs.userIsStaff(ctx, req.UserID) {
+				return nil, errors.Forbidden(reason.PollForbiddenManage)
+			}
+			if err := qs.pollService.UpdatePollForQuestion(ctx, dbinfo.ID, req.Poll); err != nil {
+				return nil, err
+			}
+			return qs.GetQuestion(ctx, dbinfo.ID, req.UserID, req.QuestionPermission)
+		}
 		return
 	}
 
@@ -1154,6 +1201,18 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 			QID(question.ID, question.UserID))
 	}
 
+	if req.Poll != nil {
+		if dbinfo.PostType != entity.QuestionPostTypePoll {
+			return nil, errors.BadRequest(reason.PollNotPollQuestion)
+		}
+		if !qs.userIsStaff(ctx, req.UserID) {
+			return nil, errors.Forbidden(reason.PollForbiddenManage)
+		}
+		if err := qs.pollService.UpdatePollForQuestion(ctx, question.ID, req.Poll); err != nil {
+			return nil, err
+		}
+	}
+
 	questionInfo, err = qs.GetQuestion(ctx, question.ID, question.UserID, req.QuestionPermission)
 	return
 }
@@ -1216,6 +1275,7 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 		per.CanMarkFeatured, per.CanUnmarkFeatured,
 		per.CanRecover)
 	question.ExtendsActions = permission.GetQuestionExtendsPermission(ctx, per.CanInviteOtherToAnswer)
+	qs.pollService.AttachToQuestionInfo(ctx, question, userID)
 	return question, nil
 }
 
@@ -1735,6 +1795,7 @@ func (qs *QuestionService) AdminQuestionPage(
 	for _, info := range questionList {
 		item := &schema.AdminQuestionInfo{}
 		_ = copier.Copy(item, info)
+		item.PostType = schema.QuestionPostTypeToStr(info.PostType)
 		item.CreateTime = info.CreatedAt.Unix()
 		item.UpdateTime = info.PostUpdateTime.Unix()
 		item.EditTime = info.UpdatedAt.Unix()

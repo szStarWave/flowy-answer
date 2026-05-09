@@ -84,6 +84,7 @@ var ProviderSetService = wire.NewSet(
 	action.NewCaptchaService,
 	auth.NewAuthService,
 	content.NewUserService,
+	content.NewPollService,
 	content.NewQuestionService,
 	content.NewAnswerService,
 	export.NewEmailService,

@@ -236,6 +236,25 @@ backend:
         other: Content cannot be empty.
       content_less_than_minimum:
         other: Not enough content entered.
+    poll:
+      not_found:
+        other: 此問題沒有投票。
+      not_poll_question:
+        other: 此貼文不是投票帖。
+      closed:
+        other: 投票已結束。
+      option_invalid:
+        other: 所選選項無效。
+      max_choices_exceeded:
+        other: 選擇數量超過此投票允許的上限。
+      already_voted_no_change:
+        other: 您已投票且不允許修改。
+      forbidden_manage:
+        other: 僅管理員與版主可管理投票。
+      options_invalid:
+        other: 投票選項無效，請提供 2～30 個選項。
+      question_unavailable:
+        other: 目前問題狀態下無法投票。
     rank:
       fail_to_meet_the_condition:
         other: Reputation rank fail to meet the condition.
@@ -1262,6 +1281,25 @@ ui:
     btn_save_edits: 儲存更改
     answer_question: 回答您自己的問題
     post_question&answer: 發布您的問題和答案
+    post_type:
+      label: 貼文類型
+      regular: 一般問題
+      poll: 投票
+      edit_locked_hint: 編輯時無法變更貼文類型；若需不同類型請另發新帖。
+    poll:
+      options_heading: 投票選項
+      option_placeholder: 選項文字
+      add_option: 新增選項
+      remove_option: 移除
+      max_choices: 每人最多可選
+      allow_change: 允許投票後修改選擇
+      visibility: 票數可見性
+      visibility_always: 一律顯示
+      visibility_after_vote: 投票後顯示
+      visibility_after_close: 投票結束後顯示
+      participants: "{{count}} 人參與投票"
+      need_two_options: 至少需要兩個選項。
+      option_label_required: 每個選項都需填寫文字；可刪除空白列或補上文案。
   tag_selector:
     add_btn: 建立標籤
     create_btn: 建立新標籤
@@ -1498,6 +1536,14 @@ ui:
     Follow: 關注
     Following: 已關注
     follow_tip: Follow this question to receive notifications
+    poll:
+      badge: 投票
+      submit_vote: 提交投票
+      update_vote: 更新投票
+      closed: 投票已結束。
+      counts_hidden: 票數將依投票設定顯示。
+      select_up_to: "最多可選 {{max}} 項。"
+      participants: "{{count}} 人參與投票"
     table_of_contents: 本文目錄
     answered: 回答於
     closed_in: 關閉於

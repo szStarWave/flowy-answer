@@ -64,6 +64,9 @@ const QuestionList: FC<Props> = ({
   isLoading = false,
 }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'question' });
+  const { t: tQD } = useTranslation('translation', {
+    keyPrefix: 'question_detail',
+  });
   const navigate = useNavigate();
   const [urlSearchParams] = useSearchParams();
   const { isSkeletonShow } = useSkeletonControl(isLoading);
@@ -180,6 +183,13 @@ const QuestionList: FC<Props> = ({
                         bg="info"
                         className="ms-2 align-middle fw-normal text-nowrap">
                         {t('featured_badge')}
+                      </Badge>
+                    ) : null}
+                    {li.post_type === 'poll' ? (
+                      <Badge
+                        bg="secondary"
+                        className="ms-2 align-middle fw-normal text-nowrap">
+                        {tQD('poll.badge')}
                       </Badge>
                     ) : null}
                   </h5>

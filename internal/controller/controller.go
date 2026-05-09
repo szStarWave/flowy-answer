@@ -31,6 +31,7 @@ var ProviderSetController = wire.NewSet(
 	NewFollowController,
 	NewCollectionController,
 	NewUserController,
+	NewPollController,
 	NewQuestionController,
 	NewAnswerController,
 	NewSearchController,

@@ -80,11 +80,62 @@ export interface TagInfo extends TagBase {
   excerpt?;
   status: string;
 }
+/** Structured poll on a poll-type question (API: `post_type` === `poll`). */
+export interface QuestionPollOptionInput {
+  label: string;
+}
+
+export interface QuestionPollCreatePayload {
+  max_choices_per_user: number;
+  allow_change_vote: boolean;
+  result_visibility: 'always' | 'after_vote' | 'after_close';
+  close_at?: number;
+  options: QuestionPollOptionInput[];
+}
+
+export interface QuestionPollOptionPublic {
+  id: string;
+  label: string;
+  active: boolean;
+  sort_order: number;
+  vote_count: number;
+  pct: number;
+  hide_counts: boolean;
+}
+
+export interface QuestionPollPublic {
+  max_choices_per_user: number;
+  allow_change_vote: boolean;
+  result_visibility: string;
+  status: string;
+  close_at: number;
+  options: QuestionPollOptionPublic[];
+  viewer_has_voted: boolean;
+  viewer_option_ids: string[];
+  can_vote: boolean;
+  total_participants: number;
+}
+
+export interface QuestionPollUpdatePayload {
+  max_choices_per_user?: number;
+  allow_change_vote?: boolean;
+  result_visibility?: string;
+  close_at?: number;
+  status?: string;
+  options?: Array<{
+    id?: string;
+    label?: string;
+    active?: boolean;
+  }>;
+}
+
 export interface QuestionParams extends ImgCodeReq {
   title: string;
   url_title?: string;
   content: string;
   tags: Tag[];
+  post_type?: 'regular' | 'poll';
+  poll?: QuestionPollCreatePayload;
 }
 
 export interface QuestionWithAnswer extends QuestionParams {
@@ -245,6 +296,8 @@ export interface ContentHeading {
 
 export interface QuestionDetailRes {
   id: string;
+  post_type?: string;
+  poll?: QuestionPollPublic;
   title: string;
   content: string;
   html: string;

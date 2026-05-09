@@ -62,6 +62,8 @@ const (
 	QuestionAudit               = "question.audit"
 	TagAudit                    = "tag.audit"
 	TagUseReservedTag           = "tag.use_reserved_tag"
+	// PollVote participate in question polls (distinct from question vote up/down).
+	PollVote = "poll.vote"
 	AnswerUnDelete              = "answer.undeleted"
 	QuestionUnDelete            = "question.undeleted"
 	TagUnDelete                 = "tag.undeleted"

@@ -53,6 +53,9 @@ var (
 		&entity.Meta{},
 		&entity.Notification{},
 		&entity.Question{},
+		&entity.QuestionPoll{},
+		&entity.QuestionPollOption{},
+		&entity.QuestionPollVote{},
 		&entity.QuestionLink{},
 		&entity.Report{},
 		&entity.Revision{},
@@ -131,6 +134,7 @@ var (
 		{ID: 41, Name: "recover tag", PowerType: permission.TagUnDelete, Description: "recover deleted tag"},
 		{ID: 42, Name: "question mark featured", PowerType: permission.QuestionMarkFeatured, Description: "mark question as featured for tag ordering"},
 		{ID: 43, Name: "question unmark featured", PowerType: permission.QuestionUnmarkFeatured, Description: "remove featured mark from question"},
+		{ID: 44, Name: "poll vote", PowerType: permission.PollVote, Description: "vote in question polls"},
 	}
 
 	rolePowerRels = []*entity.RolePowerRel{
@@ -174,6 +178,7 @@ var (
 		{RoleID: 2, PowerType: permission.QuestionShow},
 		{RoleID: 2, PowerType: permission.QuestionMarkFeatured},
 		{RoleID: 2, PowerType: permission.QuestionUnmarkFeatured},
+		{RoleID: 2, PowerType: permission.PollVote},
 		{RoleID: 2, PowerType: permission.AnswerInviteSomeoneToAnswer},
 		{RoleID: 2, PowerType: permission.AnswerUnDelete},
 		{RoleID: 2, PowerType: permission.QuestionUnDelete},
@@ -218,6 +223,7 @@ var (
 		{RoleID: 3, PowerType: permission.QuestionShow},
 		{RoleID: 3, PowerType: permission.QuestionMarkFeatured},
 		{RoleID: 3, PowerType: permission.QuestionUnmarkFeatured},
+		{RoleID: 3, PowerType: permission.PollVote},
 		{RoleID: 3, PowerType: permission.AnswerInviteSomeoneToAnswer},
 		{RoleID: 3, PowerType: permission.AnswerUnDelete},
 		{RoleID: 3, PowerType: permission.QuestionUnDelete},
@@ -364,6 +370,7 @@ var (
 		{ID: 201, Key: "question.unmark_featured", Value: `0`},
 		{ID: 202, Key: "rank.question.mark_featured", Value: `-1`},
 		{ID: 203, Key: "rank.question.unmark_featured", Value: `-1`},
+		{ID: 204, Key: "rank.poll.vote", Value: `1`},
 	}
 
 	defaultBadgeGroupTable = []*entity.BadgeGroup{

@@ -32,6 +32,7 @@ import {
   htmlRender,
   ImgViewer,
   ContentToc,
+  QuestionPoll,
 } from '@/components';
 import { useRenderHtmlPlugin } from '@/utils/pluginKit';
 import { formatCount, guard } from '@/utils';
@@ -43,9 +44,16 @@ interface Props {
   hasAnswer: boolean;
   initPage: (type: string) => void;
   isLogged: boolean;
+  onPollUpdate?: (poll: any) => void;
 }
 
-const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
+const Index: FC<Props> = ({
+  data,
+  initPage,
+  hasAnswer,
+  isLogged,
+  onPollUpdate,
+}) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'question_detail',
   });
@@ -112,6 +120,13 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
               bg="info"
               className="ms-2 align-middle fs-6 fw-normal text-nowrap">
               {tQuestion('featured_badge')}
+            </Badge>
+          ) : null}
+          {data.post_type === 'poll' ? (
+            <Badge
+              bg="secondary"
+              className="ms-2 align-middle fs-6 fw-normal text-nowrap">
+              {t('poll.badge')}
             </Badge>
           ) : null}
         </span>
@@ -201,6 +216,14 @@ const Index: FC<Props> = ({ data, initPage, hasAnswer, isLogged }) => {
           />
         </div>
       </ImgViewer>
+
+      {data.post_type === 'poll' && data.poll ? (
+        <QuestionPoll
+          questionId={data.id}
+          poll={data.poll}
+          onPollUpdate={onPollUpdate}
+        />
+      ) : null}
 
       <div className="m-n1">
         {data?.tags?.map((item: any) => {

@@ -29,19 +29,25 @@ const (
 	ReportObjectType     = "report"
 	BadgeObjectType      = "badge"
 	BadgeAwardObjectType = "badge_award"
+	// QuestionPollOptionObjectType uniqid key for question_poll_option rows
+	QuestionPollOptionObjectType = "question_poll_option"
+	// QuestionPollVoteObjectType uniqid key for question_poll_vote rows
+	QuestionPollVoteObjectType = "question_poll_vote"
 )
 
 var (
 	ObjectTypeStrMapping = map[string]int{
-		QuestionObjectType:   1,
-		AnswerObjectType:     2,
-		TagObjectType:        3,
-		UserObjectType:       4,
-		CollectionObjectType: 6,
-		CommentObjectType:    7,
-		ReportObjectType:     8,
-		BadgeObjectType:      9,
-		BadgeAwardObjectType: 10,
+		QuestionObjectType:           1,
+		AnswerObjectType:             2,
+		TagObjectType:                3,
+		UserObjectType:               4,
+		CollectionObjectType:         6,
+		CommentObjectType:            7,
+		ReportObjectType:             8,
+		BadgeObjectType:              9,
+		BadgeAwardObjectType:         10,
+		QuestionPollOptionObjectType: 11,
+		QuestionPollVoteObjectType:   12,
 	}
 
 	ObjectTypeNumberMapping = map[int]string{
@@ -54,5 +60,7 @@ var (
 		8:  ReportObjectType,
 		9:  BadgeObjectType,
 		10: BadgeAwardObjectType,
+		11: QuestionPollOptionObjectType,
+		12: QuestionPollVoteObjectType,
 	}
 )

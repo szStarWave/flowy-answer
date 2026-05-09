@@ -383,6 +383,7 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 	for _, questionInfo := range questionList {
 		t := &schema.QuestionPageResp{
 			ID:               questionInfo.ID,
+			PostType:         schema.QuestionPostTypeToStr(questionInfo.PostType),
 			CreatedAt:        questionInfo.CreatedAt.Unix(),
 			Title:            questionInfo.Title,
 			UrlTitle:         htmltext.UrlTitle(questionInfo.Title),
@@ -659,6 +660,7 @@ func (qs *QuestionCommon) ShowFormat(ctx context.Context, data *entity.Question)
 	if handler.GetEnableShortID(ctx) {
 		info.ID = uid.EnShortID(data.ID)
 	}
+	info.PostType = schema.QuestionPostTypeToStr(data.PostType)
 	info.Title = data.Title
 	info.UrlTitle = htmltext.UrlTitle(data.Title)
 	info.Content = data.OriginalText

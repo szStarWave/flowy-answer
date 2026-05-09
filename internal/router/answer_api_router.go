@@ -36,6 +36,7 @@ type AnswerAPIRouter struct {
 	followController              *controller.FollowController
 	collectionController          *controller.CollectionController
 	questionController            *controller.QuestionController
+	pollController                *controller.PollController
 	answerController              *controller.AnswerController
 	searchController              *controller.SearchController
 	revisionController            *controller.RevisionController
@@ -74,6 +75,7 @@ func NewAnswerAPIRouter(
 	followController *controller.FollowController,
 	collectionController *controller.CollectionController,
 	questionController *controller.QuestionController,
+	pollController *controller.PollController,
 	answerController *controller.AnswerController,
 	searchController *controller.SearchController,
 	revisionController *controller.RevisionController,
@@ -111,6 +113,7 @@ func NewAnswerAPIRouter(
 		followController:              followController,
 		collectionController:          collectionController,
 		questionController:            questionController,
+		pollController:                pollController,
 		answerController:              answerController,
 		searchController:              searchController,
 		revisionController:            revisionController,
@@ -267,6 +270,7 @@ func (a *AnswerAPIRouter) RegisterAnswerAPIRouter(r *gin.RouterGroup) {
 
 	// question
 	r.POST("/question", a.questionController.AddQuestion)
+	r.POST("/question/poll/vote", a.pollController.VotePoll)
 	r.POST("/question/answer", a.questionController.AddQuestionByAnswer)
 	r.PUT("/question", a.questionController.UpdateQuestion)
 	r.PUT("/question/invite", a.questionController.UpdateQuestionInviteUser)

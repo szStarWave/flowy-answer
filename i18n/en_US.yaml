@@ -247,6 +247,25 @@ backend:
         other: You have reached the daily question limit ({{.limit}} per day).
       post_interval_too_short:
         other: Please wait {{.seconds}} seconds before posting another question.
+    poll:
+      not_found:
+        other: This question does not have a poll.
+      not_poll_question:
+        other: This post is not a poll.
+      closed:
+        other: This poll is closed.
+      option_invalid:
+        other: One or more selected options are invalid.
+      max_choices_exceeded:
+        other: Too many options selected for this poll.
+      already_voted_no_change:
+        other: You have already voted and changes are not allowed.
+      forbidden_manage:
+        other: Only administrators and moderators can manage polls.
+      options_invalid:
+        other: Poll options are invalid. Use at least 2 and at most 30 options.
+      question_unavailable:
+        other: You cannot vote on this question in its current state.
     rank:
       fail_to_meet_the_condition:
         other: Reputation rank fail to meet the condition.
@@ -1305,6 +1324,25 @@ ui:
     btn_save_edits: Save edits
     answer_question: Answer your own question
     post_question&answer: Post your question and answer
+    post_type:
+      label: Post type
+      regular: Regular question
+      poll: Poll
+      edit_locked_hint: Post type cannot be changed when editing. Create a new post to use a different type.
+    poll:
+      options_heading: Poll options
+      option_placeholder: Option text
+      add_option: Add option
+      remove_option: Remove
+      max_choices: Max choices per voter
+      allow_change: Allow voters to change their vote
+      visibility: When to show vote counts
+      visibility_always: Always
+      visibility_after_vote: After the voter has voted
+      visibility_after_close: After the poll closes
+      participants: "{{count}} people voted"
+      need_two_options: Add at least two options.
+      option_label_required: Each poll option must have text; clear the row or restore the label.
   tag_selector:
     add_btn: Add tag
     create_btn: Create new tag
@@ -1559,6 +1597,14 @@ ui:
     Follow: Follow
     Following: Following
     follow_tip: Follow this question to receive notifications
+    poll:
+      badge: Poll
+      submit_vote: Submit vote
+      update_vote: Update vote
+      closed: This poll is closed.
+      counts_hidden: Results will be visible based on the poll settings.
+      select_up_to: "Select up to {{max}}."
+      participants: "{{count}} people voted"
     table_of_contents: On this page
     answered: answered
     closed_in: Closed in

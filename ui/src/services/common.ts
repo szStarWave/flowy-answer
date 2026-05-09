@@ -165,7 +165,11 @@ export const useQueryAnswerInfo = (id: string) => {
 };
 
 export const modifyQuestion = (
-  params: Type.QuestionParams & { id: string; edit_summary: string },
+  params: Type.QuestionParams & {
+    id: string;
+    edit_summary: string;
+    poll?: Type.QuestionPollUpdatePayload;
+  },
 ) => {
   return request.put(`/answer/api/v1/question`, params);
 };
@@ -249,6 +253,16 @@ export const questionDetail = (id: string) => {
   return request.get<Type.QuestionDetailRes>(
     `/answer/api/v1/question/info?id=${id}`,
     { allow404: true },
+  );
+};
+
+export const votePoll = (params: {
+  question_id: string;
+  option_ids: string[];
+}) => {
+  return request.post<{ poll: Type.QuestionPollPublic }>(
+    '/answer/api/v1/question/poll/vote',
+    params,
   );
 };
 
