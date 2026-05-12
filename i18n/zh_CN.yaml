@@ -1360,6 +1360,12 @@ ui:
       view_all_tags: 查看全部标签
     search:
       placeholder: 搜索
+    create_post: 我要发帖
+    tabs:
+      aria: 主导航
+      home: 首页
+      official_announcements: 官方公告
+      quality_cases: 优质案例
   footer:
     build_on: Powered by <1> Apache Answer </1>
   upload_img:

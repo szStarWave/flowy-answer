@@ -18,48 +18,71 @@
  */
 
 import { FC, memo } from 'react';
-import { ListGroupItem } from 'react-bootstrap';
+import { Card, ListGroupItem } from 'react-bootstrap';
 
 interface Props {
   count?: number;
+  /** Align skeleton with `QuestionList` view mode */
+  variant?: 'card' | 'list';
 }
 
-const Index: FC<Props> = ({ count = 10 }) => {
+const Index: FC<Props> = ({ count = 10, variant = 'list' }) => {
   const list = new Array(count).fill(0).map((v, i) => v + i);
+
+  const body = (
+    <>
+      <div
+        className="placeholder h5 align-top d-block"
+        style={{ height: '21px', width: '35%' }}
+      />
+
+      <div
+        className="placeholder w-75 h5 align-top"
+        style={{ height: '24px' }}
+      />
+
+      <div
+        className="placeholder w-100 d-block align-top mb-2"
+        style={{ height: '21px' }}
+      />
+      <div
+        className="placeholder w-100 d-block align-top mb-2"
+        style={{ height: '21px' }}
+      />
+
+      <div
+        className="placeholder w-50 align-top mb-12"
+        style={{ height: '24px' }}
+      />
+
+      <div
+        className="placeholder w-25 align-top d-block"
+        style={{ height: '21px' }}
+      />
+    </>
+  );
+
+  if (variant === 'card') {
+    return (
+      <>
+        {list.map((v) => (
+          <Card
+            key={v}
+            className="question-list__card border-0 shadow-sm rounded-3 placeholder-glow">
+            <Card.Body className="py-3 px-3 px-md-4">{body}</Card.Body>
+          </Card>
+        ))}
+      </>
+    );
+  }
+
   return (
     <>
       {list.map((v) => (
         <ListGroupItem
           className="bg-transparent py-3 px-2 border-start-0 border-end-0 placeholder-glow"
           key={v}>
-          <div
-            className="placeholder h5 align-top d-block"
-            style={{ height: '21px', width: '35%' }}
-          />
-
-          <div
-            className="placeholder w-75 h5 align-top"
-            style={{ height: '24px' }}
-          />
-
-          <div
-            className="placeholder w-100 d-block align-top mb-2"
-            style={{ height: '21px' }}
-          />
-          <div
-            className="placeholder w-100 d-block align-top mb-2"
-            style={{ height: '21px' }}
-          />
-
-          <div
-            className="placeholder w-50 align-top mb-12"
-            style={{ height: '24px' }}
-          />
-
-          <div
-            className="placeholder w-25 align-top d-block"
-            style={{ height: '21px' }}
-          />
+          {body}
         </ListGroupItem>
       ))}
     </>

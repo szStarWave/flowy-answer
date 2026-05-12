@@ -41,8 +41,8 @@ const ActionBar = ({
   const { t } = useTranslation('translation', { keyPrefix: 'comment' });
 
   return (
-    <div className="d-flex justify-content-between flex-wrap small">
-      <div className="d-flex align-items-center flex-wrap link-secondary">
+    <div className="d-flex justify-content-between flex-wrap small comment-action-bar">
+      <div className="d-flex align-items-center flex-wrap link-secondary comment-action-bar__main">
         {userStatus !== 'deleted' ? (
           <Link
             to={`/users/${username}`}
@@ -59,19 +59,26 @@ const ActionBar = ({
           title={t('tip_vote')}
           variant="link"
           size="sm"
-          className={`flex-shrink-0 me-3 btn-no-border p-0 ${
-            isVote ? '' : 'link-secondary'
+          className={`comment-action-bar__btn flex-shrink-0 me-2 btn-no-border ${
+            isVote ? 'comment-action-bar__btn--voted' : 'link-secondary'
           }`}
           onClick={onVote}>
           <Icon name="hand-thumbs-up-fill" />
           {voteCount > 0 && (
-            <span className="ms-2 link-secondary">{voteCount}</span>
+            <span
+              className={
+                isVote
+                  ? 'ms-2 comment-action-bar__count'
+                  : 'ms-2 link-secondary'
+              }>
+              {voteCount}
+            </span>
           )}
         </Button>
         <Button
           variant="link"
           size="sm"
-          className="link-secondary m-0 p-0 btn-no-border"
+          className="comment-action-bar__btn link-secondary m-0 btn-no-border"
           onClick={onReply}>
           {t('btn_reply')}
         </Button>
@@ -84,8 +91,8 @@ const ActionBar = ({
               variant="link"
               size="sm"
               className={classNames(
-                'link-secondary btn-no-border m-0 p-0',
-                index > 0 && 'ms-3',
+                'comment-action-bar__btn link-secondary btn-no-border m-0',
+                index > 0 && 'ms-2',
               )}
               onClick={() => onAction(action)}>
               {action.name}

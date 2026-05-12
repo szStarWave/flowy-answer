@@ -100,7 +100,10 @@ const Index: FC<Props> = ({
   }
 
   return (
-    <div id={data.id} ref={answerRef} className="answer-item py-4">
+    <div
+      id={data.id}
+      ref={answerRef}
+      className="answer-item answer-item-post py-4">
       {data.status === 10 && (
         <Alert variant="danger" className="mb-4">
           {t('post_deleted', { keyPrefix: 'messages' })}

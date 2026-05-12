@@ -31,6 +31,8 @@ import { tryNormalLogged } from '@/utils/guard';
 import { bookmark, postVote } from '@/services';
 import * as Types from '@/common/interface';
 
+import './index.scss';
+
 interface Props {
   className?: string;
   source: 'question' | 'answer';
@@ -147,7 +149,7 @@ const Index: FC<Props> = ({ className, data, source }) => {
   };
 
   return (
-    <div className={classNames(className)}>
+    <div className={classNames('detail-actions', className)}>
       <ButtonGroup>
         <Button
           title={
@@ -177,12 +179,15 @@ const Index: FC<Props> = ({ className, data, source }) => {
       </ButtonGroup>
       {!data?.hideCollect && (
         <Button
-          variant="outline-secondary ms-3"
+          variant="outline-secondary"
+          className="detail-actions-bookmark"
           title={t('question_detail.question_bookmark')}
           active={bookmarkState.state}
           onClick={handleBookmark}>
           <Icon name="bookmark-fill" />
-          <span style={{ paddingLeft: '10px' }}>{bookmarkState.count}</span>
+          <span className="detail-actions-bookmark-count">
+            {bookmarkState.count}
+          </span>
         </Button>
       )}
     </div>

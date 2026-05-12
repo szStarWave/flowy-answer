@@ -1324,6 +1324,12 @@ ui:
       moderation: Moderation
     search:
       placeholder: 搜尋
+    create_post: 我要發帖
+    tabs:
+      aria: 主選單
+      home: 首頁
+      official_announcements: 官方公告
+      quality_cases: 優質案例
   footer:
     build_on: Powered by <1> Apache Answer </1>
   upload_img:

@@ -393,7 +393,7 @@ func (qr *questionRepo) SitemapQuestions(ctx context.Context, page, pageSize int
 
 // GetQuestionPage query question page
 func (qr *questionRepo) GetQuestionPage(ctx context.Context, page, pageSize int,
-	tagIDs []string, userID, orderCond string, inDays int, showHidden, showPending bool) (
+	tagIDs []string, userID, orderCond string, inDays int, showHidden, showPending bool, qualityFilter int) (
 	questionList []*entity.Question, total int64, err error) {
 	questionList = make([]*entity.Question, 0)
 	session := qr.data.DB.Context(ctx)
@@ -421,6 +421,9 @@ func (qr *questionRepo) GetQuestionPage(ctx context.Context, page, pageSize int,
 	}
 	if inDays > 0 {
 		session.And("question.created_at > ?", time.Now().AddDate(0, 0, -inDays))
+	}
+	if qualityFilter == 2 {
+		session.And("question.quality = ?", 2)
 	}
 
 	switch orderCond {

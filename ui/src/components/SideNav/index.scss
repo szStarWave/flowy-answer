@@ -26,64 +26,71 @@
   flex: none;
 }
 
-#sideNav {
+#sideNav.side-nav-root {
+  --side-nav-pill-pad-y: clamp(0.35rem, 0.15rem + 0.5vw, 0.5rem);
+  --side-nav-pill-pad-x: clamp(0.65rem, 0.45rem + 0.6vw, 0.9rem);
+  --side-nav-pill-font: clamp(
+    0.8125rem,
+    0.78rem + 0.15vw,
+    var(--bs-body-font-size, 1rem)
+  );
+
   max-width: 208px;
+  gap: 0.35rem;
+  padding: 0.125rem 0;
 
   .side-nav-popular-tags {
     max-width: 100%;
     margin-top: 0.5rem;
   }
 
-  /* 无论数据是否加载完成，都保留「热门标签」区块位置，便于确认前端已部署、再排查数据/接口 */
-  .side-nav-popular-tags--slot {
-    border-top: 1px solid var(--bs-border-color, #dee2e6);
-    padding-top: 0.75rem;
-    margin-top: 0.75rem;
-  }
-
-  .side-nav-popular-tags__body {
-    min-height: 2.25rem;
-  }
-
-  .side-nav-popular-tags__title {
-    margin-bottom: 0.25rem;
-  }
-
-  .side-nav-popular-tags__list {
-    max-height: 14rem;
-    overflow-y: auto;
-  }
-
-  .side-nav-popular-tags__link:hover {
-    color: var(--an-side-nav-link-hover-color) !important;
-  }
-
-  .side-nav-popular-tags__action {
-    color: var(--an-side-nav-link);
-    font-size: 0.875rem;
-  }
-
-  .side-nav-popular-tags__action:hover {
-    color: var(--an-side-nav-link-hover-color);
-  }
-
-  .side-nav-popular-tags--loading {
-    min-height: 2.25rem;
-  }
-
   .nav-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    border-radius: var(--bs-border-radius-pill);
+    font-size: var(--side-nav-pill-font);
+    font-weight: 500;
+    line-height: var(--bs-body-line-height, 1.5);
+    padding: var(--side-nav-pill-pad-y) var(--side-nav-pill-pad-x);
     color: var(--an-side-nav-link);
+    background-color: transparent;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition:
+      background-color 0.12s ease,
+      border-color 0.12s ease,
+      color 0.12s ease;
   }
+
   .nav-link:focus-visible {
-    box-shadow: none;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    outline: 0;
   }
+
   .nav-link:hover {
     color: var(--an-side-nav-link-hover-color);
-    background-color: var(--bs-gray-100);
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
   }
+
   .nav-link.active {
     color: var(--an-side-nav-link-hover-color);
-    background-color: var(--bs-gray-200);
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    font-weight: 600;
+  }
+
+  .side-nav__section-label {
+    font-size: min(0.6875rem, calc(var(--bs-body-font-size, 1rem) * 0.72));
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    padding: 0.75rem 0.35rem 0.35rem;
+    margin-top: 0.35rem;
+    line-height: 1.2;
   }
 }
 

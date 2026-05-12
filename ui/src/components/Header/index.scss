@@ -23,9 +23,15 @@
   z-index: 1041;
   --bs-navbar-padding-y: 0.75rem;
   background: var(--bs-primary);
-  box-shadow:
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    0 0.125rem 0.25rem rgb(0 0 0 / 8%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.06);
+
+  .header-cta-ask {
+    font-weight: 600;
+    border-radius: var(--bs-border-radius-pill);
+    padding-inline: 1rem;
+    box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.08);
+  }
   .logo {
     max-height: 2rem;
   }
@@ -53,7 +59,12 @@
   .answer-navBar {
     font-size: 1rem;
     padding: 0.25rem 0.5rem;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff !important;
+
+    .navbar-toggler-icon {
+      filter: brightness(0) invert(1);
+    }
   }
   .answer-navBar:focus {
     box-shadow: none;
@@ -65,6 +76,10 @@
 
   .hr {
     color: var(--bs-navbar-color);
+  }
+
+  &.theme-dark {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
   }
 
   // style for colored navbar
@@ -112,6 +127,60 @@
 
   .maxw-560 {
     max-width: 560px;
+  }
+
+  .header-toolbar-center {
+    min-width: 0;
+  }
+
+  .header-search-slot {
+    width: 100%;
+    max-width: 16.25rem;
+  }
+
+  .header-search {
+    max-width: 16.25rem;
+    width: 100%;
+  }
+
+  .header-top-tabs {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &__link {
+      white-space: nowrap;
+      border-radius: var(--bs-border-radius);
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &.active {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 0.35rem;
+      }
+    }
+  }
+
+  /* Top tabs: 温柔白（浅顶栏继承 theme-light 下 .nav-link 的深色字，避免白底白字） */
+  &.theme-dark .header-top-tabs__link {
+    color: rgba(255, 255, 255, 0.86) !important;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.94) !important;
+    }
+
+    &.active {
+      color: rgba(255, 255, 255, 0.98) !important;
+    }
   }
 
   .search-wrap {

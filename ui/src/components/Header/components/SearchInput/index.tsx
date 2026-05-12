@@ -22,9 +22,20 @@ import { Form, FormControl } from 'react-bootstrap';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import classnames from 'classnames';
+
 import { Icon } from '@/components';
 
-const SearchInput: FC<{ className?: string }> = ({ className }) => {
+interface SearchInputProps {
+  className?: string;
+  /** Header toolbar: fixed max width, no horizontal auto margin. */
+  variant?: 'default' | 'header';
+}
+
+const SearchInput: FC<SearchInputProps> = ({
+  className,
+  variant = 'default',
+}) => {
   const { t } = useTranslation('translation', { keyPrefix: 'header' });
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,7 +69,11 @@ const SearchInput: FC<{ className?: string }> = ({ className }) => {
   return (
     <Form
       action="/search"
-      className={`w-100 position-relative mx-auto ${className}`}
+      className={classnames(
+        'w-100 position-relative',
+        variant === 'default' && 'mx-auto',
+        className,
+      )}
       onSubmit={handleSearch}>
       <div className="search-wrap" onClick={handleSearch}>
         <Icon name="search" className="search-icon" />

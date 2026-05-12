@@ -396,7 +396,7 @@ const Comment: FC<IProps> = ({ objectId, mode, commentId, children }) => {
       <div
         className={classNames(
           'comments-wrap',
-          comments.length > 0 && 'bg-light px-3 py-2 rounded',
+          comments.length > 0 && 'comments-wrap--raised px-3 py-2',
         )}>
         {comments.map((item) => {
           return (
@@ -474,7 +474,7 @@ const Comment: FC<IProps> = ({ objectId, mode, commentId, children }) => {
           {comments.length > 0 && (
             <Button
               variant="link"
-              className="p-0 btn-no-border"
+              className="comment-aux-btn btn-no-border"
               size="sm"
               onClick={handleAddComment}>
               {t('btn_add_comment')}
@@ -485,7 +485,7 @@ const Comment: FC<IProps> = ({ objectId, mode, commentId, children }) => {
               <Button
                 variant="link"
                 size="sm"
-                className="p-0 ms-3 btn-no-border"
+                className="comment-aux-btn ms-3 btn-no-border"
                 onClick={() => {
                   setPageIndex(pageIndex + 1);
                 }}>
@@ -502,7 +502,7 @@ const Comment: FC<IProps> = ({ objectId, mode, commentId, children }) => {
             mode={mode}
             className={classNames(
               comments.length <= 0 ? 'mt-3' : 'mt-2',
-              comments.length <= 0 && 'bg-light p-3 rounded',
+              comments.length <= 0 && 'comments-wrap--raised p-3',
             )}
             onSendReply={(value) => handleSendReply({ value, type: 'comment' })}
             onCancel={() => setVisibleComment(!visibleComment)}

@@ -40,7 +40,7 @@ const Index: FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Nav variant="pills" className="flex-column" id="sideNav">
+    <Nav className="side-nav-root flex-column" id="sideNav">
       <NavLink
         to="/questions"
         className={({ isActive }) =>
@@ -93,7 +93,7 @@ const Index: FC = () => {
 
       {can_revision || userInfo?.role_id === 2 ? (
         <>
-          <div className="py-2 px-3 mt-3 small fw-bold">
+          <div className="side-nav__section-label">
             {t('header.nav.moderation')}
           </div>
           {can_revision && (

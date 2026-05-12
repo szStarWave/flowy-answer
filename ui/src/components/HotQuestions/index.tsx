@@ -34,9 +34,7 @@ const HotQuestions: FC = () => {
   }
   return (
     <Card>
-      <Card.Header className="text-nowrap text-capitalize">
-        {t('hot_questions')}
-      </Card.Header>
+      <Card.Header className="text-nowrap">{t('hot_questions')}</Card.Header>
       <ListGroup variant="flush">
         {questionRes?.list?.map((li) => {
           return (
@@ -45,13 +43,15 @@ const HotQuestions: FC = () => {
               as={Link}
               to={pathFactory.questionLanding(li.id, li.url_title)}
               action>
-              <div className="link-dark text-truncate-3">{li.title}</div>
+              <div className="hot-question-title text-truncate-3">
+                {li.title}
+              </div>
               {li.answer_count > 0 ? (
                 <div
-                  className={`d-flex align-items-center small mt-1 ${
+                  className={`hot-question-meta d-flex align-items-center mt-1 ${
                     li.accepted_answer_id > 0
-                      ? 'link-success'
-                      : 'link-secondary'
+                      ? 'hot-question-meta--accepted'
+                      : 'hot-question-meta--open'
                   }`}>
                   {li.accepted_answer_id >= 1 ? (
                     <Icon name="check-circle-fill" />

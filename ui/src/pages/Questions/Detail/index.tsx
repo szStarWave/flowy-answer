@@ -18,8 +18,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Breadcrumb, Card } from 'react-bootstrap';
 import {
+  Link,
   useParams,
   useSearchParams,
   useNavigate,
@@ -28,7 +29,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { Pagination, CustomSidebar } from '@/components';
-import { loggedUserInfoStore, toastStore } from '@/stores';
+import { loggedUserInfoStore, siteInfoStore, toastStore } from '@/stores';
 import { scrollToElementTop, scrollToDocTop } from '@/utils';
 import { usePageTags, usePageUsers, useSkeletonControl } from '@/hooks';
 import type {
@@ -55,6 +56,7 @@ import './index.scss';
 const Index = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('translation');
+  const siteInfo = siteInfoStore((state) => state.siteInfo);
   const { qid = '', slugPermalink = '' } = useParams();
   /**
    * Note: Compatible with Permalink
@@ -246,19 +248,36 @@ const Index = () => {
     <Row className="questionDetailPage pt-4 mb-5">
       <Col className="page-main flex-auto">
         {question?.operation?.level && <Alert data={question.operation} />}
+        {!isSkeletonShow && question?.id && (
+          <Breadcrumb className="question-detail-breadcrumb small mb-3">
+            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/' }}>
+              {siteInfo.name}
+            </Breadcrumb.Item>
+            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/questions' }}>
+              {t('header.nav.question')}
+            </Breadcrumb.Item>
+            <Breadcrumb.Item active className="text-truncate">
+              {question.title}
+            </Breadcrumb.Item>
+          </Breadcrumb>
+        )}
         {isSkeletonShow ? (
           <ContentLoader />
-        ) : (
-          <Question
-            data={question}
-            initPage={initPage}
-            hasAnswer={answers.count > 0}
-            isLogged={isLogged}
-            onPollUpdate={(poll) =>
-              setQuestion((q) => (q ? { ...q, poll } : q))
-            }
-          />
-        )}
+        ) : question?.id ? (
+          <Card className="question-detail-main border-0 shadow-sm mb-4">
+            <Card.Body className="p-3 p-md-4">
+              <Question
+                data={question}
+                initPage={initPage}
+                hasAnswer={answers.count > 0}
+                isLogged={isLogged}
+                onPollUpdate={(poll) =>
+                  setQuestion((q) => (q ? { ...q, poll } : q))
+                }
+              />
+            </Card.Body>
+          </Card>
+        ) : null}
         {!isLoading && answers.count > 0 && (
           <>
             <AnswerHead count={answers.count} order={order} />

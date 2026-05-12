@@ -27,52 +27,85 @@ import { pathFactory } from '@/router/pathFactory';
 
 interface IProps {
   data: any[];
+  /** `card`: horizontal pin strip outside ListGroup; `list`: legacy row inside ListGroup */
+  variant?: 'list' | 'card';
 }
 
-const PinList: FC<IProps> = ({ data }) => {
+const PinList: FC<IProps> = ({ data, variant = 'list' }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'question' });
   if (!data?.length) return null;
 
+  const itemShellClass = variant === 'card' ? 'flex-shrink-0' : 'border-0 p-0';
+  const itemShellStyle = {
+    minWidth: '238px',
+    width: `${100 / data.length}%`,
+  };
+
+  const inner = (
+    <Stack
+      direction="horizontal"
+      gap={3}
+      className="overflow-x-auto align-items-stretch pb-1">
+      {data.map((item) => {
+        const linkClass =
+          variant === 'card'
+            ? 'question-list__card card border-0 shadow-sm h-100 d-flex flex-column justify-content-between p-3 rounded-3'
+            : 'border rounded h-100 d-flex flex-column justify-content-between p-3';
+
+        const body = (
+          <NavLink
+            to={pathFactory.questionLanding(item.id, item.url_title)}
+            className={linkClass}>
+            <h6 className="text-wrap link-dark text-break text-truncate-2">
+              {item.title}
+              {item.status === 2 ? ` [${t('closed')}]` : ''}
+            </h6>
+
+            <Counts
+              data={{
+                votes: item.vote_count,
+                answers: item.answer_count,
+                views: item.view_count,
+              }}
+              isAccepted={item.accepted_answer_id >= 1}
+              showViews={false}
+              className="mt-2 mt-md-0 small text-secondary"
+            />
+          </NavLink>
+        );
+
+        if (variant === 'card') {
+          return (
+            <div
+              key={item.id}
+              className={itemShellClass}
+              style={itemShellStyle}>
+              {body}
+            </div>
+          );
+        }
+
+        return (
+          <ListGroup.Item
+            action
+            as="li"
+            key={item.id}
+            className={itemShellClass}
+            style={itemShellStyle}>
+            {body}
+          </ListGroup.Item>
+        );
+      })}
+    </Stack>
+  );
+
+  if (variant === 'card') {
+    return <div className="mb-1">{inner}</div>;
+  }
+
   return (
     <ListGroup.Item className="py-3 px-0 border-start-0 border-end-0">
-      <Stack
-        direction="horizontal"
-        gap={3}
-        className="overflow-x-auto align-items-stretch">
-        {data.map((item) => {
-          return (
-            <ListGroup.Item
-              action
-              as="li"
-              key={item.id}
-              className="border-0 p-0"
-              style={{
-                minWidth: '238px',
-                width: `${100 / data.length}%`,
-              }}>
-              <NavLink
-                to={pathFactory.questionLanding(item.id, item.url_title)}
-                className="border rounded h-100 d-flex flex-column justify-content-between p-3">
-                <h6 className="text-wrap link-dark text-break text-truncate-2">
-                  {item.title}
-                  {item.status === 2 ? ` [${t('closed')}]` : ''}
-                </h6>
-
-                <Counts
-                  data={{
-                    votes: item.vote_count,
-                    answers: item.answer_count,
-                    views: item.view_count,
-                  }}
-                  isAccepted={item.accepted_answer_id >= 1}
-                  showViews={false}
-                  className="mt-2 mt-md-0 small text-secondary"
-                />
-              </NavLink>
-            </ListGroup.Item>
-          );
-        })}
-      </Stack>
+      {inner}
     </ListGroup.Item>
   );
 };

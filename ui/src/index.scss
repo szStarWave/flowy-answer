@@ -58,6 +58,12 @@ img[src=''] {
   word-break: break-word;
 }
 
+.page-wrap {
+  background-color: var(--bs-tertiary-bg);
+}
+
+@import 'common/pageRightSide';
+
 .btn-link {
   text-decoration: none;
 }

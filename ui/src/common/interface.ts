@@ -373,6 +373,8 @@ export interface QueryQuestionsReq extends Paging {
   order: QuestionOrderBy;
   tag?: string;
   in_days?: number;
+  /** When 2, API returns only featured (优质) questions. */
+  quality?: number;
 }
 
 export type AdminQuestionStatus =

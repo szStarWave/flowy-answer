@@ -1654,8 +1654,12 @@ func (qs *QuestionService) GetQuestionPage(ctx context.Context, req *schema.Ques
 		req.InDays = schema.HotInDays
 	}
 
+	qualityFilter := 0
+	if req.Quality == 2 {
+		qualityFilter = 2
+	}
 	questionList, total, err := qs.questionRepo.GetQuestionPage(ctx, req.Page, req.PageSize,
-		tagIDs, req.UserIDBeSearched, req.OrderCond, req.InDays, showHidden, req.ShowPending)
+		tagIDs, req.UserIDBeSearched, req.OrderCond, req.InDays, showHidden, req.ShowPending, qualityFilter)
 	if err != nil {
 		return nil, 0, err
 	}

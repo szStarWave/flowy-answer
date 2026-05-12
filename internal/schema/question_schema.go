@@ -393,6 +393,8 @@ type QuestionPageReq struct {
 	Tag       string `validate:"omitempty,gt=0,lte=100" form:"tag"`
 	Username  string `validate:"omitempty,gt=0,lte=100" form:"username"`
 	InDays    int    `validate:"omitempty,min=1" form:"in_days"`
+	// Quality when set to 2 limits results to featured posts (entity.Question quality featured).
+	Quality int `validate:"omitempty,oneof=2" form:"quality"`
 
 	LoginUserID      string `json:"-"`
 	UserIDBeSearched string `json:"-"`

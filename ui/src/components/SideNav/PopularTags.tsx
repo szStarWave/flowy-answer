@@ -11,20 +11,25 @@
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR ANY
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
 import { useMemo, memo, type FC, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from 'react-bootstrap';
+
+import classnames from 'classnames';
 
 import { pathFactory } from '@/router/pathFactory';
 import type { TagInfo } from '@/common/interface';
 import { useQueryTags } from '@/services';
+import { floppyNavigation } from '@/utils';
+
+import './PopularTags.scss';
 
 const MAX_DISPLAY_TAGS = 60;
 const SIDEBAR_TAG_PAGE_SIZE = Math.min(30, MAX_DISPLAY_TAGS);
@@ -55,59 +60,64 @@ const Index: FC = () => {
     body = (
       <div className="side-nav-popular-tags--loading d-flex align-items-center gap-2">
         <Spinner animation="border" size="sm" role="status" />
-        <span className="small text-secondary">
-          {t('popular_tags_loading')}
-        </span>
+        <span className="small">{t('popular_tags_loading')}</span>
       </div>
     );
   } else if (error && !result) {
     body = (
-      <>
-        <div className="small text-secondary mb-1">
-          {t('popular_tags_error')}
-        </div>
-        <div className="small">
-          <Link className="link-secondary text-decoration-none" to="/tags">
-            {t('view_all_tags')}
-          </Link>
-        </div>
-      </>
+      <div className="side-nav-popular-tags__empty">
+        <div>{t('popular_tags_error')}</div>
+        <NavLink
+          end
+          className="nav-link"
+          to="/tags"
+          onClick={floppyNavigation.handleRouteLinkClick}>
+          {t('view_all_tags')}
+        </NavLink>
+      </div>
     );
   } else if (!tags.length) {
     body = (
-      <>
-        <div className="small text-secondary mb-1">
-          {t('popular_tags_none')}
-        </div>
-        <div className="small">
-          <Link className="link-secondary text-decoration-none" to="/tags">
-            {t('view_all_tags')}
-          </Link>
-        </div>
-      </>
+      <div className="side-nav-popular-tags__empty">
+        <div>{t('popular_tags_none')}</div>
+        <NavLink
+          end
+          className="nav-link"
+          to="/tags"
+          onClick={floppyNavigation.handleRouteLinkClick}>
+          {t('view_all_tags')}
+        </NavLink>
+      </div>
     );
   } else {
     body = (
-      <>
-        <div className="side-nav-popular-tags__list d-flex flex-column gap-1 px-1">
+      <div className="side-nav-popular-tags__stack">
+        <div className="side-nav-popular-tags__list">
           {tags.map((item) => (
-            <Link
+            <NavLink
               key={item.slug_name}
-              className="side-nav-popular-tags__link small text-decoration-none text-body text-truncate"
+              className={({ isActive }) =>
+                classnames('nav-link text-truncate', { active: isActive })
+              }
               to={pathFactory.tagLanding(item.slug_name)}
-              title={item.display_name}>
+              title={item.display_name}
+              onClick={floppyNavigation.handleRouteLinkClick}>
               {item.display_name || item.slug_name}
-            </Link>
+            </NavLink>
           ))}
         </div>
         {total > tags.length ? (
-          <div className="pt-1 small">
-            <Link className="link-secondary text-decoration-none" to="/tags">
-              {t('view_all_tags')}
-            </Link>
-          </div>
+          <NavLink
+            end
+            className={({ isActive }) =>
+              classnames('nav-link', { active: isActive })
+            }
+            to="/tags"
+            onClick={floppyNavigation.handleRouteLinkClick}>
+            {t('view_all_tags')}
+          </NavLink>
         ) : null}
-      </>
+      </div>
     );
   }
 
@@ -115,10 +125,8 @@ const Index: FC = () => {
     <div
       className="side-nav-popular-tags side-nav-popular-tags--slot px-0"
       data-sidebar-slot="popular-tags">
-      <div className="side-nav-popular-tags__title small text-secondary text-uppercase px-2">
-        {t('popular_tags')}
-      </div>
-      <div className="side-nav-popular-tags__body py-1">{body}</div>
+      <div className="side-nav__section-label">{t('popular_tags')}</div>
+      <div className="side-nav-popular-tags__body">{body}</div>
     </div>
   );
 };

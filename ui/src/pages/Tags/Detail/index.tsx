@@ -50,11 +50,13 @@ const Index: FC = () => {
   const curOrder = (urlSearchParams.get('order') ||
     QUESTION_ORDER_KEYS[0]) as Type.QuestionOrderBy;
   const curPage = Number(urlSearchParams.get('page')) || 1;
+  const featuredOnly = urlSearchParams.get('quality') === '2';
   const reqParams: Type.QueryQuestionsReq = {
     page_size: 20,
     page: curPage,
     order: curOrder as Type.QuestionOrderBy,
     tag: routeParams.tagName,
+    ...(featuredOnly ? { quality: 2 } : {}),
   };
   const [tagInfo, setTagInfo] = useState<any>({});
   const [tagFollow, setTagFollow] = useState<Type.FollowParams>();

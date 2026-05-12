@@ -54,7 +54,7 @@ const Index: FC = () => {
     return null;
   }
   return isEdit ? (
-    <Card className="mb-4">
+    <Card>
       <Card.Header className="text-nowrap d-flex justify-content-between">
         {t('following_tags')}
         <Button
@@ -75,12 +75,12 @@ const Index: FC = () => {
       </Card.Body>
     </Card>
   ) : (
-    <Card className="mb-4">
-      <Card.Header className="text-nowrap d-flex justify-content-between text-capitalize">
+    <Card>
+      <Card.Header className="text-nowrap d-flex justify-content-between">
         {t('following_tags')}
         <Button
           variant="link"
-          className="p-0 btn-no-border text-capitalize"
+          className="p-0 btn-no-border"
           onClick={() => setEditState(true)}>
           {t('edit')}
         </Button>

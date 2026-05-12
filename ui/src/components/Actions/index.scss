@@ -1,0 +1,119 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-actions .btn-group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10rem;
+  overflow: hidden;
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme='dark'] .detail-actions .btn-group {
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.35);
+}
+
+.detail-actions .btn-group > .btn {
+  margin-left: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: var(--bs-secondary-color);
+  background-color: transparent;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+
+  &:not(:last-child) {
+    border-right: 1px solid var(--bs-border-color) !important;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    color: var(--bs-emphasis-color);
+    background-color: var(--bs-tertiary-bg);
+  }
+
+  &:disabled {
+    opacity: 1;
+    color: var(--bs-emphasis-color);
+    background-color: var(--bs-tertiary-bg);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 2.5rem;
+  }
+
+  &:first-child.active {
+    color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.14);
+  }
+
+  &:last-child.active {
+    color: var(--bs-danger);
+    background-color: rgba(var(--bs-danger-rgb), 0.12);
+  }
+}
+
+.detail-actions-bookmark {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10rem !important;
+  border: 1px solid var(--bs-border-color) !important;
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--bs-secondary-color) !important;
+  background-color: var(--bs-body-bg) !important;
+  box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06);
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+
+  &:hover:not(:disabled) {
+    color: var(--bs-emphasis-color) !important;
+    background-color: var(--bs-tertiary-bg) !important;
+  }
+
+  &.active {
+    color: var(--bs-primary) !important;
+    border-color: rgba(var(--bs-primary-rgb), 0.45) !important;
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+  }
+}
+
+[data-bs-theme='dark'] .detail-actions-bookmark {
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.35);
+}
+
+.detail-actions-bookmark-count {
+  padding-left: 0.4rem;
+  font-variant-numeric: tabular-nums;
+}

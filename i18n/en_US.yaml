@@ -1378,6 +1378,12 @@ ui:
       view_all_tags: View all tags
     search:
       placeholder: Search
+    create_post: New post
+    tabs:
+      aria: Main menu
+      home: Home
+      official_announcements: Official announcements
+      quality_cases: Showcase
   footer:
     build_on: Powered by <1> Apache Answer </1>
   upload_img:

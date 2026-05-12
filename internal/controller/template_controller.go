@@ -103,6 +103,21 @@ func GetStyle() (script []string, css string) {
 	}
 	return
 }
+
+// serveEmbeddedUIIndex serves the React SPA shell; used when the classic template route
+// cannot represent the same URL (e.g. tag list filters only implemented in the SPA).
+func (tc *TemplateController) serveEmbeddedUIIndex(ctx *gin.Context) {
+	file, err := ui.Build.ReadFile("build/index.html")
+	if err != nil {
+		log.Error(err)
+		tc.Page404(ctx)
+		return
+	}
+	ctx.Header("content-type", "text/html;charset=utf-8")
+	ctx.Header("X-Frame-Options", "DENY")
+	ctx.String(http.StatusOK, string(file))
+}
+
 func (tc *TemplateController) SiteInfo(ctx *gin.Context) *schema.TemplateSiteInfoResp {
 	var err error
 	resp := &schema.TemplateSiteInfoResp{}
@@ -471,6 +486,11 @@ func (tc *TemplateController) TagList(ctx *gin.Context) {
 // TagInfo taginfo
 func (tc *TemplateController) TagInfo(ctx *gin.Context) {
 	tag := ctx.Param("tag")
+	// Classic SEO template does not support SPA-only query params; hand off to embedded UI.
+	if ctx.Request.URL.Query().Get("quality") != "" {
+		tc.serveEmbeddedUIIndex(ctx)
+		return
+	}
 	req := &schema.GetTamplateTagInfoReq{}
 	if handler.BindAndCheck(ctx, req) {
 		tc.Page404(ctx)
@@ -519,14 +539,7 @@ func (tc *TemplateController) UserInfo(ctx *gin.Context) {
 
 	exist := checker.IsUsersIgnorePath(username)
 	if exist {
-		file, err := ui.Build.ReadFile("build/index.html")
-		if err != nil {
-			log.Error(err)
-			tc.Page404(ctx)
-			return
-		}
-		ctx.Header("content-type", "text/html;charset=utf-8")
-		ctx.String(http.StatusOK, string(file))
+		tc.serveEmbeddedUIIndex(ctx)
 		return
 	}
 	req := &schema.GetOtherUserInfoByUsernameReq{}

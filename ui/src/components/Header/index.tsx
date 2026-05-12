@@ -38,6 +38,7 @@ import { Icon, MobileSideNav } from '@/components';
 
 import NavItems from './components/NavItems';
 import SearchInput from './components/SearchInput';
+import HeaderTopTabs from './components/HeaderTopTabs';
 
 import './index.scss';
 
@@ -45,6 +46,7 @@ const Header: FC = () => {
   const location = useLocation();
   const { user, clear: clearUserStore } = loggedUserInfoStore();
   const { t } = useTranslation();
+  const { t: tHeader } = useTranslation('translation', { keyPrefix: 'header' });
   const siteInfo = siteInfoStore((state) => state.siteInfo);
   const brandingInfo = brandingStore((state) => state.branding);
   const loginSetting = loginSettingStore((state) => state.login);
@@ -129,7 +131,8 @@ const Header: FC = () => {
         <Navbar.Brand
           to="/"
           as={Link}
-          className="lh-1 me-0 me-sm-5 p-0 nav-text">
+          className="lh-1 me-0 me-lg-3 p-0 nav-text flex-shrink-0"
+          onClick={floppyNavigation.handleRouteLinkClick}>
           {brandingInfo.logo ? (
             <>
               <img
@@ -149,7 +152,12 @@ const Header: FC = () => {
           )}
         </Navbar.Brand>
 
-        <SearchInput className="d-none d-lg-block maxw-560" />
+        <div className="header-toolbar-center d-none d-lg-flex align-items-center flex-grow-1 min-w-0 ms-lg-1 me-lg-2 gap-2">
+          <HeaderTopTabs />
+          <div className="header-search-slot ms-auto flex-shrink-0">
+            <SearchInput variant="header" className="header-search" />
+          </div>
+        </div>
 
         <Nav className="d-block d-lg-none me-2 ms-auto">
           <Button
@@ -175,12 +183,14 @@ const Header: FC = () => {
             </Nav.Item>
 
             <Nav.Item className="me-2 d-none d-xl-block">
-              <NavLink
+              <Button
+                as={Link}
                 to={askUrl}
-                className="nav-link d-flex align-items-center text-capitalize text-nowrap">
-                <Icon name="plus-lg" className="me-2 lh-1 fs-4" />
-                <span>{t('btns.create')}</span>
-              </NavLink>
+                variant={navbarStyle === 'theme-dark' ? 'light' : 'primary'}
+                className="d-flex align-items-center text-nowrap header-cta-ask">
+                <Icon name="plus-lg" className="me-2 lh-1 fs-5" />
+                <span>{tHeader('create_post')}</span>
+              </Button>
             </Nav.Item>
 
             <NavItems redDot={redDot} userInfo={user} logOut={handleLogout} />

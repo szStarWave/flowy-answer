@@ -18,9 +18,11 @@
  */
 
 import { FC, useEffect, useState } from 'react';
-import { ListGroup, Dropdown, Badge } from 'react-bootstrap';
+import { ListGroup, Dropdown, Badge, Card } from 'react-bootstrap';
 import { NavLink, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+
+import classnames from 'classnames';
 
 import { pathFactory } from '@/router/pathFactory';
 import {
@@ -39,6 +41,8 @@ import * as Type from '@/common/interface';
 import { useSkeletonControl } from '@/hooks';
 import Storage from '@/utils/storage';
 import { LIST_VIEW_STORAGE_KEY } from '@/common/constants';
+
+import './index.scss';
 
 export const QUESTION_ORDER_KEYS: Type.QuestionOrderBy[] = [
   'newest',
@@ -100,16 +104,21 @@ const QuestionList: FC<Props> = ({
     setViewType(type);
   }, []);
 
+  const isCardView = viewType === 'card';
+
   return (
-    <div>
-      <div className="mb-3 d-flex flex-wrap justify-content-between">
-        <h5 className="fs-5 text-nowrap mb-3 mb-md-0">
+    <div
+      className={classnames('question-list', {
+        'question-list--card': isCardView,
+      })}>
+      <div className="mb-3 d-flex flex-wrap justify-content-between align-items-md-center gap-2">
+        <h2 className="h5 mb-0 text-nowrap fw-semibold">
           {source === 'questions'
             ? t('all_questions')
             : source === 'linked'
               ? t('x_posts', { count })
               : t('x_questions', { count })}
-        </h5>
+        </h2>
         <div className="d-flex flex-wrap">
           <QueryGroup
             data={orderKeys}
@@ -138,23 +147,116 @@ const QuestionList: FC<Props> = ({
           </Dropdown>
         </div>
       </div>
-      <ListGroup className="rounded-0">
-        {isSkeletonShow ? (
-          <QuestionListLoader />
-        ) : (
+      {isSkeletonShow ? (
+        <QuestionListLoader variant={isCardView ? 'card' : 'list'} />
+      ) : isCardView ? (
+        <>
+          <PinList data={pinData} variant="card" />
+          {renderData?.map((li) => {
+            const href = pathFactory.questionLanding(li.id, li.url_title);
+            return (
+              <Card
+                key={li.id}
+                role="button"
+                tabIndex={0}
+                className="question-list__card border-0 shadow-sm rounded-3"
+                onClick={() => handleNavigate(href)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNavigate(href);
+                  }
+                }}>
+                <Card.Body className="py-3 px-3 px-md-4">
+                  <div className="d-flex flex-wrap text-secondary small mb-12">
+                    <BaseUserCard
+                      data={li.operator}
+                      className="me-1"
+                      avatarClass="me-1"
+                    />
+                    •
+                    <FormatTime
+                      time={
+                        curOrder === 'active' ? li.operated_at : li.created_at
+                      }
+                      className="text-secondary ms-1 flex-shrink-0"
+                    />
+                  </div>
+                  <div className="text-wrap text-break question-list__title mb-1">
+                    <NavLink
+                      className="link-dark align-middle"
+                      onClick={(e) => e.stopPropagation()}
+                      to={href}>
+                      {li.title}
+                      {li.status === 2 ? ` [${t('closed')}]` : ''}
+                    </NavLink>
+                    {li.quality === 2 ? (
+                      <Badge
+                        bg="info"
+                        className="ms-2 align-middle fw-normal text-nowrap">
+                        {t('featured_badge')}
+                      </Badge>
+                    ) : null}
+                    {li.post_type === 'poll' ? (
+                      <Badge
+                        bg="secondary"
+                        className="ms-2 align-middle fw-normal text-nowrap">
+                        {tQD('poll.badge')}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <div className="text-truncate-2 mb-2">
+                    <NavLink
+                      to={href}
+                      className="d-block small text-body"
+                      dangerouslySetInnerHTML={{ __html: li.description }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+
+                  <div className="question-tags mb-12">
+                    {Array.isArray(li.tags)
+                      ? li.tags.map((tag, index) => {
+                          return (
+                            <Tag
+                              key={tag.slug_name}
+                              className={`${
+                                li.tags.length - 1 === index ? '' : 'me-1'
+                              }`}
+                              data={tag}
+                            />
+                          );
+                        })
+                      : null}
+                  </div>
+                  <div className="small text-secondary position-relative">
+                    <Counts
+                      data={{
+                        votes: li.vote_count,
+                        answers: li.answer_count,
+                        views: li.view_count,
+                      }}
+                      isAccepted={li.accepted_answer_id >= 1}
+                      className="mt-2 mt-md-0"
+                    />
+                  </div>
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      ) : (
+        <ListGroup className="question-list__list-shell rounded-3">
           <>
-            <PinList data={pinData} />
+            <PinList data={pinData} variant="list" />
             {renderData?.map((li) => {
+              const href = pathFactory.questionLanding(li.id, li.url_title);
               return (
                 <ListGroup.Item
                   key={li.id}
                   action
                   as="li"
-                  onClick={() =>
-                    handleNavigate(
-                      pathFactory.questionLanding(li.id, li.url_title),
-                    )
-                  }
+                  onClick={() => handleNavigate(href)}
                   className="py-3 px-2 border-start-0 border-end-0 position-relative pointer">
                   <div className="d-flex flex-wrap text-secondary small mb-12">
                     <BaseUserCard
@@ -174,7 +276,7 @@ const QuestionList: FC<Props> = ({
                     <NavLink
                       className="link-dark align-middle"
                       onClick={(e) => e.stopPropagation()}
-                      to={pathFactory.questionLanding(li.id, li.url_title)}>
+                      to={href}>
                       {li.title}
                       {li.status === 2 ? ` [${t('closed')}]` : ''}
                     </NavLink>
@@ -193,16 +295,6 @@ const QuestionList: FC<Props> = ({
                       </Badge>
                     ) : null}
                   </h5>
-                  {viewType === 'card' && (
-                    <div className="text-truncate-2 mb-2">
-                      <NavLink
-                        to={pathFactory.questionLanding(li.id, li.url_title)}
-                        className="d-block small text-body"
-                        dangerouslySetInnerHTML={{ __html: li.description }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  )}
 
                   <div className="question-tags mb-12">
                     {Array.isArray(li.tags)
@@ -234,8 +326,8 @@ const QuestionList: FC<Props> = ({
               );
             })}
           </>
-        )}
-      </ListGroup>
+        </ListGroup>
+      )}
       {count <= 0 && !isLoading && <Empty />}
       <div className="mt-4 mb-2 d-flex justify-content-center">
         <Pagination

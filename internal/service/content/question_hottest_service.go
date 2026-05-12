@@ -42,7 +42,7 @@ func (q *QuestionService) RefreshHottestCron(ctx context.Context) {
 			[]string{},
 			"", "newest",
 			schema.HotInDays,
-			false, false)
+			false, false, 0)
 		if err != nil {
 			return
 		}
