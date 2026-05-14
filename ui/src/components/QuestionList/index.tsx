@@ -125,16 +125,24 @@ const QuestionList: FC<Props> = ({
             currentSort={curOrder}
             pathname={source === 'questions' ? '/questions' : ''}
             i18nKeyPrefix="question"
-            maxBtnCount={source === 'tag' ? 3 : 4}
             wrapClassName="me-2"
           />
-          <Dropdown align="end" onSelect={handleViewMode}>
-            <Dropdown.Toggle variant="outline-secondary" size="sm">
+          <Dropdown
+            align="end"
+            className="question-list__view-dropdown"
+            onSelect={handleViewMode}>
+            <Dropdown.Toggle
+              variant="outline-secondary"
+              size="sm"
+              className="question-list__view-dropdown-toggle"
+              id="question-list-view-mode">
               <Icon name={viewType === 'card' ? 'view-stacked' : 'list'} />
             </Dropdown.Toggle>
 
-            <Dropdown.Menu>
-              <Dropdown.Header as="h6">
+            <Dropdown.Menu className="question-list__view-dropdown-menu">
+              <Dropdown.Header
+                as="h6"
+                className="question-list__view-dropdown-header">
                 {t('view', { keyPrefix: 'btns' })}
               </Dropdown.Header>
               <Dropdown.Item eventKey="card" active={viewType === 'card'}>
@@ -159,7 +167,7 @@ const QuestionList: FC<Props> = ({
                 key={li.id}
                 role="button"
                 tabIndex={0}
-                className="question-list__card border-0 shadow-sm rounded-3"
+                className="question-list__card rounded-3"
                 onClick={() => handleNavigate(href)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -205,10 +213,10 @@ const QuestionList: FC<Props> = ({
                       </Badge>
                     ) : null}
                   </div>
-                  <div className="text-truncate-2 mb-2">
+                  <div className="text-truncate-2 mb-2 question-list__excerpt">
                     <NavLink
                       to={href}
-                      className="d-block small text-body"
+                      className="d-block small text-secondary"
                       dangerouslySetInnerHTML={{ __html: li.description }}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -246,7 +254,7 @@ const QuestionList: FC<Props> = ({
           })}
         </>
       ) : (
-        <ListGroup className="question-list__list-shell rounded-3">
+        <ListGroup className="feeds-list-shell rounded-3 border-0">
           <>
             <PinList data={pinData} variant="list" />
             {renderData?.map((li) => {
@@ -257,7 +265,7 @@ const QuestionList: FC<Props> = ({
                   action
                   as="li"
                   onClick={() => handleNavigate(href)}
-                  className="py-3 px-2 border-start-0 border-end-0 position-relative pointer">
+                  className="question-list__row position-relative pointer">
                   <div className="d-flex flex-wrap text-secondary small mb-12">
                     <BaseUserCard
                       data={li.operator}
@@ -272,7 +280,7 @@ const QuestionList: FC<Props> = ({
                       className="text-secondary ms-1 flex-shrink-0"
                     />
                   </div>
-                  <h5 className="text-wrap text-break">
+                  <h5 className="question-list__row-title text-wrap text-break mb-1">
                     <NavLink
                       className="link-dark align-middle"
                       onClick={(e) => e.stopPropagation()}

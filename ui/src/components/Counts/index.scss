@@ -1,0 +1,55 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.counts-strip {
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.counts-strip__item {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.counts-strip__item--views {
+  color: var(--bs-secondary-color);
+}
+
+.counts-strip__item .fw-medium {
+  color: var(--bs-emphasis-color);
+}
+
+.counts-strip__item--success {
+  color: var(--bs-success);
+  background-color: rgba(var(--bs-success-rgb), 0.12);
+  border-color: rgba(var(--bs-success-rgb), 0.35);
+}
+
+.counts-strip__item--success .fw-medium {
+  color: inherit;
+}

@@ -34,14 +34,12 @@ const Index: FC<Props> = ({ visible, data }) => {
     return null;
   }
   return (
-    <ListGroup className="rounded-0">
+    <ListGroup className="feeds-list-shell rounded-3 border-0">
       {data.map((item) => {
         return (
-          <ListGroupItem
-            className="py-3 px-0 bg-transparent border-start-0 border-end-0"
-            key={item.comment_id}>
+          <ListGroupItem key={item.comment_id}>
             <Link
-              className="text-break"
+              className="feeds-list-title-sm link-dark text-break d-inline-block mb-2"
               to={
                 item.object_type === 'question'
                   ? pathFactory.questionLanding(
@@ -57,7 +55,7 @@ const Index: FC<Props> = ({ visible, data }) => {
               {item.title}
             </Link>
             <div
-              className="small mb-2 last-p text-break text-truncate-2"
+              className="feeds-list-excerpt mb-2 last-p text-break text-truncate-2"
               dangerouslySetInnerHTML={{
                 __html: item.content,
               }}

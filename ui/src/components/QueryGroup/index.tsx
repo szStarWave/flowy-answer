@@ -37,7 +37,6 @@ interface Props {
   className?: string;
   pathname?: string;
   wrapClassName?: string;
-  maxBtnCount?: number;
 }
 const Index: FC<Props> = ({
   data = [],
@@ -47,7 +46,6 @@ const Index: FC<Props> = ({
   className = '',
   pathname = '',
   wrapClassName = '',
-  maxBtnCount = 3,
 }) => {
   const [searchParams, setUrlSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -74,16 +72,16 @@ const Index: FC<Props> = ({
       }
     }
   };
-  const moreBtnData = data.length > 4 ? data.slice(maxBtnCount) : [];
-  const normalBtnData = data.length > 4 ? data.slice(0, maxBtnCount) : data;
-  const currentBtn = moreBtnData.find((btn) => {
-    return (typeof btn === 'string' ? btn : btn.name) === currentSort;
-  });
 
   return (
     <>
-      <ButtonGroup size="sm" className={classNames('md-show', wrapClassName)}>
-        {normalBtnData.map((btn) => {
+      <ButtonGroup
+        size="sm"
+        className={classNames(
+          'query-group-toolbar query-group-toolbar--wrap md-show',
+          wrapClassName,
+        )}>
+        {data.map((btn) => {
           const key = typeof btn === 'string' ? btn : btn.sort;
           const name = typeof btn === 'string' ? btn : btn.name;
           return (
@@ -91,7 +89,7 @@ const Index: FC<Props> = ({
               key={key}
               variant="outline-secondary"
               active={currentSort === name}
-              className={classNames('text-capitalize fit-content', className)}
+              className={classNames('fit-content', className)}
               href={
                 pathname
                   ? `${REACT_BASE_PATH}${pathname}${handleParams(key)}`
@@ -102,38 +100,14 @@ const Index: FC<Props> = ({
             </Button>
           );
         })}
-        {moreBtnData.length > 0 && (
-          <DropdownButton
-            size="sm"
-            variant={currentBtn ? 'secondary' : 'outline-secondary'}
-            as={ButtonGroup}
-            title={currentBtn ? t(currentSort) : t('more')}>
-            {moreBtnData.map((btn) => {
-              const key = typeof btn === 'string' ? btn : btn.sort;
-              const name = typeof btn === 'string' ? btn : btn.name;
-              return (
-                <Dropdown.Item
-                  as="a"
-                  key={key}
-                  active={currentSort === name}
-                  className={classNames('text-capitalize', className)}
-                  href={
-                    pathname
-                      ? `${REACT_BASE_PATH}${pathname}${handleParams(key)}`
-                      : handleParams(key)
-                  }
-                  onClick={(evt) => handleClick(evt, key)}>
-                  {t(name)}
-                </Dropdown.Item>
-              );
-            })}
-          </DropdownButton>
-        )}
       </ButtonGroup>
       <DropdownButton
         size="sm"
         variant="outline-secondary"
-        className={classNames('md-hide', wrapClassName)}
+        className={classNames(
+          'query-group-toolbar-mobile md-hide',
+          wrapClassName,
+        )}
         title={t(currentSort)}>
         {data.map((btn) => {
           const key = typeof btn === 'string' ? btn : btn.sort;
@@ -143,7 +117,7 @@ const Index: FC<Props> = ({
               as="a"
               key={key}
               active={currentSort === name}
-              className={classNames('text-capitalize', className)}
+              className={classNames(className)}
               href={
                 pathname
                   ? `${REACT_BASE_PATH}${pathname}${handleParams(key)}`

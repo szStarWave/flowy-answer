@@ -25,6 +25,8 @@ import classname from 'classnames';
 import { Icon } from '@/components';
 import { formatCount } from '@/utils/common';
 
+import './index.scss';
+
 interface Props {
   data: {
     votes: number;
@@ -50,9 +52,13 @@ const Index: FC<Props> = ({
   const { t } = useTranslation('translation', { keyPrefix: 'counts' });
 
   return (
-    <div className={classname('d-flex align-items-center', className)}>
+    <div
+      className={classname(
+        'counts-strip d-flex align-items-center',
+        className,
+      )}>
       {showVotes && (
-        <div className="d-flex align-items-center flex-shrink-0 text-body">
+        <div className="counts-strip__item">
           <Icon name="hand-thumbs-up-fill me-1" />
           <span className="fw-medium">{data.votes}</span>
           <span className="ms-1">{t('votes')}</span>
@@ -60,7 +66,7 @@ const Index: FC<Props> = ({
       )}
 
       {showAccepted && (
-        <div className="d-flex align-items-center ms-3 text-success flex-shrink-0">
+        <div className="counts-strip__item counts-strip__item--success">
           <Icon name="check-circle-fill me-1" />
           <span>{t('accepted')}</span>
         </div>
@@ -68,9 +74,10 @@ const Index: FC<Props> = ({
 
       {showAnswers && (
         <div
-          className={`d-flex flex-shrink-0 align-items-center ms-3 ${
-            isAccepted ? 'text-bg-success rounded-pill px-2 ' : ''
-          }`}>
+          className={classname(
+            'counts-strip__item',
+            isAccepted && 'counts-strip__item--success',
+          )}>
           {isAccepted ? (
             <Icon name="check-circle-fill me-1" />
           ) : (
@@ -81,20 +88,22 @@ const Index: FC<Props> = ({
         </div>
       )}
       {showViews && (
-        <span
-          className={classname(
-            'summary-stat ms-3 flex-shrink-0',
-            data.views >= 100 * 1000
-              ? 'view-level3'
-              : data.views >= 10000
-                ? 'view-level2'
-                : data.views >= 1000
-                  ? 'view-level1'
-                  : '',
-          )}>
-          <Icon name="bar-chart-fill" />
-          <span className="fw-medium ms-1">{formatCount(data.views)}</span>
-          <span className="ms-1">{t('views')}</span>
+        <span className="counts-strip__item counts-strip__item--views">
+          <span
+            className={classname(
+              'd-inline-flex align-items-center summary-stat',
+              data.views >= 100 * 1000
+                ? 'view-level3'
+                : data.views >= 10000
+                  ? 'view-level2'
+                  : data.views >= 1000
+                    ? 'view-level1'
+                    : '',
+            )}>
+            <Icon name="bar-chart-fill" />
+            <span className="fw-medium ms-1">{formatCount(data.views)}</span>
+            <span className="ms-1">{t('views')}</span>
+          </span>
         </span>
       )}
     </div>

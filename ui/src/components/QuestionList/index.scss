@@ -24,20 +24,17 @@
     gap: 0.75rem;
   }
 
-  &__list-shell {
-    border-radius: var(--bs-border-radius-lg);
-    overflow: hidden;
-    box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.04);
-  }
-
   &__card {
     cursor: pointer;
+    border: 1px solid var(--bs-border-color) !important;
+    box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06) !important;
     transition:
       box-shadow 0.15s ease,
-      transform 0.15s ease;
+      border-color 0.15s ease;
 
     &:hover {
       box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08) !important;
+      border-color: var(--bs-border-color) !important;
     }
 
     &:focus-visible {
@@ -51,8 +48,72 @@
     font-weight: 600;
     letter-spacing: -0.01em;
   }
+
+  &__row-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+
+  &__excerpt {
+    line-height: 1.5;
+  }
+  &__pin-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+}
+
+.question-list__view-dropdown .question-list__view-dropdown-toggle.btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--bs-border-color) !important;
+  border-radius: var(--bs-border-radius-lg) !important;
+  box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.05);
+  padding: 0.35rem 0.65rem !important;
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-body-bg) !important;
+
+  &:hover {
+    color: var(--bs-emphasis-color);
+    background-color: var(--bs-tertiary-bg) !important;
+  }
+
+  &:focus-visible {
+    box-shadow:
+      0 0.0625rem 0.125rem rgba(0, 0, 0, 0.05),
+      inset 0 0 0 2px rgba(var(--bs-primary-rgb), 0.28);
+  }
+
+  &::after {
+    margin-left: 0.35rem;
+    opacity: 0.55;
+  }
+}
+
+[data-bs-theme='dark'] .question-list__view-dropdown .question-list__view-dropdown-toggle.btn {
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.35);
+}
+
+.question-list__view-dropdown-menu {
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.question-list__view-dropdown-header {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+}
+
+[data-bs-theme='dark'] .question-list__view-dropdown-menu {
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.45);
 }
 
 [data-bs-theme='dark'] .question-list__card:hover {
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.35) !important;
 }
+

@@ -19,7 +19,7 @@
 
 import { memo, FC } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ListGroupItem } from 'react-bootstrap';
+import { ListGroupItem, Badge } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import { pathFactory } from '@/router/pathFactory';
@@ -63,14 +63,14 @@ const Index: FC<Props> = ({ data }) => {
       ?.filter((v) => v !== '') || [];
 
   return (
-    <ListGroupItem className="py-3 px-0 border-start-0 border-end-0 bg-transparent">
-      <div className="mb-2 clearfix">
-        <span
-          className="float-start me-2 badge text-bg-dark"
-          style={{ marginTop: '2px' }}>
+    <ListGroupItem>
+      <div className="d-flex align-items-start gap-2 mb-2">
+        <Badge bg="secondary" className="align-middle flex-shrink-0 mt-1">
           {t(data.object_type, { keyPrefix: 'btns' })}
-        </span>
-        <Link className="h5 mb-0 link-dark text-break" to={itemUrl}>
+        </Badge>
+        <Link
+          className="feeds-list-title link-dark text-break flex-grow-1 min-w-0 mb-0"
+          to={itemUrl}>
           <HighlightText text={data.object.title} keywords={keywords} />
           {data.object.status === 'closed'
             ? ` [${t('closed', { keyPrefix: 'question' })}]`
@@ -98,7 +98,7 @@ const Index: FC<Props> = ({ data }) => {
       </div>
 
       {data.object?.excerpt && (
-        <p className="small text-truncate-2 mb-2 last-p text-break">
+        <p className="feeds-list-excerpt text-truncate-2 mb-2 last-p text-break">
           <HighlightText
             text={escapeRemove(data.object.excerpt) || ''}
             keywords={keywords}

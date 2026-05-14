@@ -18,77 +18,61 @@
  */
 
 import { FC, memo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { pathFactory } from '@/router/pathFactory';
-import { Icon } from '@/components';
+import { Counts } from '@/components';
 
 interface Props {
   data: any[];
   type: 'answer' | 'question';
 }
 const Index: FC<Props> = ({ data, type }) => {
-  const { t } = useTranslation('translation', { keyPrefix: 'personal' });
   return (
-    <ol className="list-unstyled">
-      {data?.map((item, index) => {
-        return (
-          <li
-            className={`${index === data.length - 1 ? '' : 'mb-2'}`}
-            key={type === 'answer' ? item.answer_id : item.question_id}>
-            <Link
-              className="text-truncate-1"
-              to={
-                type === 'answer'
-                  ? pathFactory.answerLanding({
-                      questionId: item.question_id,
-                      slugTitle: item.question_info?.url_title,
-                      answerId: item.answer_id,
-                    })
-                  : pathFactory.questionLanding(
-                      item.question_id,
-                      item.url_title,
-                    )
-              }>
-              {type === 'answer' ? item.question_info.title : item.title}
-            </Link>
+    <div className="feeds-list-panel p-3">
+      <ol className="list-unstyled mb-0 feeds-list-panel__ol">
+        {data?.map((item) => {
+          return (
+            <li key={type === 'answer' ? item.answer_id : item.question_id}>
+              <Link
+                className="feeds-list-title-sm link-dark text-truncate-1 d-inline-block w-100"
+                to={
+                  type === 'answer'
+                    ? pathFactory.answerLanding({
+                        questionId: item.question_id,
+                        slugTitle: item.question_info?.url_title,
+                        answerId: item.answer_id,
+                      })
+                    : pathFactory.questionLanding(
+                        item.question_id,
+                        item.url_title,
+                      )
+                }>
+                {type === 'answer' ? item.question_info.title : item.title}
+              </Link>
 
-            <div className="text-secondary small">
-              <Icon name="hand-thumbs-up-fill me-1" />
-              <span>
-                {item.vote_count} {t('votes', { keyPrefix: 'counts' })}
-              </span>
-
-              {type === 'question' && (
-                <div
-                  className={`d-inline-block text-secondary ms-3 small ${
-                    Number(item.accepted_answer_id) > 0 ? 'text-success' : ''
-                  }`}>
-                  {Number(item.accepted_answer_id) > 0 ? (
-                    <Icon name="check-circle-fill" />
-                  ) : (
-                    <Icon name="chat-square-text-fill" />
-                  )}
-
-                  <span>
-                    {' '}
-                    {item.answer_count} {t('answers', { keyPrefix: 'counts' })}
-                  </span>
-                </div>
-              )}
-
-              {type === 'answer' && item.accepted === 2 && (
-                <div className="d-inline-block text-success ms-3 small">
-                  <Icon name="check-circle-fill" />
-                  <span> {t('accepted')}</span>
-                </div>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+              <div className="mt-2">
+                <Counts
+                  data={{
+                    votes: item.vote_count,
+                    answers: type === 'question' ? (item.answer_count ?? 0) : 0,
+                    views: 0,
+                  }}
+                  showViews={false}
+                  showAnswers={type === 'question'}
+                  showAccepted={type === 'answer' && item.accepted === 2}
+                  isAccepted={
+                    type === 'question'
+                      ? Number(item.accepted_answer_id) > 0
+                      : false
+                  }
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 };
 

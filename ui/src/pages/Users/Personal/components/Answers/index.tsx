@@ -33,12 +33,10 @@ const Index: FC<Props> = ({ visible, data }) => {
     return null;
   }
   return (
-    <ListGroup className="rounded-0">
+    <ListGroup className="feeds-list-shell rounded-3 border-0">
       {data.map((item) => {
         return (
-          <ListGroupItem
-            className="py-3 px-0 bg-transparent border-start-0 border-end-0"
-            key={item.answer_id}>
+          <ListGroupItem key={item.answer_id}>
             <h6 className="mb-2">
               <Link
                 to={pathFactory.answerLanding({
@@ -46,7 +44,7 @@ const Index: FC<Props> = ({ visible, data }) => {
                   slugTitle: item.question_info?.url_title,
                   answerId: item.answer_id,
                 })}
-                className="text-break">
+                className="feeds-list-title-sm link-dark text-break">
                 {item.question_info?.title}
               </Link>
             </h6>

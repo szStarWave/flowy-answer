@@ -48,15 +48,13 @@ const PinList: FC<IProps> = ({ data, variant = 'list' }) => {
       className="overflow-x-auto align-items-stretch pb-1">
       {data.map((item) => {
         const linkClass =
-          variant === 'card'
-            ? 'question-list__card card border-0 shadow-sm h-100 d-flex flex-column justify-content-between p-3 rounded-3'
-            : 'border rounded h-100 d-flex flex-column justify-content-between p-3';
+          'question-list__card card border-0 rounded-3 h-100 d-flex flex-column justify-content-between p-3';
 
         const body = (
           <NavLink
             to={pathFactory.questionLanding(item.id, item.url_title)}
             className={linkClass}>
-            <h6 className="text-wrap link-dark text-break text-truncate-2">
+            <h6 className="text-wrap link-dark text-break text-truncate-2 question-list__pin-title">
               {item.title}
               {item.status === 2 ? ` [${t('closed')}]` : ''}
             </h6>
@@ -69,7 +67,7 @@ const PinList: FC<IProps> = ({ data, variant = 'list' }) => {
               }}
               isAccepted={item.accepted_answer_id >= 1}
               showViews={false}
-              className="mt-2 mt-md-0 small text-secondary"
+              className="mt-2 mt-md-0"
             />
           </NavLink>
         );
@@ -104,7 +102,7 @@ const PinList: FC<IProps> = ({ data, variant = 'list' }) => {
   }
 
   return (
-    <ListGroup.Item className="py-3 px-0 border-start-0 border-end-0">
+    <ListGroup.Item className="feeds-list-shell__pin-row">
       {inner}
     </ListGroup.Item>
   );

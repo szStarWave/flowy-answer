@@ -38,15 +38,14 @@ const Index: FC<Props> = ({ visible, tabName, data }) => {
   }
 
   return (
-    <ListGroup className="rounded-0">
+    <ListGroup className="feeds-list-shell rounded-3 border-0">
       {data.map((item) => {
         return (
           <ListGroupItem
-            className="py-3 px-0 bg-transparent border-start-0 border-end-0"
             key={tabName === 'questions' ? item.question_id : item.id}>
             <h6 className="mb-2">
               <Link
-                className="text-break"
+                className="feeds-list-title-sm link-dark text-break"
                 to={pathFactory.questionLanding(
                   tabName === 'questions' ? item.question_id : item.id,
                   item.url_title,

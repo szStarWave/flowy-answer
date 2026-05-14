@@ -29,9 +29,7 @@ const Index: FC<Props> = ({ count = 10 }) => {
   return (
     <>
       {list.map((v) => (
-        <ListGroupItem
-          className="py-3 px-0 border-start-0 border-end-0 bg-transparent placeholder-glow"
-          key={v}>
+        <ListGroupItem className="placeholder-glow" key={v}>
           <div className="mb-2">
             <div
               className="placeholder me-2"

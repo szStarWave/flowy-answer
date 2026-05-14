@@ -111,7 +111,7 @@ const Index = () => {
         <Head data={extra} />
         {isLogged && <AiCard />}
         <SearchHead sort={order} count={isLoading ? -1 : count} />
-        <ListGroup className="rounded-0 mb-5">
+        <ListGroup className="feeds-list-shell rounded-3 border-0 mb-5">
           {isSkeletonShow ? (
             <ListLoader />
           ) : (
