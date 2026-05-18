@@ -145,6 +145,7 @@ export const ADMIN_NAV_MENUS = [
       { name: 'seo' },
       { name: 'smtp' },
       { name: 'apikeys' },
+      { name: 'sensitive_words', path: 'sensitive-words' },
     ],
   },
   {

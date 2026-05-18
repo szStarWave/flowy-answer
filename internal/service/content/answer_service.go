@@ -27,6 +27,7 @@ import (
 	"github.com/apache/answer/internal/service/eventqueue"
 
 	"github.com/apache/answer/internal/base/constant"
+	"github.com/apache/answer/internal/base/handler"
 	"github.com/apache/answer/internal/base/reason"
 	"github.com/apache/answer/internal/entity"
 	"github.com/apache/answer/internal/schema"
@@ -42,6 +43,7 @@ import (
 	"github.com/apache/answer/internal/service/review"
 	"github.com/apache/answer/internal/service/revision_common"
 	"github.com/apache/answer/internal/service/role"
+	"github.com/apache/answer/internal/service/sensitive_word"
 	usercommon "github.com/apache/answer/internal/service/user_common"
 	"github.com/apache/answer/pkg/converter"
 	"github.com/apache/answer/pkg/htmltext"
@@ -70,6 +72,7 @@ type AnswerService struct {
 	activityQueueService             activityqueue.Service
 	reviewService                    *review.ReviewService
 	eventQueueService                eventqueue.Service
+	sensitiveWordService             *sensitive_word.SensitiveWordService
 }
 
 func NewAnswerService(
@@ -90,6 +93,7 @@ func NewAnswerService(
 	activityQueueService activityqueue.Service,
 	reviewService *review.ReviewService,
 	eventQueueService eventqueue.Service,
+	sensitiveWordService *sensitive_word.SensitiveWordService,
 ) *AnswerService {
 	return &AnswerService{
 		answerRepo:                       answerRepo,
@@ -109,6 +113,7 @@ func NewAnswerService(
 		activityQueueService:             activityQueueService,
 		reviewService:                    reviewService,
 		eventQueueService:                eventQueueService,
+		sensitiveWordService:             sensitiveWordService,
 	}
 }
 
@@ -264,6 +269,11 @@ func (as *AnswerService) Insert(ctx context.Context, req *schema.AnswerAddReq) (
 	insertData.LastEditUserID = "0"
 	insertData.Status = entity.AnswerStatusPending
 	// insertData.UpdatedAt = now
+	if as.sensitiveWordService != nil {
+		if se := as.sensitiveWordService.ValidateAnswerText(ctx, handler.GetLangByCtx(ctx), req.UserID, req.Content, req.HTML); se != nil {
+			return "", se
+		}
+	}
 	if err = as.answerRepo.AddAnswer(ctx, insertData); err != nil {
 		return "", err
 	}
@@ -379,6 +389,12 @@ func (as *AnswerService) Update(ctx context.Context, req *schema.AnswerUpdateReq
 	insertData.LastEditUserID = "0"
 	if answerInfo.UserID != req.UserID {
 		insertData.LastEditUserID = req.UserID
+	}
+
+	if as.sensitiveWordService != nil {
+		if se := as.sensitiveWordService.ValidateAnswerText(ctx, handler.GetLangByCtx(ctx), req.UserID, req.Content, req.HTML); se != nil {
+			return "", se
+		}
 	}
 
 	revisionDTO := &schema.AddRevisionDTO{

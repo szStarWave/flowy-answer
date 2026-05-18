@@ -33,6 +33,7 @@ import (
 	"github.com/apache/answer/internal/service/comment"
 	"github.com/apache/answer/internal/service/permission"
 	"github.com/apache/answer/internal/service/rank"
+	"github.com/apache/answer/internal/service/sensitive_word"
 	"github.com/apache/answer/pkg/uid"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentfault/pacman/errors"
@@ -128,6 +129,18 @@ func (cc *CommentController) AddComment(ctx *gin.Context) {
 	req.IP = ctx.ClientIP()
 
 	resp, err := cc.commentService.AddComment(ctx, req)
+	if err != nil {
+		if fe, ok := sensitive_word.AsFormError(err); ok {
+			msg := ""
+			if len(fe.Fields) > 0 {
+				msg = fe.Fields[0].ErrorMsg
+			}
+			handler.HandleResponse(ctx, errors.BadRequest(reason.RequestFormatError).WithMsg(msg), fe.Fields)
+			return
+		}
+		handler.HandleResponse(ctx, err, resp)
+		return
+	}
 	if !isAdmin || !linkUrlLimitUser {
 		cc.actionService.ActionRecordAdd(ctx, entity.CaptchaActionComment, req.UserID)
 	}
@@ -226,6 +239,18 @@ func (cc *CommentController) UpdateComment(ctx *gin.Context) {
 	}
 
 	resp, err := cc.commentService.UpdateComment(ctx, req)
+	if err != nil {
+		if fe, ok := sensitive_word.AsFormError(err); ok {
+			msg := ""
+			if len(fe.Fields) > 0 {
+				msg = fe.Fields[0].ErrorMsg
+			}
+			handler.HandleResponse(ctx, errors.BadRequest(reason.RequestFormatError).WithMsg(msg), fe.Fields)
+			return
+		}
+		handler.HandleResponse(ctx, err, resp)
+		return
+	}
 	if !req.IsAdmin || !linkUrlLimitUser {
 		cc.actionService.ActionRecordAdd(ctx, entity.CaptchaActionEdit, req.UserID)
 	}

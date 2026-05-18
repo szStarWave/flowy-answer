@@ -17,16 +17,19 @@
  * under the License.
  */
 
-export * from './answer';
-export * from './flag';
-export * from './question';
-export * from './settings';
-export * from './users';
-export * from './dashboard';
-export * from './plugins';
-export * from './badges';
-export * from './ai';
-export * from './tags';
-export * from './apikeys';
-export * from './sensitive_words';
-export * from './mcp';
+package migrations
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/apache/answer/internal/entity"
+	"xorm.io/xorm"
+)
+
+func addSensitiveWordTable(ctx context.Context, x *xorm.Engine) error {
+	if err := x.Context(ctx).Sync(new(entity.SensitiveWord)); err != nil {
+		return fmt.Errorf("sync sensitive_word: %w", err)
+	}
+	return nil
+}

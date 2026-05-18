@@ -34,6 +34,7 @@ import (
 	"github.com/apache/answer/internal/service/content"
 	"github.com/apache/answer/internal/service/permission"
 	"github.com/apache/answer/internal/service/rank"
+	"github.com/apache/answer/internal/service/sensitive_word"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	"github.com/apache/answer/pkg/uid"
 	"github.com/gin-gonic/gin"
@@ -268,6 +269,14 @@ func (ac *AnswerController) AddAnswer(ctx *gin.Context) {
 
 	answerID, err := ac.answerService.Insert(ctx, req)
 	if err != nil {
+		if fe, ok := sensitive_word.AsFormError(err); ok {
+			msg := ""
+			if len(fe.Fields) > 0 {
+				msg = fe.Fields[0].ErrorMsg
+			}
+			handler.HandleResponse(ctx, errors.BadRequest(reason.RequestFormatError).WithMsg(msg), fe.Fields)
+			return
+		}
 		handler.HandleResponse(ctx, err, nil)
 		return
 	}
@@ -345,6 +354,14 @@ func (ac *AnswerController) UpdateAnswer(ctx *gin.Context) {
 
 	_, err = ac.answerService.Update(ctx, req)
 	if err != nil {
+		if fe, ok := sensitive_word.AsFormError(err); ok {
+			msg := ""
+			if len(fe.Fields) > 0 {
+				msg = fe.Fields[0].ErrorMsg
+			}
+			handler.HandleResponse(ctx, errors.BadRequest(reason.RequestFormatError).WithMsg(msg), fe.Fields)
+			return
+		}
 		handler.HandleResponse(ctx, err, nil)
 		return
 	}

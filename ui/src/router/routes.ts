@@ -470,6 +470,10 @@ const routes: RouteNode[] = [
             page: 'pages/Admin/Apikeys',
           },
           {
+            path: 'sensitive-words',
+            page: 'pages/Admin/SensitiveWords',
+          },
+          {
             path: 'mcp',
             page: 'pages/Admin/Mcp',
           },

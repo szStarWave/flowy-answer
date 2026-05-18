@@ -29,6 +29,7 @@ import (
 	"github.com/apache/answer/internal/base/translator"
 	"github.com/apache/answer/internal/service/eventqueue"
 	"github.com/apache/answer/internal/service/review"
+	"github.com/apache/answer/internal/service/sensitive_word"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/pager"
@@ -44,10 +45,10 @@ import (
 	"github.com/apache/answer/internal/service/permission"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	usercommon "github.com/apache/answer/internal/service/user_common"
-	"github.com/gin-gonic/gin"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/token"
 	"github.com/apache/answer/pkg/uid"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/segmentfault/pacman/errors"
 	"github.com/segmentfault/pacman/log"
@@ -100,6 +101,7 @@ type CommentService struct {
 	eventQueueService                eventqueue.Service
 	reviewService                    *review.ReviewService
 	siteInfoService                  siteinfo_common.SiteInfoCommonService
+	sensitiveWordService             *sensitive_word.SensitiveWordService
 }
 
 // NewCommentService new comment service
@@ -117,6 +119,7 @@ func NewCommentService(
 	eventQueueService eventqueue.Service,
 	reviewService *review.ReviewService,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
+	sensitiveWordService *sensitive_word.SensitiveWordService,
 ) *CommentService {
 	return &CommentService{
 		commentRepo:                      commentRepo,
@@ -132,6 +135,7 @@ func NewCommentService(
 		eventQueueService:                eventQueueService,
 		reviewService:                    reviewService,
 		siteInfoService:                  siteInfoService,
+		sensitiveWordService:             sensitiveWordService,
 	}
 }
 
@@ -213,6 +217,12 @@ func (cs *CommentService) AddComment(ctx context.Context, req *schema.AddComment
 
 	if err = cs.checkUserCommentRateLimit(ctx, req.UserID); err != nil {
 		return nil, err
+	}
+
+	if cs.sensitiveWordService != nil {
+		if se := cs.sensitiveWordService.ValidateCommentText(ctx, handler.GetLangByCtx(ctx), req.UserID, req.OriginalText, req.ParsedText); se != nil {
+			return nil, se
+		}
 	}
 
 	err = cs.commentRepo.AddComment(ctx, comment)
@@ -345,6 +355,12 @@ func (cs *CommentService) UpdateComment(ctx context.Context, req *schema.UpdateC
 	// admin can edit it at any time
 	if !req.IsAdmin && (time.Now().After(old.CreatedAt.Add(constant.CommentEditDeadline))) {
 		return nil, errors.BadRequest(reason.CommentCannotEditAfterDeadline)
+	}
+
+	if cs.sensitiveWordService != nil {
+		if se := cs.sensitiveWordService.ValidateCommentText(ctx, handler.GetLangByCtx(ctx), req.UserID, req.OriginalText, req.ParsedText); se != nil {
+			return nil, se
+		}
 	}
 
 	if err = cs.commentRepo.UpdateCommentContent(ctx, old.ID, req.OriginalText, req.ParsedText); err != nil {

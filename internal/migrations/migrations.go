@@ -113,6 +113,7 @@ var migrations = []Migration{
 	NewMigration("v1.8.5", "add user question/comment rate limit settings", addQuestionPostRateLimitSettings, true),
 	NewMigration("v1.8.6", "add question poll posts and poll vote permission", addQuestionPollFeature, true),
 	NewMigration("v1.8.7", "ensure question.post_type column exists", addQuestionPostTypeColumn, true),
+	NewMigration("v1.8.8", "add sensitive_word table for UGC moderation", addSensitiveWordTable, true),
 }
 
 func GetMigrations() []Migration {

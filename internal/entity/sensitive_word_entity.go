@@ -17,16 +17,22 @@
  * under the License.
  */
 
-export * from './answer';
-export * from './flag';
-export * from './question';
-export * from './settings';
-export * from './users';
-export * from './dashboard';
-export * from './plugins';
-export * from './badges';
-export * from './ai';
-export * from './tags';
-export * from './apikeys';
-export * from './sensitive_words';
-export * from './mcp';
+package entity
+
+import "time"
+
+const (
+	// SensitiveWordEnabled blocks UGC when matched.
+	SensitiveWordEnabled = 1
+	// SensitiveWordDisabled keeps the row but does not match.
+	SensitiveWordDisabled = 2
+)
+
+// SensitiveWord stores a single prohibited substring for content moderation.
+type SensitiveWord struct {
+	ID        int64     `xorm:"not null pk autoincr BIGINT(20) id"`
+	Word      string    `xorm:"not null VARCHAR(191) unique word"`
+	Status    int       `xorm:"not null default 1 TINYINT(4) status"`
+	CreatedAt time.Time `xorm:"not null default CURRENT_TIMESTAMP TIMESTAMP created_at"`
+	UpdatedAt time.Time `xorm:"updated TIMESTAMP updated_at"`
+}

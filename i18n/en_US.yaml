@@ -266,6 +266,12 @@ backend:
         other: Poll options are invalid. Use at least 2 and at most 30 options.
       question_unavailable:
         other: You cannot vote on this question in its current state.
+    content:
+      contains_sensitive_word:
+        other: This content contains prohibited words and cannot be published.
+    sensitive_word:
+      duplicate:
+        other: This sensitive word already exists.
     rank:
       fail_to_meet_the_condition:
         other: Reputation rank fail to meet the condition.
@@ -2020,6 +2026,7 @@ ui:
     security: Security
     files: Files
     apikeys: API Keys
+    sensitive_words: Sensitive words
     intelligence: Intelligence
     ai_assistant: AI Assistant
     ai_settings: AI Settings
@@ -2542,6 +2549,25 @@ ui:
       delete_modal:
         title: Delete API Key
         content: Any applications or scripts using this key will no longer be able to access the API. This is permanent!
+    sensitive_words:
+      title: Sensitive words
+      description: Posts, edits, answers, and comments are checked against this list before they are saved. Administrators and moderators are exempt.
+      add: Add word
+      word: Word
+      status: Status
+      enabled: Enabled
+      disabled: Disabled
+      created: Created
+      updated: Updated
+      actions: Actions
+      add_placeholder: Enter a word or phrase
+      confirm_delete_title: Delete sensitive word
+      confirm_delete: Remove this entry from the dictionary? Existing published content is not re-scanned.
+      empty: No sensitive words yet.
+      toggle_enable: Enable
+      toggle_disable: Disable
+      add_success: Word added.
+      remove: Remove
     ai_settings:
       enabled:
         label: AI enabled

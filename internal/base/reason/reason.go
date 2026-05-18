@@ -132,6 +132,9 @@ const (
 	PollForbiddenManage              = "error.poll.forbidden_manage"
 	PollOptionsInvalid               = "error.poll.options_invalid"
 	PollQuestionUnavailable          = "error.poll.question_unavailable"
+	// UGC sensitive word moderation
+	ContentContainsSensitiveWord = "error.content.contains_sensitive_word"
+	SensitiveWordDuplicate       = "error.sensitive_word.duplicate"
 )
 
 // user external login reasons

@@ -265,6 +265,12 @@ backend:
         other: 投票选项无效，请提供 2～30 个选项。
       question_unavailable:
         other: 当前问题状态下无法投票。
+    content:
+      contains_sensitive_word:
+        other: 内容含有敏感词，无法发布。
+    sensitive_word:
+      duplicate:
+        other: 该敏感词已存在。
     rank:
       fail_to_meet_the_condition:
         other: 声望值未达到要求。
@@ -1981,6 +1987,7 @@ ui:
     security: 安全
     files: 文件
     apikeys: API 密钥
+    sensitive_words: 敏感词
     intelligence: 智力
     ai_assistant: AI 助手
     ai_settings: AI 设置
@@ -2505,6 +2512,25 @@ ui:
       delete_modal:
         title: 删除API密钥
         content: 任何使用此密钥的应用程序或脚本都将无法访问API。这是永久性的！
+    sensitive_words:
+      title: 敏感词
+      description: 发帖、编辑问题、回答与评论在保存前会与此列表匹配。管理员与版主不经过此校验。
+      add: 添加敏感词
+      word: 词条
+      status: 状态
+      enabled: 启用
+      disabled: 停用
+      created: 创建时间
+      updated: 更新时间
+      actions: 操作
+      add_placeholder: 输入词或短语
+      confirm_delete_title: 删除敏感词
+      confirm_delete: 从词库中移除此条？已发布内容不会回溯扫描。
+      empty: 暂无敏感词。
+      toggle_enable: 启用
+      toggle_disable: 停用
+      add_success: 已添加。
+      remove: 删除
     ai_settings:
       enabled:
         label: AI 已启用

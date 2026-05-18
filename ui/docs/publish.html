@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我要发帖 - 兔小巢社区</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a1f2e;
+            --bg-hover: #252b3d;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3748;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --accent-primary: #2563eb;
+            --accent-secondary: #3b82f6;
+            --accent-glow: rgba(37, 99, 235, 0.2);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gradient-1: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            --gradient-2: linear-gradient(135deg, #0891b2 0%, #2563eb 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        [data-theme="light"] .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-right: 48px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .nav-item.active {
+            color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+            transform: scale(1.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* 主布局 */
+        .main-container {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 左侧边栏 */
+        .sidebar-left {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-left: 12px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-link.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            margin-right: 360px;
+            padding: 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* 编辑器容器 */
+        .editor-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* 标题输入 */
+        .title-section {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .title-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .title-input {
+            width: 100%;
+            padding: 16px 0;
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .title-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .title-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* 富文本编辑器 */
+        .editor-section {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .editor-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px 10px 0 0;
+            border-bottom: none;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 4px;
+            padding: 0 8px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .toolbar-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .editor-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 10px 10px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            resize: vertical;
+            outline: none;
+        }
+
+        .editor-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* 标签选择 */
+        .tags-section {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tags-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tags-input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--accent-primary);
+            border-radius: 6px;
+            font-size: 13px;
+            color: white;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .tags-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 6px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .tags-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .tags-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag-suggestion {
+            padding: 6px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tag-suggestion:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* 选项设置 */
+        .options-section {
+            padding: 24px 32px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .option-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .option-checkbox.checked {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .option-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 底部操作栏 */
+        .editor-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 32px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .footer-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            padding: 12px 32px;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        /* 右侧帮助边栏 */
+        .sidebar-right {
+            width: 360px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 24px;
+            position: fixed;
+            right: 0;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .help-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .help-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-list {
+            list-style: none;
+        }
+
+        .help-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .help-item:last-child {
+            border-bottom: none;
+        }
+
+        .help-item code {
+            padding: 2px 6px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: var(--accent-secondary);
+        }
+
+        .format-preview {
+            margin-top: 12px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .preview-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .preview-content {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .preview-content p {
+            margin-bottom: 8px;
+        }
+
+        .preview-content ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .preview-content li {
+            margin: 4px 0;
+        }
+
+        .preview-content code {
+            padding: 2px 6px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: var(--accent-secondary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-left {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .editor-toolbar {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <div class="brand-logo">
+                <img src="picture/资源 11 2.png" alt="Logo">
+            </div>
+            <span class="brand-name">社区论坛</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">首页</a>
+            <a href="#" class="nav-item">官方指南</a>
+            <a href="#" class="nav-item">许愿功能</a>
+            <a href="#" class="nav-item">使用分享</a>
+            <a href="#" class="nav-item active">问题反馈</a>
+            <a href="#" class="nav-item">牧马人引擎</a>
+            <a href="#" class="nav-item">GMKtec专区</a>
+        </div>
+        <div class="nav-user">
+            <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">
+                <span class="theme-icon">☀️</span>
+            </button>
+            <div class="user-avatar">U</div>
+        </div>
+    </nav>
+
+    <!-- 主布局 -->
+    <div class="main-container">
+        <!-- 左侧边栏 -->
+        <aside class="sidebar-left">
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a href="index.html" class="sidebar-link">
+                            <span class="sidebar-icon">🏠</span>
+                            <span>首页</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">🏆</span>
+                            <span>个人成就</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">社区</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">📢</span>
+                            <span>官方公告</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link active">
+                            <span class="sidebar-icon">🐛</span>
+                            <span>BUG/需求反馈</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">💬</span>
+                            <span>互动交流</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">🔧</span>
+                            <span>GMKtec专区</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">❓</span>
+                            <span>问题求助</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">🚀</span>
+                            <span>牧马人引擎</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">📚</span>
+                            <span>案例分享</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span class="sidebar-icon">📖</span>
+                            <span>使用指南</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">我要发帖</h1>
+                <p class="page-subtitle">描述你遇到的问题或分享你的想法，社区会帮助你找到答案</p>
+            </div>
+
+            <div class="editor-container">
+                <!-- 标题输入 -->
+                <div class="title-section">
+                    <label class="title-label">标题</label>
+                    <input type="text" class="title-input" placeholder="你的主题是什么？请具体说明">
+                    <p class="title-hint">详细描述这个问题，至少需要 6 个字符</p>
+                </div>
+
+                <!-- 富文本编辑器 -->
+                <div class="editor-section">
+                    <label class="editor-label">内容</label>
+                    <div class="editor-toolbar">
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn">B</button>
+                            <button class="toolbar-btn">I</button>
+                            <button class="toolbar-btn">U</button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn">•</button>
+                            <button class="toolbar-btn">1.</button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn">🔗</button>
+                            <button class="toolbar-btn">🖼️</button>
+                            <button class="toolbar-btn">`</button>
+                            <button class="toolbar-btn">"</button>
+                        </div>
+                    </div>
+                    <textarea class="editor-textarea" placeholder="详细描述你的问题...
+
+可以包含：
+- 问题发生的场景
+- 你已经尝试过的解决方案
+- 相关的代码片段或截图
+- 期望的结果和实际的结果"></textarea>
+                </div>
+
+                <!-- 标签选择 -->
+                <div class="tags-section">
+                    <label class="tags-label">标签</label>
+                    <div class="tags-input-wrapper">
+                        <div class="tag-item">
+                            <span>微信小程序</span>
+                            <span class="tag-remove">×</span>
+                        </div>
+                        <input type="text" class="tags-input" placeholder="添加标签...">
+                    </div>
+                    <div class="tags-suggestions">
+                        <span class="tag-suggestion">登录态</span>
+                        <span class="tag-suggestion">接入问题</span>
+                        <span class="tag-suggestion">SDK</span>
+                        <span class="tag-suggestion">API</span>
+                        <span class="tag-suggestion">Bug反馈</span>
+                        <span class="tag-suggestion">功能建议</span>
+                    </div>
+                </div>
+
+                <!-- 选项设置 -->
+                <div class="options-section">
+                    <label class="option-item">
+                        <div class="option-checkbox"></div>
+                        <span class="option-text">回答自己的问题（分享解决方案）</span>
+                    </label>
+                </div>
+
+                <!-- 底部操作栏 -->
+                <div class="editor-footer">
+                    <div class="footer-left">
+                        <button class="footer-btn">💾 保存草稿</button>
+                        <button class="footer-btn">👁 预览</button>
+                    </div>
+                    <div class="footer-right">
+                        <button class="btn-secondary" onclick="window.location.href='index.html'">取消</button>
+                        <button class="btn-primary" onclick="window.location.href='article.html'">发布</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧帮助边栏 -->
+        <aside class="sidebar-right">
+            <!-- 排版帮助 -->
+            <div class="help-section">
+                <h3 class="help-title">📖 如何排版</h3>
+                <ul class="help-list">
+                    <li><code>**粗体**</code> 或 <code>__粗体__</code></li>
+                    <li><code>*斜体*</code> 或 <code>_斜体_</code></li>
+                    <li><code>[链接](https://)</code> 添加链接</li>
+                    <li><code>`代码`</code> 行内代码</li>
+                    <li><code>```</code> 代码块</li>
+                    <li><code>> </code> 引用文本</li>
+                    <li><code>- </code> 无序列表</li>
+                    <li><code>1. </code> 有序列表</li>
+                </ul>
+                <div class="format-preview">
+                    <div class="preview-title">预览效果</div>
+                    <div class="preview-content">
+                        <p><strong>这是粗体文本</strong></p>
+                        <p><em>这是斜体文本</em></p>
+                        <ul>
+                            <li>列表项 1</li>
+                            <li>列表项 2</li>
+                        </ul>
+                        <p><code>代码片段</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签说明 -->
+            <div class="help-section">
+                <h3 class="help-title">🏷️ 标签说明</h3>
+                <ul class="help-list">
+                    <li>描述你的内容属于什么分类</li>
+                    <li>至少需要一个标签</li>
+                    <li>最多可以添加 5 个标签</li>
+                    <li>选择合适的标签有助于他人发现你的内容</li>
+                </ul>
+            </div>
+
+            <!-- 发帖规范 -->
+            <div class="help-section">
+                <h3 class="help-title">✅ 发帖规范</h3>
+                <ul class="help-list">
+                    <li>标题清晰描述问题</li>
+                    <li>提供足够的上下文信息</li>
+                    <li>避免发布重复内容</li>
+                    <li>保持友善和尊重</li>
+                    <li>不要包含敏感信息</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // 简单的标签选择交互
+        document.querySelectorAll('.tag-suggestion').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const tagName = this.textContent;
+                const tagsWrapper = document.querySelector('.tags-input-wrapper');
+                const newTag = document.createElement('div');
+                newTag.className = 'tag-item';
+                newTag.innerHTML = `<span>${tagName}</span><span class="tag-remove">×</span>`;
+                tagsWrapper.insertBefore(newTag, document.querySelector('.tags-input'));
+                
+                // 添加删除功能
+                newTag.querySelector('.tag-remove').addEventListener('click', function() {
+                    newTag.remove();
+                });
+            });
+        });
+
+        // 复选框交互
+        document.querySelector('.option-item').addEventListener('click', function() {
+            const checkbox = this.querySelector('.option-checkbox');
+            checkbox.classList.toggle('checked');
+            if (checkbox.classList.contains('checked')) {
+                checkbox.innerHTML = '✓';
+            } else {
+                checkbox.innerHTML = '';
+            }
+        });
+
+        // 主题切换功能
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.querySelector('.theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'light') {
+                html.removeAttribute('data-theme');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // 页面加载时恢复主题设置
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.querySelector('.theme-icon');
+            
+            if (savedTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.textContent = '🌙';
+            }
+        });
+    </script>
+</body>
+</html>

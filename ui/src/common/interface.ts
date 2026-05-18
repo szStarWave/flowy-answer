@@ -898,6 +898,14 @@ export interface AddOrEditApiKeyParams {
   id?: number;
 }
 
+export interface AdminSensitiveWordItem {
+  id: number;
+  word: string;
+  status: number;
+  created_at: number;
+  updated_at: number;
+}
+
 export interface AiConfig {
   enabled: boolean;
   chosen_provider: string;

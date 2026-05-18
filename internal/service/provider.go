@@ -40,8 +40,8 @@ import (
 	"github.com/apache/answer/internal/service/export"
 	"github.com/apache/answer/internal/service/feature_toggle"
 	"github.com/apache/answer/internal/service/file_record"
-	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/follow"
+	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/importer"
 	"github.com/apache/answer/internal/service/meta"
 	metacommon "github.com/apache/answer/internal/service/meta_common"
@@ -59,6 +59,7 @@ import (
 	"github.com/apache/answer/internal/service/revision_common"
 	"github.com/apache/answer/internal/service/role"
 	"github.com/apache/answer/internal/service/search_parser"
+	"github.com/apache/answer/internal/service/sensitive_word"
 	"github.com/apache/answer/internal/service/siteinfo"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	"github.com/apache/answer/internal/service/tag"
@@ -137,4 +138,5 @@ var ProviderSetService = wire.NewSet(
 	apikey.NewAPIKeyService,
 	ai_conversation.NewAIConversationService,
 	feature_toggle.NewFeatureToggleService,
+	sensitive_word.NewSensitiveWordService,
 )

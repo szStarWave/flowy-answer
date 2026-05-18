@@ -28,8 +28,8 @@ import (
 
 	"github.com/apache/answer/internal/base/middleware"
 	"github.com/apache/answer/internal/service/eventqueue"
-	"github.com/gin-gonic/gin"
 	"github.com/apache/answer/plugin"
+	"github.com/gin-gonic/gin"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/handler"
@@ -54,6 +54,7 @@ import (
 	"github.com/apache/answer/internal/service/review"
 	"github.com/apache/answer/internal/service/revision_common"
 	"github.com/apache/answer/internal/service/role"
+	"github.com/apache/answer/internal/service/sensitive_word"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	"github.com/apache/answer/internal/service/tag"
 	tagcommon "github.com/apache/answer/internal/service/tag_common"
@@ -97,6 +98,7 @@ type QuestionService struct {
 	eventQueueService                eventqueue.Service
 	reviewRepo                       review.ReviewRepo
 	pollService                      *PollService
+	sensitiveWordService             *sensitive_word.SensitiveWordService
 }
 
 func NewQuestionService(
@@ -124,6 +126,7 @@ func NewQuestionService(
 	eventQueueService eventqueue.Service,
 	reviewRepo review.ReviewRepo,
 	pollService *PollService,
+	sensitiveWordService *sensitive_word.SensitiveWordService,
 ) *QuestionService {
 	return &QuestionService{
 		activityRepo:                     activityRepo,
@@ -150,6 +153,7 @@ func NewQuestionService(
 		eventQueueService:                eventQueueService,
 		reviewRepo:                       reviewRepo,
 		pollService:                      pollService,
+		sensitiveWordService:             sensitiveWordService,
 	}
 }
 
@@ -470,6 +474,18 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 		}
 		if req.Poll == nil {
 			return nil, errors.BadRequest(reason.PollOptionsInvalid)
+		}
+	}
+
+	if qs.sensitiveWordService != nil {
+		pl := pollLabelsFromPollCreate(req.Poll)
+		if se := qs.sensitiveWordService.ValidateQuestionText(ctx, handler.GetLangByCtx(ctx), req.UserID,
+			req.Title, req.Content, req.HTML, pl); se != nil {
+			if fe, ok := sensitive_word.AsFormError(se); ok {
+				err = errors.BadRequest(reason.RequestFormatError)
+				return fe.Fields, err
+			}
+			return nil, se
 		}
 	}
 
@@ -1089,6 +1105,17 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 			if !qs.userIsStaff(ctx, req.UserID) {
 				return nil, errors.Forbidden(reason.PollForbiddenManage)
 			}
+			if qs.sensitiveWordService != nil {
+				pl := pollLabelsFromPollUpdate(req.Poll)
+				if se := qs.sensitiveWordService.ValidateQuestionText(ctx, handler.GetLangByCtx(ctx), req.UserID,
+					dbinfo.Title, dbinfo.OriginalText, dbinfo.ParsedText, pl); se != nil {
+					if fe, ok := sensitive_word.AsFormError(se); ok {
+						err = errors.BadRequest(reason.RequestFormatError)
+						return fe.Fields, err
+					}
+					return nil, se
+				}
+			}
 			if err := qs.pollService.UpdatePollForQuestion(ctx, dbinfo.ID, req.Poll); err != nil {
 				return nil, err
 			}
@@ -1141,6 +1168,18 @@ func (qs *QuestionService) UpdateQuestion(ctx context.Context, req *schema.Quest
 		})
 		err = errors.BadRequest(reason.RecommendTagEnter)
 		return errorlist, err
+	}
+
+	if qs.sensitiveWordService != nil {
+		pl := pollLabelsFromPollUpdate(req.Poll)
+		if se := qs.sensitiveWordService.ValidateQuestionText(ctx, handler.GetLangByCtx(ctx), req.UserID,
+			req.Title, req.Content, req.HTML, pl); se != nil {
+			if fe, ok := sensitive_word.AsFormError(se); ok {
+				err = errors.BadRequest(reason.RequestFormatError)
+				return fe.Fields, err
+			}
+			return nil, se
+		}
 	}
 
 	// Administrators and themselves do not need to be audited
@@ -1876,6 +1915,28 @@ func (qs *QuestionService) SitemapCron(ctx context.Context) {
 	}
 	ctx = context.WithValue(ctx, constant.ShortIDContextKey, siteSeo.IsShortLink())
 	qs.questioncommon.SitemapCron(ctx)
+}
+
+func pollLabelsFromPollCreate(p *schema.PollCreateInput) []string {
+	if p == nil {
+		return nil
+	}
+	out := make([]string, 0, len(p.Options))
+	for _, o := range p.Options {
+		out = append(out, o.Label)
+	}
+	return out
+}
+
+func pollLabelsFromPollUpdate(p *schema.PollUpdateInput) []string {
+	if p == nil {
+		return nil
+	}
+	out := make([]string, 0, len(p.Options))
+	for _, o := range p.Options {
+		out = append(out, o.Label)
+	}
+	return out
 }
 
 func (qs *QuestionService) GetQuestionLink(ctx context.Context, req *schema.GetQuestionLinkReq) (

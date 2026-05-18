@@ -62,6 +62,7 @@ type AnswerAPIRouter struct {
 	aiController                  *controller.AIController
 	aiConversationController      *controller.AIConversationController
 	aiConversationAdminController *controller_admin.AIConversationAdminController
+	sensitiveWordAdminController  *controller_admin.SensitiveWordAdminController
 	mcpController                 *controller.MCPController
 }
 
@@ -101,6 +102,7 @@ func NewAnswerAPIRouter(
 	aiController *controller.AIController,
 	aiConversationController *controller.AIConversationController,
 	aiConversationAdminController *controller_admin.AIConversationAdminController,
+	sensitiveWordAdminController *controller_admin.SensitiveWordAdminController,
 	mcpController *controller.MCPController,
 ) *AnswerAPIRouter {
 	return &AnswerAPIRouter{
@@ -139,6 +141,7 @@ func NewAnswerAPIRouter(
 		aiController:                  aiController,
 		aiConversationController:      aiConversationController,
 		aiConversationAdminController: aiConversationAdminController,
+		sensitiveWordAdminController:  sensitiveWordAdminController,
 		mcpController:                 mcpController,
 	}
 }
@@ -440,4 +443,10 @@ func (a *AnswerAPIRouter) RegisterAnswerAdminAPIRouter(r *gin.RouterGroup) {
 	r.GET("/ai/conversation/page", a.aiConversationAdminController.GetConversationList)
 	r.GET("/ai/conversation", a.aiConversationAdminController.GetConversationDetail)
 	r.DELETE("/ai/conversation", a.aiConversationAdminController.DeleteConversation)
+
+	// sensitive words (UGC moderation dictionary)
+	r.GET("/sensitive-words/page", a.sensitiveWordAdminController.GetSensitiveWordPage)
+	r.POST("/sensitive-word", a.sensitiveWordAdminController.AddSensitiveWord)
+	r.PUT("/sensitive-word/status", a.sensitiveWordAdminController.SetSensitiveWordStatus)
+	r.DELETE("/sensitive-word", a.sensitiveWordAdminController.DeleteSensitiveWord)
 }
