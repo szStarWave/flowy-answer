@@ -114,6 +114,9 @@ var migrations = []Migration{
 	NewMigration("v1.8.6", "add question poll posts and poll vote permission", addQuestionPollFeature, true),
 	NewMigration("v1.8.7", "ensure question.post_type column exists", addQuestionPostTypeColumn, true),
 	NewMigration("v1.8.8", "add sensitive_word table for UGC moderation", addSensitiveWordTable, true),
+	NewMigration("v1.8.9", "add wish and wish_vote tables for feature voting", addWishTables, true),
+	NewMigration("v1.9.0", "add wish_period and wish period grouping", addWishPeriodTables, true),
+	NewMigration("v1.9.1", "repair invalid wish table timestamps for MySQL", repairWishInvalidTimestamps, true),
 }
 
 func GetMigrations() []Migration {

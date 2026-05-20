@@ -1,0 +1,36 @@
+.community-stats-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+}
+
+.community-stats-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.community-stats-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.community-stats-card__label {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.15rem;
+}
+
+.community-stats-card__cta {
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.community-stats-card__cta:hover {
+  filter: brightness(1.05);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}

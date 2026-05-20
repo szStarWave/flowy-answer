@@ -43,11 +43,9 @@ import {
   Question,
   Answer,
   AnswerHead,
-  RelatedQuestions,
   WriteAnswer,
   Alert,
   ContentLoader,
-  InviteToAnswer,
   LinkedQuestions,
 } from './components';
 
@@ -232,20 +230,9 @@ const Index = () => {
     keywords: question?.tags.map((_) => _.slug_name).join(','),
   });
 
-  const showInviteToAnswer = question?.id;
   const showLinkedQuestions = question?.id && question.id !== '';
-  let canInvitePeople = false;
-  if (showInviteToAnswer && Array.isArray(question.extends_actions)) {
-    const inviteAct = question.extends_actions.find((op) => {
-      return op.action === 'invite_other_to_answer';
-    });
-    if (inviteAct) {
-      canInvitePeople = true;
-    }
-  }
-
   return (
-    <Row className="questionDetailPage pt-4 mb-5">
+    <Row className="questionDetailPage community-article-page pt-4 mb-5">
       <Col className="page-main flex-auto">
         {question?.operation?.level && <Alert data={question.operation} />}
         {!isSkeletonShow && question?.id && (
@@ -265,7 +252,7 @@ const Index = () => {
           <ContentLoader />
         ) : question?.id ? (
           <Card className="question-detail-main border-0 shadow-sm mb-4">
-            <Card.Body className="p-3 p-md-4">
+            <Card.Body className="p-0">
               <Question
                 data={question}
                 initPage={initPage}
@@ -281,19 +268,21 @@ const Index = () => {
         {!isLoading && answers.count > 0 && (
           <>
             <AnswerHead count={answers.count} order={order} />
-            {answers?.list?.map((item) => {
-              return (
-                <Answer
-                  aid={aid}
-                  key={item?.id}
-                  data={item}
-                  questionTitle={question?.title || ''}
-                  canAccept={isAuthor || isAdmin || isModerator}
-                  callback={initPage}
-                  isLogged={isLogged}
-                />
-              );
-            })}
+            <div className="article-replies-section">
+              {answers?.list?.map((item) => {
+                return (
+                  <Answer
+                    aid={aid}
+                    key={item?.id}
+                    data={item}
+                    questionTitle={question?.title || ''}
+                    canAccept={isAuthor || isAdmin || isModerator}
+                    callback={initPage}
+                    isLogged={isLogged}
+                  />
+                );
+              })}
+            </div>
           </>
         )}
 
@@ -323,14 +312,7 @@ const Index = () => {
       </Col>
       <Col className="page-right-side mt-4 mt-xl-0">
         <CustomSidebar />
-        {showInviteToAnswer ? (
-          <InviteToAnswer
-            questionId={question.id}
-            readOnly={!canInvitePeople}
-          />
-        ) : null}
         {showLinkedQuestions ? <LinkedQuestions id={question.id} /> : null}
-        <RelatedQuestions id={question?.id || ''} />
       </Col>
     </Row>
   );

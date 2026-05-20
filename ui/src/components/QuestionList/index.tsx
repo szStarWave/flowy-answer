@@ -24,6 +24,11 @@ import { useTranslation } from 'react-i18next';
 
 import classnames from 'classnames';
 
+import CommunityHomeFilter, {
+  type CommunityHomeTab,
+} from '@/components/community/CommunityHomeFilter';
+import QuestionPostCard from '@/components/community/QuestionPostCard';
+import { useCommunityShellEnabled, useSkeletonControl } from '@/hooks';
 import { pathFactory } from '@/router/pathFactory';
 import {
   Tag,
@@ -36,9 +41,9 @@ import {
   Counts,
   PinList,
   Icon,
+  SearchInput,
 } from '@/components';
 import * as Type from '@/common/interface';
-import { useSkeletonControl } from '@/hooks';
 import Storage from '@/utils/storage';
 import { LIST_VIEW_STORAGE_KEY } from '@/common/constants';
 
@@ -54,10 +59,12 @@ export const QUESTION_ORDER_KEYS: Type.QuestionOrderBy[] = [
 ];
 interface Props {
   source: 'questions' | 'tag' | 'linked';
-  order?: Type.QuestionOrderBy;
+  order?: Type.QuestionOrderBy | CommunityHomeTab;
   data;
-  orderList?: Type.QuestionOrderBy[];
+  orderList?: readonly (Type.QuestionOrderBy | CommunityHomeTab)[];
   isLoading: boolean;
+  /** Match ui/docs homepage: filter tabs + inline search, no list title. */
+  communityHomeLayout?: boolean;
 }
 
 const QuestionList: FC<Props> = ({
@@ -66,6 +73,7 @@ const QuestionList: FC<Props> = ({
   data,
   orderList,
   isLoading = false,
+  communityHomeLayout = false,
 }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'question' });
   const { t: tQD } = useTranslation('translation', {
@@ -105,54 +113,84 @@ const QuestionList: FC<Props> = ({
   }, []);
 
   const isCardView = viewType === 'card';
+  const useDesignPostCard = useCommunityShellEnabled() && isCardView;
 
   return (
     <div
       className={classnames('question-list', {
         'question-list--card': isCardView,
+        'question-list--post-design': useDesignPostCard,
       })}>
-      <div className="mb-3 d-flex flex-wrap justify-content-between align-items-md-center gap-2">
-        <h2 className="h5 mb-0 text-nowrap fw-semibold">
-          {source === 'questions'
-            ? t('all_questions')
-            : source === 'linked'
-              ? t('x_posts', { count })
-              : t('x_questions', { count })}
-        </h2>
-        <div className="d-flex flex-wrap">
-          <QueryGroup
-            data={orderKeys}
-            currentSort={curOrder}
-            pathname={source === 'questions' ? '/questions' : ''}
-            i18nKeyPrefix="question"
-            wrapClassName="me-2"
-          />
-          <Dropdown
-            align="end"
-            className="question-list__view-dropdown"
-            onSelect={handleViewMode}>
-            <Dropdown.Toggle
-              variant="outline-secondary"
-              size="sm"
-              className="question-list__view-dropdown-toggle"
-              id="question-list-view-mode">
-              <Icon name={viewType === 'card' ? 'view-stacked' : 'list'} />
-            </Dropdown.Toggle>
+      <div
+        className={classnames(
+          'content-header-toolbar mb-3 d-flex flex-wrap align-items-md-center gap-2',
+          communityHomeLayout
+            ? 'justify-content-between community-home-content-header'
+            : 'justify-content-between',
+        )}>
+        {!communityHomeLayout && (
+          <h2 className="h5 mb-0 text-nowrap fw-semibold">
+            {source === 'questions'
+              ? t('all_questions')
+              : source === 'linked'
+                ? t('x_posts', { count })
+                : t('x_questions', { count })}
+          </h2>
+        )}
+        <div
+          className={classnames(
+            'd-flex flex-wrap align-items-center',
+            communityHomeLayout && 'flex-grow-1 justify-content-between',
+          )}>
+          {communityHomeLayout ? (
+            <CommunityHomeFilter
+              orders={orderKeys as CommunityHomeTab[]}
+              currentOrder={curOrder}
+            />
+          ) : (
+            <QueryGroup
+              data={orderKeys}
+              currentSort={curOrder}
+              pathname={source === 'questions' ? '/questions' : ''}
+              i18nKeyPrefix="question"
+              wrapClassName="me-2"
+            />
+          )}
+          {communityHomeLayout ? (
+            <SearchInput
+              variant="header"
+              className="community-home-search ms-md-2"
+            />
+          ) : (
+            <Dropdown
+              align="end"
+              className="question-list__view-dropdown"
+              onSelect={handleViewMode}>
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                size="sm"
+                className="question-list__view-dropdown-toggle"
+                id="question-list-view-mode">
+                <Icon name={viewType === 'card' ? 'view-stacked' : 'list'} />
+              </Dropdown.Toggle>
 
-            <Dropdown.Menu className="question-list__view-dropdown-menu">
-              <Dropdown.Header
-                as="h6"
-                className="question-list__view-dropdown-header">
-                {t('view', { keyPrefix: 'btns' })}
-              </Dropdown.Header>
-              <Dropdown.Item eventKey="card" active={viewType === 'card'}>
-                {t('card', { keyPrefix: 'btns' })}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="compact" active={viewType === 'compact'}>
-                {t('compact', { keyPrefix: 'btns' })}
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+              <Dropdown.Menu className="question-list__view-dropdown-menu">
+                <Dropdown.Header
+                  as="h6"
+                  className="question-list__view-dropdown-header">
+                  {t('view', { keyPrefix: 'btns' })}
+                </Dropdown.Header>
+                <Dropdown.Item eventKey="card" active={viewType === 'card'}>
+                  {t('card', { keyPrefix: 'btns' })}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  eventKey="compact"
+                  active={viewType === 'compact'}>
+                  {t('compact', { keyPrefix: 'btns' })}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
         </div>
       </div>
       {isSkeletonShow ? (
@@ -162,6 +200,19 @@ const QuestionList: FC<Props> = ({
           <PinList data={pinData} variant="card" />
           {renderData?.map((li) => {
             const href = pathFactory.questionLanding(li.id, li.url_title);
+            const postTime =
+              curOrder === 'active' ? li.operated_at : li.created_at;
+            if (useDesignPostCard) {
+              return (
+                <QuestionPostCard
+                  key={li.id}
+                  item={li}
+                  href={href}
+                  time={postTime}
+                  onNavigate={handleNavigate}
+                />
+              );
+            }
             return (
               <Card
                 key={li.id}

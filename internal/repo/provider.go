@@ -57,6 +57,7 @@ import (
 	"github.com/apache/answer/internal/repo/user"
 	"github.com/apache/answer/internal/repo/user_external_login"
 	"github.com/apache/answer/internal/repo/user_notification_config"
+	"github.com/apache/answer/internal/repo/wish"
 	"github.com/google/wire"
 )
 
@@ -117,4 +118,5 @@ var ProviderSetRepo = wire.NewSet(
 	api_key.NewAPIKeyRepo,
 	ai_conversation.NewAIConversationRepo,
 	sensitiveword.NewSensitiveWordRepo,
+	wish.NewWishRepo,
 )

@@ -22,11 +22,18 @@ import { Nav } from 'react-bootstrap';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { loggedUserInfoStore, sideNavStore, aiControlStore } from '@/stores';
+import {
+  loggedUserInfoStore,
+  sideNavStore,
+  aiControlStore,
+  brandingStore,
+} from '@/stores';
 import { Icon, PluginRender } from '@/components';
+import { hasConfiguredCommunitySidebar } from '@/config/communityNav';
 import { PluginType } from '@/utils/pluginKit';
 import request from '@/utils/request';
 
+import CommunityNavSection from './CommunityNavSection';
 import PopularTags from './PopularTags';
 
 import './index.scss';
@@ -38,17 +45,25 @@ const Index: FC = () => {
   const { can_revision, revision } = sideNavStore();
   const { ai_enabled } = aiControlStore();
   const navigate = useNavigate();
+  const branding = brandingStore((s) => s.branding);
+  const useCommunitySidebar = hasConfiguredCommunitySidebar(branding);
 
   return (
     <Nav className="side-nav-root flex-column" id="sideNav">
-      <NavLink
-        to="/questions"
-        className={({ isActive }) =>
-          isActive || pathname === '/' ? 'nav-link active' : 'nav-link'
-        }>
-        <Icon name="question-circle-fill" className="me-2" />
-        <span>{t('header.nav.question')}</span>
-      </NavLink>
+      <CommunityNavSection section="user" />
+      <CommunityNavSection section="community" />
+
+      {(userInfo?.is_admin || userInfo?.role_id === 2) &&
+      useCommunitySidebar ? (
+        <NavLink
+          to="/admin/wishes"
+          className={() =>
+            pathname === '/admin/wishes' ? 'nav-link active' : 'nav-link'
+          }>
+          <Icon name="stars" className="me-2" />
+          <span>{t('wish.manage_link', { keyPrefix: 'wish' })}</span>
+        </NavLink>
+      ) : null}
 
       {ai_enabled && (
         <NavLink
@@ -77,11 +92,6 @@ const Index: FC = () => {
         <span>{t('header.nav.user')}</span>
       </NavLink>
 
-      <NavLink to="/badges" className="nav-link">
-        <Icon name="award-fill" className="me-2" />
-        <span>{t('header.nav.badges')}</span>
-      </NavLink>
-
       <PluginRender
         slug_name="quick_links"
         type={PluginType.Sidebar}
@@ -89,7 +99,7 @@ const Index: FC = () => {
         navigate={navigate}
       />
 
-      <PopularTags />
+      {!useCommunitySidebar ? <PopularTags /> : null}
 
       {can_revision || userInfo?.role_id === 2 ? (
         <>

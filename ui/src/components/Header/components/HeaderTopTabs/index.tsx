@@ -17,57 +17,44 @@
  * under the License.
  */
 
-import { FC, memo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import classnames from 'classnames';
 
 import { floppyNavigation } from '@/utils';
-import {
-  getHeaderHomePath,
-  getOfficialAnnouncementsPath,
-  getQualityCasesPath,
-  isHeaderAnnouncementsTabActive,
-  isHeaderHomeTabActive,
-  isHeaderQualityCasesTabActive,
-} from '@/components/Header/headerNav';
+import { brandingStore } from '@/stores';
+import { getTopNavLinks } from '@/config/communityNav';
 
 const HeaderTopTabs: FC = () => {
-  const { t } = useTranslation('translation', { keyPrefix: 'header.tabs' });
+  const { t } = useTranslation('translation');
   const { pathname } = useLocation();
+  const branding = brandingStore((state) => state.branding);
 
-  const tabClass = ({ isActive }: { isActive: boolean }) =>
+  const tabs = useMemo(() => getTopNavLinks(branding, t), [branding, t]);
+
+  const tabClass = (isActive: boolean) =>
     classnames('nav-link header-top-tabs__link py-2 px-2 px-xl-3', {
       active: isActive,
     });
 
   return (
     <nav
-      className="header-top-tabs nav flex-nowrap align-items-center"
-      aria-label={t('aria')}>
-      <NavLink
-        className={tabClass}
-        end
-        to={getHeaderHomePath()}
-        isActive={() => isHeaderHomeTabActive(pathname)}
-        onClick={floppyNavigation.handleRouteLinkClick}>
-        {t('home')}
-      </NavLink>
-      <NavLink
-        className={tabClass}
-        to={getOfficialAnnouncementsPath()}
-        isActive={() => isHeaderAnnouncementsTabActive(pathname)}
-        onClick={floppyNavigation.handleRouteLinkClick}>
-        {t('official_announcements')}
-      </NavLink>
-      <NavLink
-        className={tabClass}
-        to={getQualityCasesPath()}
-        isActive={() => isHeaderQualityCasesTabActive(pathname)}
-        onClick={floppyNavigation.handleRouteLinkClick}>
-        {t('quality_cases')}
-      </NavLink>
+      className="header-top-tabs nav flex-nowrap align-items-center overflow-x-auto"
+      aria-label={t('header.tabs.aria')}>
+      {tabs.map((tab) => (
+        <NavLink
+          key={`${tab.to}-${tab.label}`}
+          className={({ isActive }) =>
+            tabClass(tab.isActive ? tab.isActive(pathname) : isActive)
+          }
+          to={tab.to}
+          end={tab.to === '/'}
+          onClick={floppyNavigation.handleRouteLinkClick}>
+          {tab.label}
+        </NavLink>
+      ))}
     </nav>
   );
 };

@@ -32,6 +32,12 @@ const brandingSetting = create<IType>((set) => ({
     square_icon: '',
     mobile_logo: '',
     favicon: '',
+    hero_image: '',
+    hero_link: '',
+    quick_access: [],
+    top_nav: [],
+    left_nav_user: [],
+    left_nav_community: [],
   },
   update: (params) =>
     set(() => {

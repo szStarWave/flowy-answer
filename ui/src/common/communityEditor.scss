@@ -1,0 +1,215 @@
+/*
+ * Community markdown / MDX editor chrome (ui/docs publish.html, article.html).
+ */
+
+.community-ui {
+  .community-md-editor.md-editor-wrap,
+  .md-editor-with-preview .community-md-editor.md-editor-wrap {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--bs-border-color) !important;
+    border-radius: 0.625rem !important;
+    overflow: hidden;
+    background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg)) !important;
+    box-shadow: none !important;
+  }
+
+  .md-editor-with-preview .md-editor-preview-outer {
+    margin-top: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.625rem;
+    background-color: var(--cm-bg-card, var(--bs-body-bg));
+  }
+
+  /* MDXEditor built-in toolbar */
+  .mdx-visual-post-editor {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+
+    .mdxeditor {
+      --basePageBg: var(--cm-bg-secondary, var(--bs-tertiary-bg));
+      --baseText: var(--bs-body-color);
+      --baseBorder: var(--bs-border-color);
+      --baseBorderHover: var(--cm-accent, var(--bs-primary));
+      --baseBg: var(--cm-bg-hover, var(--bs-tertiary-bg));
+      --baseBgActive: rgba(59, 130, 246, 0.15);
+      background: transparent;
+    }
+
+    [role='toolbar'],
+    .mdxeditor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem !important;
+      margin: 0 !important;
+      background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg)) !important;
+      border-bottom: 1px solid var(--bs-border-color) !important;
+      border-radius: 0 !important;
+    }
+
+    [role='toolbar'] > div,
+    .mdxeditor-toolbar > div {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.125rem;
+    }
+
+    [role='separator'],
+    .mdxeditor-toolbar [data-orientation='vertical'] {
+      width: 1px;
+      height: 1.25rem;
+      margin: 0 0.5rem;
+      background-color: var(--bs-border-color);
+      opacity: 1;
+    }
+
+    [role='toolbar'] button,
+    .mdxeditor-toolbar button {
+      min-width: 2.25rem;
+      height: 2.25rem;
+      padding: 0 0.625rem !important;
+      border: none !important;
+      border-radius: 0.375rem !important;
+      background: transparent !important;
+      color: var(--bs-secondary-color) !important;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1;
+      box-shadow: none !important;
+
+      &:hover {
+        background-color: var(--cm-bg-hover, var(--bs-tertiary-bg)) !important;
+        color: var(--bs-emphasis-color) !important;
+      }
+
+      &[data-state='on'],
+      &[aria-pressed='true'] {
+        background-color: rgba(59, 130, 246, 0.15) !important;
+        color: var(--cm-accent, var(--bs-primary)) !important;
+      }
+    }
+
+    [role='toolbar'] select,
+    .mdxeditor-toolbar select {
+      height: 2.25rem;
+      padding: 0 0.5rem;
+      border: 1px solid var(--bs-border-color) !important;
+      border-radius: 0.375rem !important;
+      background-color: var(--cm-bg-card, var(--bs-body-bg)) !important;
+      color: var(--bs-body-color) !important;
+      font-size: 0.8125rem;
+    }
+
+    .mdxeditor-root-contenteditable,
+    .mdxeditor-root-contenteditable > div {
+      min-height: 17.5rem;
+      padding: 1.25rem 1.5rem !important;
+      font-size: 0.9375rem;
+      line-height: 1.8;
+      color: var(--bs-body-color);
+      background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg)) !important;
+    }
+
+    .mdxeditor-root-contenteditable:focus-within {
+      outline: none;
+    }
+  }
+
+  .community-md-editor__help {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    .toolbar-item-wrap {
+      height: 2.25rem;
+      width: 2.25rem;
+    }
+
+    .toolbar {
+      font-size: 1rem;
+      color: var(--bs-secondary-color);
+
+      &:hover {
+        background-color: var(--cm-bg-hover, var(--bs-tertiary-bg));
+        color: var(--bs-emphasis-color);
+      }
+    }
+  }
+
+  .publish-editor__section--body .community-md-editor .mdx-visual-post-editor {
+    .mdxeditor-root-contenteditable {
+      min-height: 18.75rem;
+    }
+  }
+
+  .article-write-reply {
+    .comment-compose {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .comment-compose__avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #fff;
+    }
+
+    .comment-compose__body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comment-compose__label {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .community-md-editor {
+      .mdx-visual-post-editor .mdxeditor-root-contenteditable {
+        min-height: 12rem;
+      }
+    }
+
+    textarea.form-control.comment-compose__preview {
+      min-height: 7.5rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--bs-border-color);
+      background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg));
+      padding: 1rem;
+      resize: vertical;
+
+      &:focus {
+        border-color: var(--cm-accent, var(--bs-primary));
+        box-shadow: 0 0 0 3px var(--cm-accent-glow, rgba(59, 130, 246, 0.25));
+      }
+    }
+
+    .comment-compose__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+
+      .btn-primary {
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      }
+    }
+  }
+}

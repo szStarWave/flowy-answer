@@ -31,7 +31,7 @@ import { FormDataType, PostAnswerReq } from '@/common/interface';
 import { postAnswer } from '@/services';
 import { guard, handleFormError, SaveDraft, storageExpires } from '@/utils';
 import { DRAFT_ANSWER_STORAGE_KEY } from '@/common/constants';
-import { writeSettingStore } from '@/stores';
+import { writeSettingStore, loggedUserInfoStore } from '@/stores';
 
 interface Props {
   visible?: boolean;
@@ -51,6 +51,10 @@ const Index: FC<Props> = ({ visible = false, data, callback }) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'question_detail.write_answer',
   });
+  const displayName =
+    loggedUserInfoStore((s) => s.user.display_name) ||
+    loggedUserInfoStore((s) => s.user.username)?.[0] ||
+    '?';
   const [formData, setFormData] = useState<FormDataType>({
     content: {
       value: '',
@@ -238,112 +242,116 @@ const Index: FC<Props> = ({ visible = false, data, callback }) => {
   };
 
   return (
-    <Form noValidate className="mt-4">
+    <Form noValidate className="article-write-reply">
       {(!data.answered || showEditor) && (
-        <Form.Group className="mb-3">
-          <Form.Label>
-            <h5>{t('title')}</h5>
-          </Form.Label>
+        <>
           <Form.Control
             isInvalid={formData.content.isInvalid}
             className="d-none"
           />
-          {!showEditor && !data.answered && (
-            <div className="d-flex">
-              <TextArea
-                className="w-100"
-                rows={8}
-                autoFocus={false}
-                onFocus={handleFocusForTextArea}
-              />
+          <div className="comment-compose">
+            <div className="comment-compose__avatar" aria-hidden>
+              {displayName.toString().charAt(0).toUpperCase()}
             </div>
-          )}
-          {showEditor && (
-            <>
-              <Editor
-                className={classNames(
-                  'form-control p-0',
-                  focusType === 'answer' && 'focus',
-                  formData.content.isInvalid && 'is-invalid',
-                )}
-                value={formData.content.value}
-                autoFocus={editorFocusState}
-                onChange={(val) => {
-                  if (editorCanSave) {
-                    setFormData({
-                      content: {
-                        value: val,
-                        isInvalid: false,
-                        errorMsg: '',
-                      },
-                    });
-                  }
-                }}
-                onFocus={() => {
-                  setFocusType('answer');
-                }}
-                onBlur={() => {
-                  setFocusType('');
-                }}
-              />
-
-              <Alert
-                variant="warning"
-                show={data.loggedUserRank < 100 && showTips}
-                onClose={() => setShowTips(false)}
-                dismissible
-                className="mt-3">
-                <p>{t('tips.header_1')}</p>
-                <ul>
-                  <li>
-                    <Trans
-                      i18nKey="question_detail.write_answer.tips.li1_1"
-                      components={{ strong: <strong /> }}
-                    />
-                  </li>
-                  <li>{t('tips.li1_2')}</li>
-                </ul>
-                <p>
-                  <Trans
-                    i18nKey="question_detail.write_answer.tips.header_2"
-                    components={{ strong: <strong /> }}
+            <div className="comment-compose__body">
+              <div className="comment-compose__label">{t('title')}</div>
+              {!showEditor && !data.answered && (
+                <TextArea
+                  className="w-100 comment-compose__preview"
+                  rows={6}
+                  autoFocus={false}
+                  onFocus={handleFocusForTextArea}
+                />
+              )}
+              {showEditor && (
+                <>
+                  <Editor
+                    className={classNames(
+                      'form-control p-0',
+                      focusType === 'answer' && 'focus',
+                      formData.content.isInvalid && 'is-invalid',
+                    )}
+                    value={formData.content.value}
+                    autoFocus={editorFocusState}
+                    onChange={(val) => {
+                      if (editorCanSave) {
+                        setFormData({
+                          content: {
+                            value: val,
+                            isInvalid: false,
+                            errorMsg: '',
+                          },
+                        });
+                      }
+                    }}
+                    onFocus={() => {
+                      setFocusType('answer');
+                    }}
+                    onBlur={() => {
+                      setFocusType('');
+                    }}
                   />
-                </p>
-                <ul className="mb-0">
-                  <li>{t('tips.li2_1')}</li>
-                </ul>
-              </Alert>
-            </>
-          )}
 
-          <Form.Control.Feedback type="invalid">
-            {formData.content.errorMsg}
-          </Form.Control.Feedback>
-        </Form.Group>
+                  <Alert
+                    variant="warning"
+                    show={data.loggedUserRank < 100 && showTips}
+                    onClose={() => setShowTips(false)}
+                    dismissible
+                    className="mt-3">
+                    <p>{t('tips.header_1')}</p>
+                    <ul>
+                      <li>
+                        <Trans
+                          i18nKey="question_detail.write_answer.tips.li1_1"
+                          components={{ strong: <strong /> }}
+                        />
+                      </li>
+                      <li>{t('tips.li1_2')}</li>
+                    </ul>
+                    <p>
+                      <Trans
+                        i18nKey="question_detail.write_answer.tips.header_2"
+                        components={{ strong: <strong /> }}
+                      />
+                    </p>
+                    <ul className="mb-0">
+                      <li>{t('tips.li2_1')}</li>
+                    </ul>
+                  </Alert>
+                </>
+              )}
+
+              <Form.Control.Feedback type="invalid" className="d-block">
+                {formData.content.errorMsg}
+              </Form.Control.Feedback>
+
+              <div className="comment-compose__actions">
+                <Button onClick={clickBtn}>{t('btn_name')}</Button>
+                {hasDraft && (
+                  <Button variant="link" onClick={deleteDraft}>
+                    {t('discard_draft', { keyPrefix: 'btns' })}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {data.answered && !showEditor ? (
-        // the 0th answer is the oldest one
-        <Link
-          to={`/posts/${data.qid}/${data.first_answer_id}/edit`}
-          className="btn btn-primary">
-          {t('edit_answer')}
-        </Link>
-      ) : (
-        <Button onClick={clickBtn}>{t('btn_name')}</Button>
-      )}
-
-      {data.answered && !showEditor && !writeInfo.restrict_answer && (
-        <Button onClick={clickBtn} className="ms-2 " variant="outline-primary">
-          {t('add_another_answer')}
-        </Button>
-      )}
-
-      {hasDraft && (
-        <Button variant="link" className="ms-2" onClick={deleteDraft}>
-          {t('discard_draft', { keyPrefix: 'btns' })}
-        </Button>
-      )}
+        <div className="d-flex flex-wrap gap-2 mt-3">
+          <Link
+            to={`/posts/${data.qid}/${data.first_answer_id}/edit`}
+            className="btn btn-primary">
+            {t('edit_answer')}
+          </Link>
+          {!writeInfo.restrict_answer && (
+            <Button onClick={clickBtn} variant="outline-primary">
+              {t('add_another_answer')}
+            </Button>
+          )}
+        </div>
+      ) : null}
     </Form>
   );
 };

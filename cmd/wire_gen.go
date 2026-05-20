@@ -52,6 +52,7 @@ import (
 	"github.com/apache/answer/internal/repo/user"
 	"github.com/apache/answer/internal/repo/user_external_login"
 	"github.com/apache/answer/internal/repo/user_notification_config"
+	"github.com/apache/answer/internal/repo/wish"
 	"github.com/apache/answer/internal/router"
 	"github.com/apache/answer/internal/service/action"
 	activity2 "github.com/apache/answer/internal/service/activity"
@@ -103,6 +104,7 @@ import (
 	"github.com/apache/answer/internal/service/user_common"
 	user_external_login2 "github.com/apache/answer/internal/service/user_external_login"
 	user_notification_config2 "github.com/apache/answer/internal/service/user_notification_config"
+	wish2 "github.com/apache/answer/internal/service/wish"
 	"github.com/segmentfault/pacman"
 	"github.com/segmentfault/pacman/log"
 )
@@ -186,6 +188,8 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	reviewService := review2.NewReviewService(reviewRepo, objService, userCommon, userRepo, questionRepo, answerRepo, userRoleRelService, externalService, tagCommonService, questionCommon, noticequeueService, siteInfoCommonService, commentCommonRepo)
 	sensitiveWordRepo := sensitiveword.NewSensitiveWordRepo(dataData)
 	sensitiveWordService := sensitive_word.NewSensitiveWordService(sensitiveWordRepo, userRoleRelService)
+	wishRepo := wish.NewWishRepo(dataData)
+	wishService := wish2.NewWishService(wishRepo)
 	commentService := comment2.NewCommentService(commentRepo, commentCommonRepo, userCommon, objService, voteRepo, emailService, userRepo, noticequeueService, externalService, service, eventqueueService, reviewService, siteInfoCommonService, sensitiveWordService)
 	rolePowerRelRepo := role.NewRolePowerRelRepo(dataData)
 	rolePowerRelService := role2.NewRolePowerRelService(rolePowerRelRepo, userRoleRelService)
@@ -280,7 +284,9 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	aiConversationController := controller.NewAIConversationController(aiConversationService, featureToggleService)
 	aiConversationAdminController := controller_admin.NewAIConversationAdminController(aiConversationService, featureToggleService)
 	sensitiveWordAdminController := controller_admin.NewSensitiveWordAdminController(sensitiveWordService)
-	answerAPIRouter := router.NewAnswerAPIRouter(langController, userController, commentController, reportController, voteController, tagController, followController, collectionController, questionController, pollController, answerController, searchController, revisionController, rankController, userAdminController, reasonController, themeController, siteInfoController, controllerSiteInfoController, notificationController, dashboardController, uploadController, activityController, roleController, pluginController, permissionController, userPluginController, reviewController, metaController, badgeController, controller_adminBadgeController, adminAPIKeyController, aiController, aiConversationController, aiConversationAdminController, sensitiveWordAdminController, mcpController)
+	wishController := controller.NewWishController(wishService)
+	wishAdminController := controller_admin.NewWishAdminController(wishService)
+	answerAPIRouter := router.NewAnswerAPIRouter(langController, userController, commentController, reportController, voteController, tagController, followController, collectionController, questionController, pollController, answerController, searchController, revisionController, rankController, userAdminController, reasonController, themeController, siteInfoController, controllerSiteInfoController, notificationController, dashboardController, uploadController, activityController, roleController, pluginController, permissionController, userPluginController, reviewController, metaController, badgeController, controller_adminBadgeController, adminAPIKeyController, aiController, aiConversationController, aiConversationAdminController, sensitiveWordAdminController, wishController, wishAdminController, mcpController)
 	swaggerRouter := router.NewSwaggerRouter(swaggerConf)
 	uiRouter := router.NewUIRouter(controllerSiteInfoController, siteInfoCommonService)
 	authUserMiddleware := middleware.NewAuthUserMiddleware(authService, siteInfoCommonService)

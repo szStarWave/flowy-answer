@@ -316,6 +316,9 @@ backend:
         other: 目前无法编辑，有一个版本在审阅队列中。
       no_permission:
         other: 无权限修改。
+    wish:
+      vote_period_limit:
+        other: 每个账号在每个许愿期只能投一票；如需改投其他项，请先取消当前投票。
     user:
       external_login_missing_user_id:
         other: 第三方平台没有提供唯一的 UserID，所以你不能登录，请联系网站管理员。
@@ -1372,6 +1375,25 @@ ui:
       home: 首页
       official_announcements: 官方公告
       quality_cases: 优质案例
+  community_nav:
+    user_section: 用户
+    community_section: 社区
+  community_stats:
+    reputation: 声望
+    answers: 回复
+    questions: 提问
+    create_post: 我要发言
+  wish:
+    title: 许愿功能
+    view_all: 全部 →
+    meta: "{{discussions}} 讨论 · {{views}} 阅读"
+    vote_failed: 投票失败，请稍后重试
+    vote_closed: 本期许愿已结束，暂不可投票
+    widget_no_period: 暂无进行中的许愿活动
+    page_title: 许愿功能
+    page_intro: 为心仪的许愿项投票，票数越高排序越靠前。每期许愿由管理员或版主发布。
+    manage_link: 管理许愿
+    empty: 本期暂无许愿项
   footer:
     build_on: Powered by <1> Apache Answer </1>
   upload_img:
@@ -1593,32 +1615,32 @@ ui:
       select_up_to: "最多可选 {{max}} 项。"
       participants: "{{count}} 人参与投票"
     table_of_contents: 本文目录
-    answered: 回答于
+    answered: 回复于
     closed_in: 关闭于
     show_exist: 查看类似问题。
     useful: 有用的
     question_useful: 它是有用和明确的
     question_un_useful: 它不明确或没用的
     question_bookmark: 收藏该问题
-    answer_useful: 这是有用的
-    answer_un_useful: 它是没有用的
+    answer_useful: 这条回复有用
+    answer_un_useful: 这条回复没用
     answers:
-      title: 个回答
+      title: 条回复
       score: 评分
       newest: 最新
       oldest: 最旧
       btn_accept: 采纳
       btn_accepted: 已被采纳
     write_answer:
-      title: 你的回答
-      edit_answer: 编辑我的回答
-      btn_name: 提交你的回答
-      add_another_answer: 添加另一个回答
-      confirm_title: 继续回答
+      title: 你的回复
+      edit_answer: 编辑我的回复
+      btn_name: 发布回复
+      add_another_answer: 添加另一条回复
+      confirm_title: 继续回复
       continue: 继续
       confirm_info: >-
-        <p>你确定要提交一个新的回答吗？</p><p>作为替代，你可以通过编辑来完善和改进之前的回答。</p>
-      empty: 回答内容不能为空。
+        <p>你确定要提交一条新的回复吗？</p><p>作为替代，你可以通过编辑来完善和改进之前的回复。</p>
+      empty: 回复内容不能为空。
       characters: 内容长度至少 6 个字符。
       tips:
         header_1: 感谢你的回答
@@ -1682,7 +1704,7 @@ ui:
     pinned: 已置顶
     all: 全部
     question: 问题
-    answer: 回答
+    answer: 回复
     comment: 评论
     refresh: 刷新
     resend: 重新发送
@@ -1703,6 +1725,7 @@ ui:
     filter: 筛选
     ignore: 忽略
     submit: 提交
+    save_community: 保存社区配置
     normal: 正常
     closed: 已关闭
     deleted: 已删除
@@ -1778,6 +1801,10 @@ ui:
     x_posts: "{{ count }} 个帖子"
     questions: 问题
     answers: 回答
+    home_default: 默认
+    home_featured: 优质
+    home_good: 优质
+    official_badge: 官方
     newest: 最新
     active: 活跃
     hot: 热门
@@ -1988,6 +2015,7 @@ ui:
     files: 文件
     apikeys: API 密钥
     sensitive_words: 敏感词
+    wishes: 许愿管理
     intelligence: 智力
     ai_assistant: AI 助手
     ai_settings: AI 设置
@@ -2297,6 +2325,70 @@ ui:
       favicon:
         label: 收藏夹图标
         text: 网站的图标。要在 CDN 正常工作，它必须是 png。 将调整大小到32x32。如果留空，将使用“方形图标”。
+      community:
+        section_title: 社区首页
+        section_hint: 频道可填 tag_slug（/tags/{slug}）或 path（如 /wishes）。path 优先于 tag_slug。许愿内容在「许愿管理」维护。
+        field_path: 站内路径
+        hero_image: 首页 Banner 图片 URL
+        hero_link: Banner 点击链接（可选）
+        quick_access: 快捷入口
+        top_nav: 顶栏频道（除首页外请填写标签 slug，将跳转到对应标签页）
+        top_nav_hint: 第一项留空 slug 表示「首页」；其余项填写标签 slug（如 /announcements），顶栏将打开该标签下的帖子列表。
+        left_nav_user: 侧栏 · 用户区
+        left_nav_community: 侧栏 · 社区区
+        field_title: 标题
+        field_description: 描述
+        field_tag_slug: 标签 slug
+        field_icon: 图标（emoji 或 bootstrap icon 名）
+        add_quick_access: 添加快捷入口
+        add_nav_item: 添加频道
+    wishes:
+      page_title: 许愿管理
+      page_hint: 先创建「许愿期」，添加多个许愿项后发布并设为当前期，前台用户即可投票。
+      load_failed: 加载许愿数据失败，请刷新或联系管理员
+      save_failed: 保存失败，请稍后重试
+      periods_title: 许愿期
+      add_period: 新增许愿期
+      period_added: 许愿期已创建
+      period_deleted: 许愿期已删除
+      period_delete_confirm: 确定删除该许愿期及其下所有许愿项吗？
+      period_set_current: 已设为当前期
+      period_published: 许愿期已发布（开放投票）
+      period_status: 期状态
+      period_status_draft: 草稿
+      period_status_open: 进行中
+      period_status_closed: 已结束
+      publish_period: 发布
+      set_current: 设为当前
+      delete_period: 删除
+      current_badge: 当前期
+      items_count: 项
+      select_period_hint: 请从左侧选择或创建一个许愿期
+      add_item_title: 本期许愿项
+      sort_order: 排序
+      sort_order_hint: 数字越小越靠前
+      field_title: 标题
+      field_description: 描述
+      add: 新增许愿项
+      added: 已添加
+      deleted: 已删除
+      votes: 票数
+      status: 状态
+      enabled: 已启用
+      disabled: 已禁用
+      toggle_status: 切换状态
+      workflow_step_1: 创建许愿期
+      workflow_step_2: 添加许愿项
+      workflow_step_3: 发布并设为当前
+      no_periods_hint: 暂无许愿期，点击「新增许愿期」开始
+      no_items_hint: 本期还没有许愿项，在上方表单添加
+      publish_and_set_current: 发布并设为当前
+      close_period: 结束本期
+      period_closed: 许愿期已结束
+      period_live: 已发布并设为当前期
+      new_period_hint: 创建后可在右侧添加许愿项，再发布开放投票
+      item_delete_confirm: 确定删除该许愿项吗？
+      delete_item: 删除
     legal:
       page_title: 法律条款
       terms_of_service:

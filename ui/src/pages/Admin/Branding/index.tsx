@@ -21,11 +21,17 @@ import { FC, memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { JSONSchema, SchemaForm, UISchema, ImgViewer } from '@/components';
-import { FormDataType } from '@/common/interface';
+import {
+  FormDataType,
+  BrandingCommunityNavItem,
+  BrandingQuickAccessItem,
+} from '@/common/interface';
 import { brandSetting, getBrandSetting } from '@/services';
 import { brandingStore } from '@/stores';
 import { useToast } from '@/hooks';
 import { handleFormError, scrollToElementTop } from '@/utils';
+
+import CommunityConfigSection from './components/CommunityConfigSection';
 
 const uploadType = 'branding';
 const Index: FC = () => {
@@ -34,6 +40,17 @@ const Index: FC = () => {
   });
   const { branding: brandingInfo, update } = brandingStore();
   const Toast = useToast();
+
+  const [heroImage, setHeroImage] = useState('');
+  const [heroLink, setHeroLink] = useState('');
+  const [quickAccess, setQuickAccess] = useState<BrandingQuickAccessItem[]>([]);
+  const [topNav, setTopNav] = useState<BrandingCommunityNavItem[]>([]);
+  const [leftNavUser, setLeftNavUser] = useState<BrandingCommunityNavItem[]>(
+    [],
+  );
+  const [leftNavCommunity, setLeftNavCommunity] = useState<
+    BrandingCommunityNavItem[]
+  >([]);
 
   const [formData, setFormData] = useState<FormDataType>({
     logo: {
@@ -127,11 +144,22 @@ const Index: FC = () => {
   };
 
   const onSubmit = () => {
+    const filterNav = (rows: BrandingCommunityNavItem[]) =>
+      rows.filter((row) => row.label?.trim() && row.tag_slug?.trim());
+    const filterQuick = (rows: BrandingQuickAccessItem[]) =>
+      rows.filter((row) => row.title?.trim() && row.tag_slug?.trim());
+
     const params = {
       logo: formData.logo.value,
       mobile_logo: formData.mobile_logo.value,
       square_icon: formData.square_icon.value,
       favicon: formData.favicon.value,
+      hero_image: heroImage,
+      hero_link: heroLink,
+      quick_access: filterQuick(quickAccess),
+      top_nav: filterNav(topNav),
+      left_nav_user: filterNav(leftNavUser),
+      left_nav_community: filterNav(leftNavCommunity),
     };
     brandSetting(params)
       .then(() => {
@@ -159,6 +187,12 @@ const Index: FC = () => {
       formData.square_icon.value = res.square_icon;
       formData.favicon.value = res.favicon;
       setFormData({ ...formData });
+      setHeroImage(res.hero_image || '');
+      setHeroLink(res.hero_link || '');
+      setQuickAccess(res.quick_access || []);
+      setTopNav(res.top_nav || []);
+      setLeftNavUser(res.left_nav_user || []);
+      setLeftNavCommunity(res.left_nav_community || []);
     }
   };
 
@@ -176,6 +210,21 @@ const Index: FC = () => {
           formData={formData}
           onSubmit={onSubmit}
           onChange={handleOnChange}
+        />
+        <CommunityConfigSection
+          heroImage={heroImage}
+          heroLink={heroLink}
+          quickAccess={quickAccess}
+          topNav={topNav}
+          leftNavUser={leftNavUser}
+          leftNavCommunity={leftNavCommunity}
+          onHeroImageChange={setHeroImage}
+          onHeroLinkChange={setHeroLink}
+          onQuickAccessChange={setQuickAccess}
+          onTopNavChange={setTopNav}
+          onLeftNavUserChange={setLeftNavUser}
+          onLeftNavCommunityChange={setLeftNavCommunity}
+          onSave={onSubmit}
         />
       </div>
     </ImgViewer>

@@ -317,6 +317,9 @@ backend:
         other: Can't edit currently, there is a version in the review queue.
       no_permission:
         other: No permission to revise.
+    wish:
+      vote_period_limit:
+        other: You may only vote once per wish period. Cancel your current vote before choosing another wish.
     user:
       external_login_missing_user_id:
         other: The third-party platform does not provide a unique UserID, so you cannot login, please contact the website administrator.
@@ -1390,6 +1393,25 @@ ui:
       home: Home
       official_announcements: Official announcements
       quality_cases: Showcase
+  community_nav:
+    user_section: User
+    community_section: Community
+  community_stats:
+    reputation: Reputation
+    answers: Replies
+    questions: Posts
+    create_post: New post
+  wish:
+    title: Wishes
+    view_all: View all →
+    meta: "{{discussions}} discussions · {{views}} views"
+    page_intro: Vote for your favorite wishes. Higher votes rank higher. Each period is published by admins or moderators.
+    manage_link: Manage wishes
+    empty: No wishes in this period yet
+    vote_failed: Vote failed. Please try again later.
+    vote_closed: Voting is closed for this period.
+    widget_no_period: No active wish period right now.
+    page_title: Wishes
   footer:
     build_on: Powered by <1> Apache Answer </1>
   upload_img:
@@ -1736,6 +1758,7 @@ ui:
     filter: Filter
     ignore: Ignore
     submit: Submit
+    save_community: Save community settings
     normal: Normal
     closed: Closed
     deleted: Deleted
@@ -1812,6 +1835,10 @@ ui:
     x_posts: "{{ count }} Posts"
     questions: Questions
     answers: Answers
+    home_default: Default
+    home_featured: Featured
+    home_good: Featured
+    official_badge: Official
     newest: Newest
     active: Active
     hot: Hot
@@ -2027,6 +2054,7 @@ ui:
     files: Files
     apikeys: API Keys
     sensitive_words: Sensitive words
+    wishes: Wishes
     intelligence: Intelligence
     ai_assistant: AI Assistant
     ai_settings: AI Settings
@@ -2337,6 +2365,71 @@ ui:
       favicon:
         label: Favicon
         text: A favicon for your site. To work correctly over a CDN it must be a png. Will be resized to 32x32. If left blank, "square icon" will be used.
+      community:
+        section_title: Community home
+        section_hint: Use tag_slug for /tags/{slug} or path for internal routes (e.g. /wishes). path takes precedence over tag_slug.
+        hero_image: Home banner image URL
+        hero_link: Banner click URL (optional)
+        quick_access: Quick access
+        top_nav: Top navigation
+        top_nav_hint: Leave tag slug empty for Home. Other items must use a tag slug (e.g. /announcements) and open that tag feed.
+        left_nav_user: Sidebar · User
+        left_nav_community: Sidebar · Community
+        field_title: Title
+        field_description: Description
+        field_tag_slug: Tag slug
+        field_path: Internal path
+        field_icon: Icon (emoji or bootstrap icon name)
+        add_quick_access: Add quick access
+        add_nav_item: Add channel
+        save_community: Save community settings
+    wishes:
+      page_title: Wishes
+      page_hint: Create a wish period, add items, publish it, and set it as the current period so users can vote.
+      load_failed: Failed to load wishes. Please refresh or contact an administrator.
+      save_failed: Save failed. Please try again later.
+      periods_title: Wish periods
+      add_period: Add period
+      period_added: Period created
+      period_deleted: Period deleted
+      period_delete_confirm: Delete this period and all its wishes?
+      period_set_current: Set as current period
+      period_published: Period published (open for voting)
+      period_status: Period status
+      period_status_draft: Draft
+      period_status_open: Open
+      period_status_closed: Closed
+      publish_period: Publish
+      set_current: Set current
+      delete_period: Delete
+      current_badge: Current
+      items_count: items
+      select_period_hint: Select or create a wish period on the left
+      add_item_title: Wishes in this period
+      sort_order: Sort order
+      sort_order_hint: Lower numbers appear first
+      field_title: Title
+      field_description: Description
+      add: Add wish
+      added: Added
+      deleted: Deleted
+      votes: Votes
+      status: Status
+      enabled: Enabled
+      disabled: Disabled
+      toggle_status: Toggle status
+      workflow_step_1: Create a period
+      workflow_step_2: Add wish items
+      workflow_step_3: Publish and set current
+      no_periods_hint: No wish periods yet. Click Add period to get started.
+      no_items_hint: No wishes in this period yet. Use the form above to add one.
+      publish_and_set_current: Publish and set current
+      close_period: Close period
+      period_closed: Wish period closed
+      period_live: Published and set as current period
+      new_period_hint: After creating a period, add wishes on the right, then publish for voting.
+      item_delete_confirm: Delete this wish item?
+      delete_item: Delete
     legal:
       page_title: Legal
       terms_of_service:

@@ -55,22 +55,24 @@ const Index: FC = () => {
     title: t('confirm_email', { keyPrefix: 'page_title' }),
   });
   return (
-    <Container className="pt-4 mt-2 mb-5">
-      <Row className="justify-content-center">
+    <Container className="auth-page">
+      <Row className="justify-content-center auth-panel">
         <Col lg={6}>
-          <WelcomeTitle className="mt-3 mb-5" />
-          {step === 'success' && (
-            <>
-              <p className="text-center">{t('confirm_new_email')}</p>
-              <div className="text-center">
-                <Link to="/">{t('link')}</Link>
-              </div>
-            </>
-          )}
+          <div className="auth-card p-4">
+            <WelcomeTitle className="mt-3 mb-5" />
+            {step === 'success' && (
+              <>
+                <p className="text-center">{t('confirm_new_email')}</p>
+                <div className="text-center">
+                  <Link to="/">{t('link')}</Link>
+                </div>
+              </>
+            )}
 
-          {step === 'invalid' && (
-            <p className="text-center">{t('confirm_new_email_invalid')}</p>
-          )}
+            {step === 'invalid' && (
+              <p className="text-center">{t('confirm_new_email_invalid')}</p>
+            )}
+          </div>
         </Col>
       </Row>
     </Container>

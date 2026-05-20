@@ -35,15 +35,15 @@ const Index: FC = () => {
     title: t('admin'),
   });
   return (
-    <div className="admin-container d-flex">
-      <div
-        className="position-sticky px-3 border-end pt-4 d-none d-xl-block"
+    <div className="community-ui community-ui--shell admin-community-shell d-flex">
+      <aside
+        className="position-sticky border-end d-none d-xl-block admin-community-shell__aside"
         id="pcSideNav">
         <AdminSideNav />
-      </div>
-      <div className="flex-fill w-100">
+      </aside>
+      <div className="community-ui__main flex-fill w-100 overflow-x-hidden">
         <div className="d-flex justify-content-center px-0 px-md-4">
-          <div className="answer-container main-mx-with">
+          <div className="answer-container main-mx-with w-100">
             <Row className="py-4">
               <Col className="page-main flex-auto">
                 <Outlet />

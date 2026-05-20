@@ -22,6 +22,8 @@ import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { UI_FEATURE_FLAGS } from '@/common/featureFlags';
+
 interface Props {
   slug: string;
   isSelf: boolean;
@@ -71,33 +73,35 @@ const Index: FC<Props> = ({ slug, tabName = 'overview', isSelf }) => {
       className="pt-2 mb-4 flex-nowrap"
       variant="pills"
       style={{ overflow: 'auto' }}>
-      {list.map((item) => {
-        if (item.role && !isSelf) {
-          return null;
-        }
-        if (item.path) {
+      {list
+        .filter((item) => UI_FEATURE_FLAGS.showBadges || item.name !== 'badges')
+        .map((item) => {
+          if (item.role && !isSelf) {
+            return null;
+          }
+          if (item.path) {
+            return (
+              <NavLink
+                to={`/users/${slug}${item.path}`}
+                key={item.name}
+                className="nav-link">
+                {t(item.name)}
+              </NavLink>
+            );
+          }
           return (
             <NavLink
-              to={`/users/${slug}${item.path}`}
               key={item.name}
-              className="nav-link">
+              to={`/users/${slug}`}
+              className={({ isActive }) =>
+                isActive && tabName === 'overview'
+                  ? 'nav-link active'
+                  : 'nav-link'
+              }>
               {t(item.name)}
             </NavLink>
           );
-        }
-        return (
-          <NavLink
-            key={item.name}
-            to={`/users/${slug}`}
-            className={({ isActive }) =>
-              isActive && tabName === 'overview'
-                ? 'nav-link active'
-                : 'nav-link'
-            }>
-            {t(item.name)}
-          </NavLink>
-        );
-      })}
+        })}
     </Nav>
   );
 };

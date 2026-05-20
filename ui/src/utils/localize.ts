@@ -125,6 +125,12 @@ export const getCurrentTheme = () => {
   const adminTheme = themeSettingStore.getState().color_scheme;
   const fallbackTheme = DEFAULT_THEME;
   let currentTheme = loggedUser.color_scheme;
+  if (!loggedUser?.access_token && typeof localStorage !== 'undefined') {
+    const guest = localStorage.getItem('flowy_guest_color_scheme');
+    if (guest === 'light' || guest === 'dark') {
+      return guest;
+    }
+  }
   if (/default/i.test(currentTheme)) {
     currentTheme = adminTheme;
   }

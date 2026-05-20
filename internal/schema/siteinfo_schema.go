@@ -81,12 +81,35 @@ type SiteUsersSettingsReq struct {
 
 type SiteUsersSettingsResp SiteUsersSettingsReq
 
+// SiteBrandingCommunityNavItem is a top or sidebar channel pointing at a tag landing page.
+type SiteBrandingCommunityNavItem struct {
+	Label   string `json:"label"`
+	TagSlug string `json:"tag_slug"`
+	Path    string `json:"path,omitempty"`
+	Icon    string `json:"icon,omitempty"`
+}
+
+// SiteBrandingQuickAccessItem is a homepage quick-access card.
+type SiteBrandingQuickAccessItem struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Icon        string `json:"icon,omitempty"`
+	TagSlug     string `json:"tag_slug"`
+	Path        string `json:"path,omitempty"`
+}
+
 // SiteBrandingReq site branding request
 type SiteBrandingReq struct {
 	Logo       string `validate:"omitempty,gt=0,lte=512" form:"logo" json:"logo"`
 	MobileLogo string `validate:"omitempty,gt=0,lte=512" form:"mobile_logo" json:"mobile_logo"`
 	SquareIcon string `validate:"omitempty,gt=0,lte=512" form:"square_icon" json:"square_icon"`
 	Favicon    string `validate:"omitempty,gt=0,lte=512" form:"favicon" json:"favicon"`
+	HeroImage  string `validate:"omitempty,gt=0,lte=512" json:"hero_image"`
+	HeroLink   string `validate:"omitempty,lte=512" json:"hero_link"`
+	QuickAccess []SiteBrandingQuickAccessItem `json:"quick_access"`
+	TopNav      []SiteBrandingCommunityNavItem `json:"top_nav"`
+	LeftNavUser []SiteBrandingCommunityNavItem `json:"left_nav_user"`
+	LeftNavCommunity []SiteBrandingCommunityNavItem `json:"left_nav_community"`
 }
 
 // SiteWriteReq site write request use SiteQuestionsReq, SiteAdvancedReq and SiteTagsReq instead

@@ -145,8 +145,12 @@ const Index = () => {
               <td>
                 {row.status === STATUS_ENABLED ? t('enabled') : t('disabled')}
               </td>
-              <td>{dayjs.unix(row.created_at).tz().format('YYYY-MM-DD HH:mm')}</td>
-              <td>{dayjs.unix(row.updated_at).tz().format('YYYY-MM-DD HH:mm')}</td>
+              <td>
+                {dayjs.unix(row.created_at).tz().format('YYYY-MM-DD HH:mm')}
+              </td>
+              <td>
+                {dayjs.unix(row.updated_at).tz().format('YYYY-MM-DD HH:mm')}
+              </td>
               <td className="text-end">
                 <Button
                   variant="outline-secondary"
@@ -157,7 +161,10 @@ const Index = () => {
                     ? t('toggle_disable')
                     : t('toggle_enable')}
                 </Button>
-                <Button variant="outline-danger" size="sm" onClick={() => onDelete(row.id)}>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => onDelete(row.id)}>
                   {t('remove')}
                 </Button>
               </td>

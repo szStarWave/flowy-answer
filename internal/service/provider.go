@@ -69,6 +69,7 @@ import (
 	usercommon "github.com/apache/answer/internal/service/user_common"
 	"github.com/apache/answer/internal/service/user_external_login"
 	"github.com/apache/answer/internal/service/user_notification_config"
+	"github.com/apache/answer/internal/service/wish"
 	"github.com/google/wire"
 )
 
@@ -139,4 +140,5 @@ var ProviderSetService = wire.NewSet(
 	ai_conversation.NewAIConversationService,
 	feature_toggle.NewFeatureToggleService,
 	sensitive_word.NewSensitiveWordService,
+	wish.NewWishService,
 )

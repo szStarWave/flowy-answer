@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { UI_FEATURE_FLAGS } from './featureFlags';
+
 export const DEFAULT_SITE_NAME = 'Answer';
 export const DEFAULT_LANG = 'en_US';
 export const CURRENT_LANG_STORAGE_KEY = '_a_lang_';
@@ -116,7 +118,7 @@ export const ADMIN_NAV_MENUS = [
     icon: 'people-fill',
     children: [
       { name: 'users', pathPrefix: 'users/' },
-      { name: 'badges' },
+      ...(UI_FEATURE_FLAGS.showBadges ? [{ name: 'badges' as const }] : []),
       { name: 'rules', path: 'rules/privileges', pathPrefix: 'rules/' },
     ],
   },
@@ -146,6 +148,7 @@ export const ADMIN_NAV_MENUS = [
       { name: 'smtp' },
       { name: 'apikeys' },
       { name: 'sensitive_words', path: 'sensitive-words' },
+      { name: 'wishes', path: 'wishes' },
     ],
   },
   {

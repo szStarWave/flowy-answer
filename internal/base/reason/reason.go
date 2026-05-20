@@ -77,6 +77,7 @@ const (
 	TagNotContainSynonym             = "error.tag.not_contain_synonym_tags"
 	TagCannotUpdate                  = "error.tag.cannot_update"
 	TagIsUsedCannotDelete            = "error.tag.is_used_cannot_delete"
+	WishVotePeriodLimit              = "error.wish.vote_period_limit"
 	TagAlreadyExist                  = "error.tag.already_exist"
 	TagMinCount                      = "error.tag.minimum_count"
 	RankFailToMeetTheCondition       = "error.rank.fail_to_meet_the_condition"

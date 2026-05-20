@@ -50,23 +50,27 @@ const Index: React.FC = () => {
     loginSetting.allow_email_registrations;
 
   return (
-    <Container style={{ paddingTop: '4rem', paddingBottom: '5rem' }}>
+    <Container className="auth-page">
       <WelcomeTitle />
 
       {showForm ? (
-        <Col className="mx-auto" md={6} lg={4} xl={3}>
-          <PluginRender
-            type={PluginType.Connector}
-            slug_name="third_party_connector"
-            className="mb-5"
-          />
-          {showSignupForm ? <SignUpForm callback={onStep} /> : null}
-          <div className="text-center mt-5">
-            <Trans i18nKey="login.info_login" ns="translation">
-              Already have an account? <Link to="/users/login">Log in</Link>
-            </Trans>
+        <div className="auth-panel">
+          <div className="auth-card">
+            <Col className="mx-auto px-0" md={12}>
+              <PluginRender
+                type={PluginType.Connector}
+                slug_name="third_party_connector"
+                className="mb-5"
+              />
+              {showSignupForm ? <SignUpForm callback={onStep} /> : null}
+              <div className="text-center mt-5">
+                <Trans i18nKey="login.info_login" ns="translation">
+                  Already have an account? <Link to="/users/login">Log in</Link>
+                </Trans>
+              </div>
+            </Col>
           </div>
-        </Col>
+        </div>
       ) : (
         <Unactivate visible={!showForm} />
       )}

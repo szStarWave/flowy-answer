@@ -58,6 +58,7 @@ import '@mdxeditor/editor/style.css';
 import type { BaseEditorProps } from './types';
 import { useMdxEditorTranslation } from './mdxEditorI18n';
 import MdxPostImageDialog from './MdxPostImageDialog';
+import { Help } from './ToolBars';
 
 export interface MdxVisualPostEditorProps extends BaseEditorProps {
   onImageUpload?: (file: File) => Promise<string>;
@@ -81,6 +82,9 @@ function PostToolbar() {
       <InsertThematicBreak />
       <Separator />
       <InsertCodeBlock />
+      <div className="community-md-editor__help">
+        <Help />
+      </div>
     </>
   );
 }
@@ -180,9 +184,7 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
   }, [onEditorReady]);
 
   return (
-    <div
-      className="mdx-visual-post-editor border rounded bg-body"
-      onFocusCapture={() => onFocus?.()}>
+    <div className="mdx-visual-post-editor" onFocusCapture={() => onFocus?.()}>
       <MDXEditor
         ref={editorRef}
         className="mdx-visual-post-editor__root"

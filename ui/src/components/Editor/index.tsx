@@ -39,7 +39,6 @@ import {
 import { writeSettingStore } from '@/stores';
 
 import { useImageUpload } from './hooks/useImageUpload';
-import { Help } from './ToolBars';
 import { htmlRender } from './utils';
 import Viewer from './Viewer';
 import MdxVisualPostEditor from './MdxVisualPostEditor';
@@ -179,11 +178,11 @@ const MDEditor: ForwardRefRenderFunction<EditorRef, Props> = (
 
   return (
     <div className="md-editor-with-preview">
-      <div className={classNames('md-editor-wrap rounded', className)}>
-        <div className="toolbar-wrap px-3 py-2 d-flex align-items-center flex-wrap gap-2 justify-content-end">
-          <Help />
-        </div>
-
+      <div
+        className={classNames(
+          'md-editor-wrap community-md-editor rounded',
+          className,
+        )}>
         <MdxVisualPostEditor
           key={editorInstanceKey}
           value={value}

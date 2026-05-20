@@ -497,11 +497,76 @@ export interface SiteSettings {
   ai_enabled: boolean;
 }
 
+export interface BrandingCommunityNavItem {
+  label: string;
+  /** Tag slug for tag landing; used by top_nav (except home). Side nav may also use path. */
+  tag_slug: string;
+  /** Custom internal route — not used in top_nav (tag-only); left/side nav may use path */
+  path?: string;
+  icon?: string;
+}
+
+export interface BrandingQuickAccessItem {
+  title: string;
+  description: string;
+  icon?: string;
+  tag_slug: string;
+  path?: string;
+}
+
 export interface AdminSettingBranding {
   logo: string;
   square_icon: string;
   mobile_logo?: string;
   favicon?: string;
+  hero_image?: string;
+  hero_link?: string;
+  quick_access?: BrandingQuickAccessItem[];
+  top_nav?: BrandingCommunityNavItem[];
+  left_nav_user?: BrandingCommunityNavItem[];
+  left_nav_community?: BrandingCommunityNavItem[];
+}
+
+export interface WishPeriod {
+  id: number;
+  title: string;
+  description?: string;
+  status: number;
+  is_current?: boolean;
+  sort_order?: number;
+  item_count?: number;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface WishPeriodListResp {
+  count: number;
+  list: WishPeriod[];
+}
+
+export interface WishPeriodWithItems {
+  period: WishPeriod;
+  items: WishItem[];
+}
+
+export interface WishItem {
+  id: number;
+  period_id?: number;
+  sort_order?: number;
+  title: string;
+  description?: string;
+  vote_count: number;
+  view_count: number;
+  discussion_count: number;
+  status?: number;
+  voted?: boolean;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface WishListResp {
+  count: number;
+  list: WishItem[];
 }
 
 export interface AdminSettingsLegal {

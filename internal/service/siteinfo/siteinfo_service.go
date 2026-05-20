@@ -669,6 +669,7 @@ func (s *SiteInfoService) CleanUpRemovedBrandingFiles(
 		"mobile_logo": currentBranding.MobileLogo,
 		"square_icon": currentBranding.SquareIcon,
 		"favicon":     currentBranding.Favicon,
+		"hero_image":  currentBranding.HeroImage,
 	}
 
 	newFiles := map[string]string{
@@ -676,6 +677,7 @@ func (s *SiteInfoService) CleanUpRemovedBrandingFiles(
 		"mobile_logo": newBranding.MobileLogo,
 		"square_icon": newBranding.SquareIcon,
 		"favicon":     newBranding.Favicon,
+		"hero_image":  newBranding.HeroImage,
 	}
 
 	for key, currentFile := range currentFiles {

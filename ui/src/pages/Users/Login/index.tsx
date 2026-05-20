@@ -183,111 +183,115 @@ const Index: React.FC = () => {
   });
 
   return (
-    <Container style={{ paddingTop: '4rem', paddingBottom: '5rem' }}>
+    <Container className="auth-page">
       <WelcomeTitle />
       {step === 1 ? (
-        <Col className="mx-auto" md={6} lg={4} xl={3}>
-          <PluginRender
-            type={PluginType.Captcha}
-            slug_name="captcha_basic"
-            className="mb-5"
-          />
+        <div className="auth-panel">
+          <div className="auth-card">
+            <Col className="mx-auto px-0" md={12}>
+              <PluginRender
+                type={PluginType.Captcha}
+                slug_name="captcha_basic"
+                className="mb-5"
+              />
 
-          <PluginRender
-            type={PluginType.Captcha}
-            slug_name="captcha_google_v2"
-            className="mb-5"
-          />
-          {ucAgentInfo ? (
-            <PluginRender
-              type={PluginType.Connector}
-              slug_name="hosting_connector"
-              className="mb-5"
-            />
-          ) : (
-            <PluginRender
-              type={PluginType.Connector}
-              slug_name="third_party_connector"
-              className="mb-5"
-            />
-          )}
-          {canOriginalLogin ? (
-            <>
-              <Form noValidate onSubmit={handleSubmit}>
-                <Form.Group controlId="email" className="mb-3">
-                  <Form.Label>{t('email.label')}</Form.Label>
-                  <Form.Control
-                    required
-                    tabIndex={1}
-                    type="email"
-                    value={formData.e_mail.value}
-                    isInvalid={formData.e_mail.isInvalid}
-                    onChange={(e) =>
-                      handleChange({
-                        e_mail: {
-                          value: e.target.value,
-                          isInvalid: false,
-                          errorMsg: '',
-                        },
-                      })
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {formData.e_mail.errorMsg}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group controlId="pass" className="mb-3">
-                  <div className="d-flex justify-content-between">
-                    <Form.Label>{t('password.label')}</Form.Label>
-                    <Link to="/users/account-recovery" tabIndex={2}>
-                      <small>{t('forgot_pass')}</small>
-                    </Link>
-                  </div>
-
-                  <Form.Control
-                    required
-                    tabIndex={1}
-                    type="password"
-                    // value={formData.pass.value}
-                    isInvalid={formData.pass.isInvalid}
-                    onChange={(e) =>
-                      handleChange({
-                        pass: {
-                          value: e.target.value,
-                          isInvalid: false,
-                          errorMsg: '',
-                        },
-                      })
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {formData.pass.errorMsg}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <div className="d-grid">
-                  <Button variant="primary" type="submit" tabIndex={1}>
-                    {t('login', { keyPrefix: 'btns' })}
-                  </Button>
-                </div>
-              </Form>
-              {loginSetting.allow_new_registrations && (
-                <div className="text-center mt-5">
-                  <Trans i18nKey="login.info_sign" ns="translation">
-                    Don't have an account?
-                    <Link
-                      to={userCenter.getSignUpUrl()}
-                      tabIndex={2}
-                      onClick={floppyNavigation.handleRouteLinkClick}>
-                      Sign up
-                    </Link>
-                  </Trans>
-                </div>
+              <PluginRender
+                type={PluginType.Captcha}
+                slug_name="captcha_google_v2"
+                className="mb-5"
+              />
+              {ucAgentInfo ? (
+                <PluginRender
+                  type={PluginType.Connector}
+                  slug_name="hosting_connector"
+                  className="mb-5"
+                />
+              ) : (
+                <PluginRender
+                  type={PluginType.Connector}
+                  slug_name="third_party_connector"
+                  className="mb-5"
+                />
               )}
-            </>
-          ) : null}
-        </Col>
+              {canOriginalLogin ? (
+                <>
+                  <Form noValidate onSubmit={handleSubmit}>
+                    <Form.Group controlId="email" className="mb-3">
+                      <Form.Label>{t('email.label')}</Form.Label>
+                      <Form.Control
+                        required
+                        tabIndex={1}
+                        type="email"
+                        value={formData.e_mail.value}
+                        isInvalid={formData.e_mail.isInvalid}
+                        onChange={(e) =>
+                          handleChange({
+                            e_mail: {
+                              value: e.target.value,
+                              isInvalid: false,
+                              errorMsg: '',
+                            },
+                          })
+                        }
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {formData.e_mail.errorMsg}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group controlId="pass" className="mb-3">
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>{t('password.label')}</Form.Label>
+                        <Link to="/users/account-recovery" tabIndex={2}>
+                          <small>{t('forgot_pass')}</small>
+                        </Link>
+                      </div>
+
+                      <Form.Control
+                        required
+                        tabIndex={1}
+                        type="password"
+                        // value={formData.pass.value}
+                        isInvalid={formData.pass.isInvalid}
+                        onChange={(e) =>
+                          handleChange({
+                            pass: {
+                              value: e.target.value,
+                              isInvalid: false,
+                              errorMsg: '',
+                            },
+                          })
+                        }
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {formData.pass.errorMsg}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <div className="d-grid">
+                      <Button variant="primary" type="submit" tabIndex={1}>
+                        {t('login', { keyPrefix: 'btns' })}
+                      </Button>
+                    </div>
+                  </Form>
+                  {loginSetting.allow_new_registrations && (
+                    <div className="text-center mt-5">
+                      <Trans i18nKey="login.info_sign" ns="translation">
+                        Don't have an account?
+                        <Link
+                          to={userCenter.getSignUpUrl()}
+                          tabIndex={2}
+                          onClick={floppyNavigation.handleRouteLinkClick}>
+                          Sign up
+                        </Link>
+                      </Trans>
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </Col>
+          </div>
+        </div>
       ) : null}
 
       {step === 2 && <Unactivate visible={step === 2} />}

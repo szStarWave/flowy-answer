@@ -274,6 +274,9 @@ function getUaType() {
 
 function changeTheme(mode: 'default' | 'light' | 'dark' | 'system') {
   const htmlTag = document.querySelector('html') as HTMLHtmlElement;
+  if (mode === 'default') {
+    mode = 'light';
+  }
   if (mode === 'system') {
     const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 

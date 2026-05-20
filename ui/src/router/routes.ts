@@ -73,6 +73,10 @@ const routes: RouteNode[] = [
             page: 'pages/Questions',
           },
           {
+            path: 'wishes',
+            page: 'pages/Wishes',
+          },
+          {
             path: 'questions/ask',
             page: 'pages/Questions/Ask',
             guard: () => {
@@ -472,6 +476,10 @@ const routes: RouteNode[] = [
           {
             path: 'sensitive-words',
             page: 'pages/Admin/SensitiveWords',
+          },
+          {
+            path: 'wishes',
+            page: 'pages/Admin/Wishes',
           },
           {
             path: 'mcp',

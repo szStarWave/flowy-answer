@@ -32,11 +32,15 @@ const Index: FC = () => {
     title: t('change_email', { keyPrefix: 'page_title' }),
   });
   return (
-    <Container style={{ paddingTop: '4rem', paddingBottom: '6rem' }}>
+    <Container className="auth-page">
       <WelcomeTitle />
-      <Col className="mx-auto" md={6} lg={4} xl={3}>
-        <SendEmail />
-      </Col>
+      <div className="auth-panel">
+        <div className="auth-card">
+          <Col className="mx-auto px-0" md={12}>
+            <SendEmail />
+          </Col>
+        </div>
+      </div>
     </Container>
   );
 };

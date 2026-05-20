@@ -32,6 +32,10 @@ import useActivationEmailModal from './useActivationEmailModal';
 import useCaptchaModal from './useCaptchaModal';
 import useSkeletonControl from './useSkeletonControl';
 import useExternalToast from './useExternalToast';
+import {
+  useCommunityShellEnabled,
+  useCommunityShellBodyClass,
+} from './useCommunityShell';
 
 export {
   useTagModal,
@@ -49,4 +53,6 @@ export {
   useCaptchaModal,
   useSkeletonControl,
   useExternalToast,
+  useCommunityShellEnabled,
+  useCommunityShellBodyClass,
 };

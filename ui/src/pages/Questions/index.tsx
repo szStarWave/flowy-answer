@@ -17,18 +17,22 @@
  * under the License.
  */
 
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useMatch, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { usePageTags } from '@/hooks';
+import { QuestionList } from '@/components';
+import { QUESTION_ORDER_KEYS } from '@/components/QuestionList';
+import HeroBanner from '@/components/community/HeroBanner';
+import QuickAccessGrid from '@/components/community/QuickAccessGrid';
+import WishListWidget from '@/components/community/WishListWidget';
+import UserStatsCard from '@/components/community/UserStatsCard';
 import {
-  FollowingTags,
-  QuestionList,
-  HotQuestions,
-  CustomSidebar,
-} from '@/components';
+  COMMUNITY_HOME_TABS,
+  CommunityHomeTab,
+} from '@/components/community/CommunityHomeFilter';
 import {
   siteInfoStore,
   loggedUserInfoStore,
@@ -37,26 +41,53 @@ import {
 import { useQuestionList, useQuestionRecommendList } from '@/services';
 import * as Type from '@/common/interface';
 import { userCenter, floppyNavigation } from '@/utils';
-import { QUESTION_ORDER_KEYS } from '@/components/QuestionList';
+
+function isCommunityHomeTab(value: string | null): value is CommunityHomeTab {
+  return (
+    value !== null && (COMMUNITY_HOME_TABS as readonly string[]).includes(value)
+  );
+}
 
 const Questions: FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'question' });
   const { t: t2 } = useTranslation('translation');
   const { user: loggedUser } = loggedUserInfoStore((_) => _);
   const [urlSearchParams] = useSearchParams();
+  const isIndexPage = Boolean(useMatch('/'));
+
   const curPage = Number(urlSearchParams.get('page')) || 1;
-  const curOrder = (urlSearchParams.get('order') ||
-    QUESTION_ORDER_KEYS[0]) as Type.QuestionOrderBy;
-  const reqParams: Type.QueryQuestionsReq = {
-    page_size: 20,
-    page: curPage,
-    order: curOrder as Type.QuestionOrderBy,
-  };
+  const rawOrder = urlSearchParams.get('order');
+
+  const homeTab: CommunityHomeTab = isCommunityHomeTab(rawOrder)
+    ? rawOrder
+    : 'active';
+
+  const curOrder = isIndexPage
+    ? homeTab
+    : ((rawOrder || QUESTION_ORDER_KEYS[0]) as Type.QuestionOrderBy);
+
+  const reqParams: Type.QueryQuestionsReq = useMemo(() => {
+    if (isIndexPage) {
+      const tab = homeTab;
+      return {
+        page_size: 20,
+        page: curPage,
+        order: tab === 'featured' ? 'newest' : tab,
+        ...(tab === 'featured' ? { quality: 2 } : {}),
+      };
+    }
+    return {
+      page_size: 20,
+      page: curPage,
+      order: curOrder as Type.QuestionOrderBy,
+    };
+  }, [isIndexPage, homeTab, curPage, curOrder]);
+
   const { data: listData, isLoading: listLoading } =
-    curOrder === 'recommend'
+    !isIndexPage && curOrder === 'recommend'
       ? useQuestionRecommendList(reqParams)
       : useQuestionList(reqParams);
-  const isIndexPage = useMatch('/');
+
   let pageTitle = t('questions', { keyPrefix: 'page_title' });
   let slogan = '';
   const { siteInfo } = siteInfoStore();
@@ -66,26 +97,36 @@ const Questions: FC = () => {
   }
   const { login: loginSetting } = loginSettingStore();
 
+  const listOrderKeys = isIndexPage
+    ? COMMUNITY_HOME_TABS
+    : loggedUser.username
+      ? QUESTION_ORDER_KEYS
+      : QUESTION_ORDER_KEYS.filter((key) => key !== 'recommend');
+
   usePageTags({ title: pageTitle, subtitle: slogan });
   return (
-    <Row className="pt-4 mb-5">
+    <Row className="community-home-page mb-5 g-4">
       <Col className="page-main flex-auto overflow-x-hidden">
+        {isIndexPage ? (
+          <>
+            <HeroBanner />
+            <QuickAccessGrid />
+          </>
+        ) : null}
         <QuestionList
           source="questions"
           data={listData}
-          order={curOrder}
-          orderList={
-            loggedUser.username
-              ? QUESTION_ORDER_KEYS
-              : QUESTION_ORDER_KEYS.filter((key) => key !== 'recommend')
-          }
+          order={isIndexPage ? homeTab : curOrder}
+          orderList={listOrderKeys}
           isLoading={listLoading}
+          communityHomeLayout={isIndexPage}
         />
       </Col>
       <Col className="page-right-side mt-4 mt-xl-0">
-        <CustomSidebar />
+        {loggedUser.access_token ? <UserStatsCard /> : null}
         {!loggedUser.username && (
-          <div className="card mb-4">
+          <div
+            className={`card mb-4${isIndexPage ? ' community-home-welcome' : ''}`}>
             <div className="card-body">
               <h5 className="card-title">
                 {t2('website_welcome', {
@@ -110,8 +151,7 @@ const Questions: FC = () => {
             </div>
           </div>
         )}
-        {loggedUser.access_token && <FollowingTags />}
-        <HotQuestions />
+        {isIndexPage ? <WishListWidget /> : null}
       </Col>
     </Row>
   );

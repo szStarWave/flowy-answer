@@ -59,12 +59,16 @@ export function isHeaderHomeTabActive(pathname: string): boolean {
   return pathname === '/' || pathname === '/questions';
 }
 
-export function isHeaderAnnouncementsTabActive(pathname: string): boolean {
+/** Whether pathname is the tag landing for the given slug. */
+export function isTagSlugActive(pathname: string, tagSlug: string): boolean {
   const slug = decodedTagSlugFromPathname(pathname);
-  return slug === HEADER_ANNOUNCEMENTS_TAG_SLUG;
+  return slug === tagSlug;
+}
+
+export function isHeaderAnnouncementsTabActive(pathname: string): boolean {
+  return isTagSlugActive(pathname, HEADER_ANNOUNCEMENTS_TAG_SLUG);
 }
 
 export function isHeaderQualityCasesTabActive(pathname: string): boolean {
-  const slug = decodedTagSlugFromPathname(pathname);
-  return slug === HEADER_SHOWCASE_TAG_SLUG;
+  return isTagSlugActive(pathname, HEADER_SHOWCASE_TAG_SLUG);
 }

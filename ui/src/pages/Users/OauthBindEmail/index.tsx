@@ -160,53 +160,57 @@ const Index: FC = () => {
     }
   }, []);
   return (
-    <Container style={{ paddingTop: '4rem', paddingBottom: '6rem' }}>
+    <Container className="auth-page">
       <WelcomeTitle />
-      {showResult ? (
-        <Col md={6} className="mx-auto text-center">
-          <p>
-            <Trans
-              i18nKey="inactive.first"
-              values={{ mail: formData.email.value }}
-              components={{ bold: <strong /> }}
-            />
-          </p>
-          <p>{t('info', { keyPrefix: 'inactive' })}</p>
-        </Col>
-      ) : (
-        <Col className="mx-auto" md={6} lg={4} xl={3}>
-          <div className="text-center mb-5">{t('subtitle')}</div>
-          <Form noValidate onSubmit={handleSubmit} autoComplete="off">
-            <Form.Group controlId="email" className="mb-3">
-              <Form.Label>{t('email.label')}</Form.Label>
-              <Form.Control
-                required
-                type="email"
-                value={formData.email.value}
-                isInvalid={formData.email.isInvalid}
-                onChange={(e) => {
-                  handleChange({
-                    email: {
-                      value: e.target.value,
-                      isInvalid: false,
-                      errorMsg: '',
-                    },
-                  });
-                }}
-              />
-              <Form.Control.Feedback type="invalid">
-                {formData.email.errorMsg}
-              </Form.Control.Feedback>
-            </Form.Group>
+      <div className="auth-panel">
+        <div className="auth-card">
+          {showResult ? (
+            <Col md={12} className="mx-auto text-center">
+              <p>
+                <Trans
+                  i18nKey="inactive.first"
+                  values={{ mail: formData.email.value }}
+                  components={{ bold: <strong /> }}
+                />
+              </p>
+              <p>{t('info', { keyPrefix: 'inactive' })}</p>
+            </Col>
+          ) : (
+            <Col className="mx-auto px-0" md={12}>
+              <div className="text-center mb-5">{t('subtitle')}</div>
+              <Form noValidate onSubmit={handleSubmit} autoComplete="off">
+                <Form.Group controlId="email" className="mb-3">
+                  <Form.Label>{t('email.label')}</Form.Label>
+                  <Form.Control
+                    required
+                    type="email"
+                    value={formData.email.value}
+                    isInvalid={formData.email.isInvalid}
+                    onChange={(e) => {
+                      handleChange({
+                        email: {
+                          value: e.target.value,
+                          isInvalid: false,
+                          errorMsg: '',
+                        },
+                      });
+                    }}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formData.email.errorMsg}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-            <div className="d-grid mb-3">
-              <Button variant="primary" type="submit">
-                {t('btn_update')}
-              </Button>
-            </div>
-          </Form>
-        </Col>
-      )}
+                <div className="d-grid mb-3">
+                  <Button variant="primary" type="submit">
+                    {t('btn_update')}
+                  </Button>
+                </div>
+              </Form>
+            </Col>
+          )}
+        </div>
+      </div>
     </Container>
   );
 };

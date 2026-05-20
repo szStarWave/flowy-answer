@@ -63,6 +63,8 @@ type AnswerAPIRouter struct {
 	aiConversationController      *controller.AIConversationController
 	aiConversationAdminController *controller_admin.AIConversationAdminController
 	sensitiveWordAdminController  *controller_admin.SensitiveWordAdminController
+	wishController                *controller.WishController
+	wishAdminController           *controller_admin.WishAdminController
 	mcpController                 *controller.MCPController
 }
 
@@ -103,6 +105,8 @@ func NewAnswerAPIRouter(
 	aiConversationController *controller.AIConversationController,
 	aiConversationAdminController *controller_admin.AIConversationAdminController,
 	sensitiveWordAdminController *controller_admin.SensitiveWordAdminController,
+	wishController *controller.WishController,
+	wishAdminController *controller_admin.WishAdminController,
 	mcpController *controller.MCPController,
 ) *AnswerAPIRouter {
 	return &AnswerAPIRouter{
@@ -142,6 +146,8 @@ func NewAnswerAPIRouter(
 		aiConversationController:      aiConversationController,
 		aiConversationAdminController: aiConversationAdminController,
 		sensitiveWordAdminController:  sensitiveWordAdminController,
+		wishController:                wishController,
+		wishAdminController:           wishAdminController,
 		mcpController:                 mcpController,
 	}
 }
@@ -220,6 +226,11 @@ func (a *AnswerAPIRouter) RegisterUnAuthAnswerAPIRouter(r *gin.RouterGroup) {
 	r.GET("/badge/user/awards/recent", a.badgeController.GetRecentBadgeAwardListByUsername)
 	r.GET("/badge/user/awards", a.badgeController.GetAllBadgeAwardListByUsername)
 	r.GET("/badges", a.badgeController.GetBadgeList)
+
+	// wish (feature voting)
+	r.GET("/wish/periods", a.wishController.GetWishPeriods)
+	r.GET("/wish/period/current", a.wishController.GetCurrentWishPeriod)
+	r.GET("/wishes", a.wishController.GetWishList)
 }
 
 func (a *AnswerAPIRouter) RegisterAuthUserWithAnyStatusAnswerAPIRouter(r *gin.RouterGroup) {
@@ -253,6 +264,9 @@ func (a *AnswerAPIRouter) RegisterAnswerAPIRouter(r *gin.RouterGroup) {
 	// vote
 	r.POST("/vote/up", a.voteController.VoteUp)
 	r.POST("/vote/down", a.voteController.VoteDown)
+
+	// wish
+	r.POST("/wish/vote", a.wishController.VoteWish)
 
 	// follow
 	r.POST("/follow", a.followController.Follow)
@@ -449,4 +463,15 @@ func (a *AnswerAPIRouter) RegisterAnswerAdminAPIRouter(r *gin.RouterGroup) {
 	r.POST("/sensitive-word", a.sensitiveWordAdminController.AddSensitiveWord)
 	r.PUT("/sensitive-word/status", a.sensitiveWordAdminController.SetSensitiveWordStatus)
 	r.DELETE("/sensitive-word", a.sensitiveWordAdminController.DeleteSensitiveWord)
+
+	// wishes
+	r.GET("/wish/periods", a.wishAdminController.GetWishPeriods)
+	r.POST("/wish/period", a.wishAdminController.AddWishPeriod)
+	r.PUT("/wish/period", a.wishAdminController.UpdateWishPeriod)
+	r.DELETE("/wish/period", a.wishAdminController.DeleteWishPeriod)
+	r.PUT("/wish/period/current", a.wishAdminController.SetCurrentWishPeriod)
+	r.GET("/wishes/page", a.wishAdminController.GetWishPage)
+	r.POST("/wish", a.wishAdminController.AddWish)
+	r.PUT("/wish", a.wishAdminController.UpdateWish)
+	r.DELETE("/wish", a.wishAdminController.DeleteWish)
 }

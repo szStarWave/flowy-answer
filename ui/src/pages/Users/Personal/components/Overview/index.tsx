@@ -21,7 +21,7 @@ import { FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Row, Col } from 'react-bootstrap';
 
-// import * as Type from '@/common/interface';
+import { UI_FEATURE_FLAGS } from '@/common/featureFlags';
 import { CardBadge } from '@/components';
 import { useGetRecentAwardBadges } from '@/services';
 import TopList from '../TopList';
@@ -35,7 +35,7 @@ interface Props {
 const Index: FC<Props> = ({ visible, introduction, data, username }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'personal' });
   const { data: recentBadges } = useGetRecentAwardBadges(
-    visible ? username : null,
+    visible && UI_FEATURE_FLAGS.showBadges ? username : null,
   );
   if (!visible) {
     return null;
@@ -71,26 +71,28 @@ const Index: FC<Props> = ({ visible, introduction, data, username }) => {
         </Col>
       </Row>
 
-      <div className="mb-4">
-        <h5 className="mb-3">{t('recent_badges')}</h5>
-        {Number(recentBadges?.count) > 0 ? (
-          <Row>
-            {recentBadges?.list?.map((item) => {
-              return (
-                <Col sm={6} md={4} lg={3} key={item.id} className="mb-4">
-                  <CardBadge
-                    data={item}
-                    urlSearchParams={`username=${username}`}
-                    badgePillType="count"
-                  />
-                </Col>
-              );
-            })}
-          </Row>
-        ) : (
-          <div className="mb-5">{t('content_empty')}</div>
-        )}
-      </div>
+      {UI_FEATURE_FLAGS.showBadges ? (
+        <div className="mb-4">
+          <h5 className="mb-3">{t('recent_badges')}</h5>
+          {Number(recentBadges?.count) > 0 ? (
+            <Row>
+              {recentBadges?.list?.map((item) => {
+                return (
+                  <Col sm={6} md={4} lg={3} key={item.id} className="mb-4">
+                    <CardBadge
+                      data={item}
+                      urlSearchParams={`username=${username}`}
+                      badgePillType="count"
+                    />
+                  </Col>
+                );
+              })}
+            </Row>
+          ) : (
+            <div className="mb-5">{t('content_empty')}</div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

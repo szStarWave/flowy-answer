@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { FC, memo, useState, useEffect } from 'react';
+import { FC, memo, useState, useEffect, useSyncExternalStore } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, useLocation, useMatch } from 'react-router-dom';
@@ -25,6 +25,7 @@ import { Link, NavLink, useLocation, useMatch } from 'react-router-dom';
 import classnames from 'classnames';
 
 import { userCenter, floppyNavigation, isLight } from '@/utils';
+import { useCommunityShellEnabled } from '@/hooks';
 import {
   loggedUserInfoStore,
   siteInfoStore,
@@ -37,13 +38,30 @@ import { logout, useQueryNotificationStatus } from '@/services';
 import { Icon, MobileSideNav } from '@/components';
 
 import NavItems from './components/NavItems';
-import SearchInput from './components/SearchInput';
 import HeaderTopTabs from './components/HeaderTopTabs';
+import ThemeToggle from './ThemeToggle';
 
 import './index.scss';
 
+function subscribeHtmlTheme(cb: () => void) {
+  const el = document.documentElement;
+  const obs = new MutationObserver(cb);
+  obs.observe(el, { attributes: true, attributeFilter: ['data-bs-theme'] });
+  return () => obs.disconnect();
+}
+
+function getHtmlTheme(): 'light' | 'dark' {
+  const t = document.documentElement.getAttribute('data-bs-theme');
+  return t === 'dark' ? 'dark' : 'light';
+}
+
 const Header: FC = () => {
   const location = useLocation();
+  const htmlTheme = useSyncExternalStore(
+    subscribeHtmlTheme,
+    getHtmlTheme,
+    () => 'light' as const,
+  );
   const { user, clear: clearUserStore } = loggedUserInfoStore();
   const { t } = useTranslation();
   const { t: tHeader } = useTranslation('translation', { keyPrefix: 'header' });
@@ -53,8 +71,6 @@ const Header: FC = () => {
   const { updateReview } = sideNavStore();
   const { data: redDot } = useQueryNotificationStatus();
   const [showMobileSideNav, setShowMobileSideNav] = useState(false);
-
-  const [showMobileSearchInput, setShowMobileSearchInput] = useState(false);
   /**
    * Automatically append `tag` information when creating a question
    */
@@ -79,15 +95,17 @@ const Header: FC = () => {
   };
 
   useEffect(() => {
-    setShowMobileSearchInput(false);
     setShowMobileSideNav(false);
   }, [location.pathname]);
 
   let navbarStyle = 'theme-light';
   let themeMode = 'light';
   const { theme, theme_config, layout } = themeSettingStore((_) => _);
-  if (theme_config?.[theme]?.navbar_style) {
-    // const color = theme_config[theme].navbar_style.startsWith('#')
+  const isCommunityShell = useCommunityShellEnabled();
+  if (isCommunityShell) {
+    themeMode = htmlTheme;
+    navbarStyle = `theme-${themeMode}`;
+  } else if (theme_config?.[theme]?.navbar_style) {
     themeMode = isLight(theme_config[theme].navbar_style) ? 'light' : 'dark';
     navbarStyle = `theme-${themeMode}`;
   }
@@ -96,7 +114,6 @@ const Header: FC = () => {
     const handleResize = () => {
       if (window.innerWidth >= 1199.9) {
         setShowMobileSideNav(false);
-        setShowMobileSearchInput(false);
       }
     };
 
@@ -111,9 +128,13 @@ const Header: FC = () => {
       data-bs-theme={themeMode}
       expand="xl"
       className={classnames('sticky-top', navbarStyle)}
-      style={{
-        backgroundColor: theme_config[theme].navbar_style,
-      }}
+      style={
+        isCommunityShell
+          ? undefined
+          : {
+              backgroundColor: theme_config[theme]?.navbar_style,
+            }
+      }
       id="header">
       <div
         className={classnames(
@@ -124,7 +145,6 @@ const Header: FC = () => {
           className="answer-navBar me-2"
           onClick={() => {
             setShowMobileSideNav(!showMobileSideNav);
-            setShowMobileSearchInput(false);
           }}
         />
 
@@ -152,26 +172,18 @@ const Header: FC = () => {
           )}
         </Navbar.Brand>
 
-        <div className="header-toolbar-center d-none d-lg-flex align-items-center flex-grow-1 min-w-0 ms-lg-1 me-lg-2 gap-2">
+        <div className="header-toolbar-center d-none d-lg-flex align-items-center flex-grow-1 min-w-0 ms-lg-1 me-lg-2">
           <HeaderTopTabs />
-          <div className="header-search-slot ms-auto flex-shrink-0">
-            <SearchInput variant="header" className="header-search" />
-          </div>
         </div>
 
-        <Nav className="d-block d-lg-none me-2 ms-auto">
-          <Button
-            variant="link"
-            onClick={() => {
-              setShowMobileSideNav(false);
-              setShowMobileSearchInput(!showMobileSearchInput);
-            }}
-            className="p-0 btn-no-border icon-link nav-link d-flex align-items-center justify-content-center">
-            <Icon name="search" className="lh-1 fs-4" />
-          </Button>
-        </Nav>
-
+        <div className="d-flex align-items-center gap-1 me-2 ms-auto d-lg-none">
+          <ThemeToggle />
+        </div>
         {/* pc nav */}
+        <div className="d-none d-lg-flex align-items-center me-2">
+          <ThemeToggle />
+        </div>
+
         {user?.username ? (
           <Nav className="d-flex align-items-center flex-nowrap flex-row">
             <Nav.Item className="me-2 d-block d-xl-none">
@@ -219,12 +231,6 @@ const Header: FC = () => {
           </>
         )}
       </div>
-
-      {showMobileSearchInput && (
-        <div className="w-100 px-3 mt-2 d-block d-lg-none">
-          <SearchInput />
-        </div>
-      )}
 
       <MobileSideNav show={showMobileSideNav} onHide={setShowMobileSideNav} />
     </Navbar>

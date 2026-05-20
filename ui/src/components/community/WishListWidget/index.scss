@@ -1,0 +1,107 @@
+.community-wish-widget {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--bs-border-color);
+  background: var(--cm-bg-card, var(--bs-body-bg));
+}
+
+.community-wish-widget__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.community-wish-widget__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.community-wish-widget__more {
+  font-size: 0.8125rem;
+  color: var(--cm-accent, var(--bs-primary));
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.community-wish-widget__empty {
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.community-wish-widget__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.community-wish-widget__rank {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-primary);
+}
+
+.community-wish-widget__rank--top {
+  background: var(--cm-accent, var(--bs-primary));
+  color: #fff;
+}
+
+.community-wish-widget__wish-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.community-wish-widget__meta {
+  font-size: 0.6875rem;
+  color: var(--bs-secondary-color);
+}
+
+.community-wish-widget__vote {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--cm-bg-card, var(--bs-body-bg));
+  color: var(--bs-secondary-color);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--cm-accent, var(--bs-primary));
+    color: #fff;
+  }
+
+  &.is-voted {
+    background: var(--cm-accent, var(--bs-primary));
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}

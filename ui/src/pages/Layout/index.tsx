@@ -41,8 +41,13 @@ import {
 } from '@/components';
 import { LoginToContinueModal, BadgeModal } from '@/components/Modal';
 import { changeTheme, Storage, scrollToElementTop } from '@/utils';
+import { getCurrentTheme } from '@/utils/localize';
 import { useQueryNotificationStatus } from '@/services';
-import { useExternalToast } from '@/hooks';
+import {
+  useExternalToast,
+  useCommunityShellEnabled,
+  useCommunityShellBodyClass,
+} from '@/hooks';
 import { EXTERNAL_CONTENT_DISPLAY_MODE } from '@/common/constants';
 
 const Layout: FC = () => {
@@ -59,6 +64,8 @@ const Layout: FC = () => {
   const { show: showLoginToContinueModal } = loginToContinueStore();
   const { data: notificationData } = useQueryNotificationStatus();
   const layout = themeSettingStore((state) => state.layout);
+  const communityShell = useCommunityShellEnabled();
+  useCommunityShellBodyClass(communityShell);
   useEffect(() => {
     // handle footnote links
     const fixFootnoteLinks = () => {
@@ -133,18 +140,18 @@ const Layout: FC = () => {
 
   useEffect(() => {
     const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    function handleSystemThemeChange(event) {
-      if (event.matches) {
-        changeTheme('dark');
-      } else {
-        changeTheme('light');
+    function handleSystemThemeChange() {
+      const theme = getCurrentTheme();
+      if (theme === 'system' || theme === 'default') {
+        changeTheme('system');
       }
     }
 
-    systemThemeQuery.addListener(handleSystemThemeChange);
+    handleSystemThemeChange();
+    systemThemeQuery.addEventListener('change', handleSystemThemeChange);
 
     return () => {
-      systemThemeQuery.removeListener(handleSystemThemeChange);
+      systemThemeQuery.removeEventListener('change', handleSystemThemeChange);
     };
   }, []);
 
@@ -214,6 +221,7 @@ const Layout: FC = () => {
         <div
           className={classnames(
             'position-relative page-wrap d-flex flex-column flex-fill',
+            communityShell && 'community-shell-page',
             layout === 'Fixed-width' ? 'container-xxl' : '',
           )}>
           {httpStatusCode ? (

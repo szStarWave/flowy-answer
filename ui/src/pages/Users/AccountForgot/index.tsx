@@ -38,26 +38,30 @@ const Index: React.FC = () => {
     title: t('account_recovery', { keyPrefix: 'page_title' }),
   });
   return (
-    <Container style={{ paddingTop: '4rem', paddingBottom: '6rem' }}>
+    <Container className="auth-page">
       <h3 className="text-center mb-5">{t('page_title')}</h3>
-      {step === 1 && (
-        <Col className="mx-auto" md={6} lg={4} xl={3}>
-          <SendEmail visible={step === 1} callback={callback} />
-        </Col>
-      )}
-      {step === 2 && (
-        <Col className="mx-auto px-4" md={6}>
-          <div className="text-center">
-            <p>
-              <Trans
-                i18nKey="account_forgot.send_success"
-                values={{ mail: email }}
-                components={{ bold: <strong /> }}
-              />
-            </p>
-          </div>
-        </Col>
-      )}
+      <div className="auth-panel">
+        <div className="auth-card">
+          {step === 1 && (
+            <Col className="mx-auto px-0" md={12}>
+              <SendEmail visible={step === 1} callback={callback} />
+            </Col>
+          )}
+          {step === 2 && (
+            <Col className="mx-auto px-4" md={6}>
+              <div className="text-center">
+                <p>
+                  <Trans
+                    i18nKey="account_forgot.send_success"
+                    values={{ mail: email }}
+                    components={{ bold: <strong /> }}
+                  />
+                </p>
+              </div>
+            </Col>
+          )}
+        </div>
+      </div>
     </Container>
   );
 };

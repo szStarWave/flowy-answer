@@ -557,272 +557,301 @@ const Ask = () => {
   };
 
   return (
-    <div className="pt-4 mb-5">
-      <h3 className="mb-4">{isEdit ? t('edit_title') : t('title')}</h3>
-      <Row>
+    <div className="community-publish-page pt-4 mb-5">
+      <div className="publish-page-header mb-4">
+        <h3 className="publish-page-title mb-0">
+          {isEdit ? t('edit_title') : t('title')}
+        </h3>
+      </div>
+      <Row className="g-4">
         <Col className="page-main flex-auto">
-          <Form noValidate onSubmit={handleSubmit}>
-            {isEdit && (
-              <Form.Group controlId="revision" className="mb-3">
-                <Form.Label>{t('form.fields.revision.label')}</Form.Label>
-                <Form.Select onChange={handleSelectedRevision}>
-                  {revisions.map(({ reason, create_at, user_info }, index) => {
-                    const date = dayjs(create_at * 1000)
-                      .tz()
-                      .format(t('long_date_with_time', { keyPrefix: 'dates' }));
-                    return (
-                      <option key={`${create_at}`} value={index}>
-                        {`${date} - ${user_info.display_name} - ${
-                          reason ||
-                          (index === revisions.length - 1
-                            ? t('default_first_reason')
-                            : t('default_reason'))
-                        }`}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
-              </Form.Group>
-            )}
-            <Form.Group controlId="title" className="mb-3">
-              <Form.Label>{t('form.fields.title.label')}</Form.Label>
-              <Form.Control
-                type="text"
-                value={formData.title.value}
-                isInvalid={formData.title.isInvalid}
-                onChange={handleTitleChange}
-                placeholder={t('form.fields.title.placeholder')}
-                autoFocus
-                contentEditable
-              />
-              <Form.Control.Feedback type="invalid">
-                {formData.title.errorMsg}
-              </Form.Control.Feedback>
-              {bool && <SearchQuestion similarQuestions={similarQuestions} />}
-            </Form.Group>
-            <Form.Group controlId="content">
-              <Form.Label>{t('form.fields.body.label')}</Form.Label>
-              <Editor
-                value={formData.content.value}
-                onChange={handleContentChange}
-                className={classNames(
-                  'form-control p-0',
-                  focusType === 'content' && 'focus',
-                  formData.content.isInvalid && 'is-invalid',
-                )}
-                onFocus={() => {
-                  setForceType('content');
-                }}
-                onBlur={() => {
-                  setForceType('');
-                }}
-                ref={editorRef}
-              />
-              <Form.Text>{handleContentHint()}</Form.Text>
-              <Form.Control.Feedback type="invalid">
-                {formData.content.errorMsg}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group controlId="tags" className="my-3">
-              <Form.Label>{t('form.fields.tags.label')}</Form.Label>
-              <TagSelector
-                mode="picklist"
-                value={formData.tags.value}
-                onChange={handleTagsChange}
-                showRequiredTag
-                maxTagLength={5}
-                isInvalid={formData.tags.isInvalid}
-                errMsg={formData.tags.errorMsg}
-              />
-            </Form.Group>
-            {canManagePoll && (
-              <Form.Group className="my-3">
-                <Form.Label>{t('post_type.label')}</Form.Label>
-                <Form.Select
-                  value={postType}
-                  disabled={isEdit}
-                  onChange={(e) =>
-                    setPostType(e.target.value as 'regular' | 'poll')
-                  }>
-                  <option value="regular">{t('post_type.regular')}</option>
-                  <option value="poll">{t('post_type.poll')}</option>
-                </Form.Select>
-                {isEdit ? (
-                  <Form.Text muted>{t('post_type.edit_locked_hint')}</Form.Text>
-                ) : null}
-              </Form.Group>
-            )}
-            {canManagePoll && postType === 'poll' && (
-              <div className="border rounded p-3 mb-3 bg-light">
-                <h6 className="mb-3">{t('poll.options_heading')}</h6>
-                {pollOptions.map((row, idx) => (
-                  <Form.Group className="mb-2" key={row.clientKey}>
-                    <div className="d-flex gap-2">
-                      <Form.Control
-                        value={row.label}
-                        placeholder={t('poll.option_placeholder')}
-                        onChange={(e) => {
-                          const next = [...pollOptions];
-                          next[idx] = {
-                            ...row,
-                            label: e.target.value,
-                          };
-                          setPollOptions(next);
-                        }}
-                      />
-                      <Button
-                        variant="outline-danger"
-                        type="button"
-                        disabled={pollOptions.length <= 2}
-                        onClick={() => {
-                          setPollOptions((prev) =>
-                            prev.filter((_, i) => i !== idx),
+          <div className="publish-editor">
+            <Form noValidate onSubmit={handleSubmit}>
+              {isEdit && (
+                <Form.Group
+                  controlId="revision"
+                  className="publish-editor__section mb-0">
+                  <Form.Label>{t('form.fields.revision.label')}</Form.Label>
+                  <Form.Select onChange={handleSelectedRevision}>
+                    {revisions.map(
+                      ({ reason, create_at, user_info }, index) => {
+                        const date = dayjs(create_at * 1000)
+                          .tz()
+                          .format(
+                            t('long_date_with_time', { keyPrefix: 'dates' }),
                           );
-                        }}>
-                        {t('poll.remove_option')}
-                      </Button>
-                    </div>
-                  </Form.Group>
-                ))}
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  type="button"
-                  className="mb-3"
-                  disabled={pollOptions.length >= 30}
-                  onClick={() =>
-                    setPollOptions((prev) => [
-                      ...prev,
-                      { label: '', clientKey: newPollRowKey() },
-                    ])
-                  }>
-                  {t('poll.add_option')}
-                </Button>
-                <Form.Group className="mb-2">
-                  <Form.Label>{t('poll.max_choices')}</Form.Label>
-                  <Form.Control
-                    type="number"
-                    min={1}
-                    max={30}
-                    value={pollMaxChoices}
-                    onChange={(e) =>
-                      setPollMaxChoices(Number(e.target.value) || 1)
-                    }
-                  />
-                </Form.Group>
-                <Form.Check
-                  type="switch"
-                  id="poll-allow-change"
-                  checked={pollAllowChange}
-                  onChange={(e) => setPollAllowChange(e.target.checked)}
-                  label={t('poll.allow_change')}
-                  className="mb-2"
-                />
-                <Form.Group>
-                  <Form.Label>{t('poll.visibility')}</Form.Label>
-                  <Form.Select
-                    value={pollVisibility}
-                    onChange={(e) =>
-                      setPollVisibility(e.target.value as typeof pollVisibility)
-                    }>
-                    <option value="always">
-                      {t('poll.visibility_always')}
-                    </option>
-                    <option value="after_vote">
-                      {t('poll.visibility_after_vote')}
-                    </option>
-                    <option value="after_close">
-                      {t('poll.visibility_after_close')}
-                    </option>
+                        return (
+                          <option key={`${create_at}`} value={index}>
+                            {`${date} - ${user_info.display_name} - ${
+                              reason ||
+                              (index === revisions.length - 1
+                                ? t('default_first_reason')
+                                : t('default_reason'))
+                            }`}
+                          </option>
+                        );
+                      },
+                    )}
                   </Form.Select>
                 </Form.Group>
+              )}
+              <div className="publish-editor__section publish-editor__section--title">
+                <Form.Group controlId="title" className="mb-0">
+                  <Form.Label>{t('form.fields.title.label')}</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.title.value}
+                    isInvalid={formData.title.isInvalid}
+                    onChange={handleTitleChange}
+                    placeholder={t('form.fields.title.placeholder')}
+                    autoFocus
+                    contentEditable
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formData.title.errorMsg}
+                  </Form.Control.Feedback>
+                  {bool && (
+                    <SearchQuestion similarQuestions={similarQuestions} />
+                  )}
+                </Form.Group>
               </div>
-            )}
-            {!isEdit && (
-              <>
-                <Form.Switch
-                  checked={checked}
-                  type="switch"
-                  label={t('answer_question')}
-                  onChange={(e) => setCheckState(e.target.checked)}
-                  id="radio-answer"
-                />
-                {checked && (
-                  <Form.Group controlId="answer" className="mt-3">
-                    <Form.Label>{t('form.fields.answer.label')}</Form.Label>
-                    <Editor
-                      value={formData.answer_content.value}
-                      onChange={handleAnswerChange}
-                      ref={editorRef2}
-                      className={classNames(
-                        'form-control p-0',
-                        focusType === 'answer' && 'focus',
-                        formData.answer_content.isInvalid && 'is-invalid',
-                      )}
-                      onFocus={() => {
-                        setForceType('answer');
-                      }}
-                      onBlur={() => {
-                        setForceType('');
-                      }}
+              <div className="publish-editor__section publish-editor__section--body">
+                <Form.Group controlId="content" className="mb-0">
+                  <Form.Label>{t('form.fields.body.label')}</Form.Label>
+                  <Editor
+                    value={formData.content.value}
+                    onChange={handleContentChange}
+                    className={classNames(
+                      'form-control p-0',
+                      focusType === 'content' && 'focus',
+                      formData.content.isInvalid && 'is-invalid',
+                    )}
+                    onFocus={() => {
+                      setForceType('content');
+                    }}
+                    onBlur={() => {
+                      setForceType('');
+                    }}
+                    ref={editorRef}
+                  />
+                  <Form.Text>{handleContentHint()}</Form.Text>
+                  <Form.Control.Feedback type="invalid">
+                    {formData.content.errorMsg}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </div>
+              <div className="publish-editor__section publish-editor__section--tags">
+                <Form.Group controlId="tags" className="mb-0">
+                  <Form.Label>{t('form.fields.tags.label')}</Form.Label>
+                  <TagSelector
+                    mode="picklist"
+                    value={formData.tags.value}
+                    onChange={handleTagsChange}
+                    showRequiredTag
+                    maxTagLength={5}
+                    isInvalid={formData.tags.isInvalid}
+                    errMsg={formData.tags.errorMsg}
+                  />
+                </Form.Group>
+                {canManagePoll && (
+                  <Form.Group className="mt-3 mb-0">
+                    <Form.Label>{t('post_type.label')}</Form.Label>
+                    <Form.Select
+                      value={postType}
+                      disabled={isEdit}
+                      onChange={(e) =>
+                        setPostType(e.target.value as 'regular' | 'poll')
+                      }>
+                      <option value="regular">{t('post_type.regular')}</option>
+                      <option value="poll">{t('post_type.poll')}</option>
+                    </Form.Select>
+                    {isEdit ? (
+                      <Form.Text muted>
+                        {t('post_type.edit_locked_hint')}
+                      </Form.Text>
+                    ) : null}
+                  </Form.Group>
+                )}
+                {canManagePoll && postType === 'poll' && (
+                  <div className="border rounded p-3 mt-3 mb-0">
+                    <h6 className="mb-3">{t('poll.options_heading')}</h6>
+                    {pollOptions.map((row, idx) => (
+                      <Form.Group className="mb-2" key={row.clientKey}>
+                        <div className="d-flex gap-2">
+                          <Form.Control
+                            value={row.label}
+                            placeholder={t('poll.option_placeholder')}
+                            onChange={(e) => {
+                              const next = [...pollOptions];
+                              next[idx] = {
+                                ...row,
+                                label: e.target.value,
+                              };
+                              setPollOptions(next);
+                            }}
+                          />
+                          <Button
+                            variant="outline-danger"
+                            type="button"
+                            disabled={pollOptions.length <= 2}
+                            onClick={() => {
+                              setPollOptions((prev) =>
+                                prev.filter((_, i) => i !== idx),
+                              );
+                            }}>
+                            {t('poll.remove_option')}
+                          </Button>
+                        </div>
+                      </Form.Group>
+                    ))}
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      type="button"
+                      className="mb-3"
+                      disabled={pollOptions.length >= 30}
+                      onClick={() =>
+                        setPollOptions((prev) => [
+                          ...prev,
+                          { label: '', clientKey: newPollRowKey() },
+                        ])
+                      }>
+                      {t('poll.add_option')}
+                    </Button>
+                    <Form.Group className="mb-2">
+                      <Form.Label>{t('poll.max_choices')}</Form.Label>
+                      <Form.Control
+                        type="number"
+                        min={1}
+                        max={30}
+                        value={pollMaxChoices}
+                        onChange={(e) =>
+                          setPollMaxChoices(Number(e.target.value) || 1)
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Check
+                      type="switch"
+                      id="poll-allow-change"
+                      checked={pollAllowChange}
+                      onChange={(e) => setPollAllowChange(e.target.checked)}
+                      label={t('poll.allow_change')}
+                      className="mb-2"
                     />
+                    <Form.Group>
+                      <Form.Label>{t('poll.visibility')}</Form.Label>
+                      <Form.Select
+                        value={pollVisibility}
+                        onChange={(e) =>
+                          setPollVisibility(
+                            e.target.value as typeof pollVisibility,
+                          )
+                        }>
+                        <option value="always">
+                          {t('poll.visibility_always')}
+                        </option>
+                        <option value="after_vote">
+                          {t('poll.visibility_after_vote')}
+                        </option>
+                        <option value="after_close">
+                          {t('poll.visibility_after_close')}
+                        </option>
+                      </Form.Select>
+                    </Form.Group>
+                  </div>
+                )}
+                {!isEdit && (
+                  <>
+                    <Form.Switch
+                      checked={checked}
+                      type="switch"
+                      label={t('answer_question')}
+                      onChange={(e) => setCheckState(e.target.checked)}
+                      id="radio-answer"
+                    />
+                    {checked && (
+                      <Form.Group controlId="answer" className="mt-3">
+                        <Form.Label>{t('form.fields.answer.label')}</Form.Label>
+                        <Editor
+                          value={formData.answer_content.value}
+                          onChange={handleAnswerChange}
+                          ref={editorRef2}
+                          className={classNames(
+                            'form-control p-0',
+                            focusType === 'answer' && 'focus',
+                            formData.answer_content.isInvalid && 'is-invalid',
+                          )}
+                          onFocus={() => {
+                            setForceType('answer');
+                          }}
+                          onBlur={() => {
+                            setForceType('');
+                          }}
+                        />
+                        <Form.Control
+                          type="text"
+                          isInvalid={formData.answer_content.isInvalid}
+                          hidden
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formData.answer_content.errorMsg}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    )}
+                  </>
+                )}
+                {isEdit && (
+                  <Form.Group controlId="edit_summary" className="my-3">
+                    <Form.Label>
+                      {t('form.fields.edit_summary.label')}
+                    </Form.Label>
                     <Form.Control
                       type="text"
-                      isInvalid={formData.answer_content.isInvalid}
-                      hidden
+                      defaultValue={formData.edit_summary.value}
+                      isInvalid={formData.edit_summary.isInvalid}
+                      placeholder={t('form.fields.edit_summary.placeholder')}
+                      onChange={handleSummaryChange}
+                      contentEditable
                     />
                     <Form.Control.Feedback type="invalid">
-                      {formData.answer_content.errorMsg}
+                      {formData.edit_summary.errorMsg}
                     </Form.Control.Feedback>
                   </Form.Group>
                 )}
-              </>
-            )}
-            {isEdit && (
-              <Form.Group controlId="edit_summary" className="my-3">
-                <Form.Label>{t('form.fields.edit_summary.label')}</Form.Label>
-                <Form.Control
-                  type="text"
-                  defaultValue={formData.edit_summary.value}
-                  isInvalid={formData.edit_summary.isInvalid}
-                  placeholder={t('form.fields.edit_summary.placeholder')}
-                  onChange={handleSummaryChange}
-                  contentEditable
-                />
-                <Form.Control.Feedback type="invalid">
-                  {formData.edit_summary.errorMsg}
-                </Form.Control.Feedback>
-              </Form.Group>
-            )}
-            {!checked && (
-              <div className="mt-3">
-                <Button type="submit" className="me-2">
-                  {isEdit ? t('btn_save_edits') : t('btn_post_question')}
-                </Button>
-                {isEdit && (
-                  <Button variant="link" onClick={backPage}>
-                    {t('cancel', { keyPrefix: 'btns' })}
-                  </Button>
-                )}
-
-                {hasDraft && (
-                  <Button variant="link" onClick={deleteDraft}>
-                    {t('discard_draft', { keyPrefix: 'btns' })}
-                  </Button>
+              </div>
+              <div className="publish-editor__footer">
+                {!checked ? (
+                  <>
+                    <Button type="submit" className="me-2">
+                      {isEdit ? t('btn_save_edits') : t('btn_post_question')}
+                    </Button>
+                    {isEdit && (
+                      <Button variant="link" onClick={backPage}>
+                        {t('cancel', { keyPrefix: 'btns' })}
+                      </Button>
+                    )}
+                    {hasDraft && (
+                      <Button variant="link" onClick={deleteDraft}>
+                        {t('discard_draft', { keyPrefix: 'btns' })}
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Button type="submit">{t('post_question&answer')}</Button>
+                    {hasDraft && (
+                      <Button
+                        variant="link"
+                        className="ms-2"
+                        onClick={deleteDraft}>
+                        {t('discard_draft', { keyPrefix: 'btns' })}
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
-            )}
-            {checked && (
-              <div className="mt-3">
-                <Button type="submit">{t('post_question&answer')}</Button>
-                {hasDraft && (
-                  <Button variant="link" className="ms-2" onClick={deleteDraft}>
-                    {t('discard_draft', { keyPrefix: 'btns' })}
-                  </Button>
-                )}
-              </div>
-            )}
-          </Form>
+            </Form>
+          </div>
         </Col>
         <Col className="page-right-side mt-4 mt-xl-0">
           <Card>
