@@ -17,8 +17,6 @@
  * under the License.
  */
 
-import { pathFactory } from '@/router/pathFactory';
-
 /** First path segment after `/tags/`, URI-decoded (handles `%E6%A1%88...` vs Unicode pathname). */
 function decodedTagSlugFromPathname(pathname: string): string | null {
   const prefix = '/tags/';
@@ -37,22 +35,8 @@ function decodedTagSlugFromPathname(pathname: string): string | null {
   }
 }
 
-/** Tag slug used in production for announcements (URL: `/tags/%2Fannouncements`). */
-export const HEADER_ANNOUNCEMENTS_TAG_SLUG = '/announcements';
-
-/** Tag slug for the 「优质案例」top tab (URL segment `/tags/%2Fshowcase`). */
-export const HEADER_SHOWCASE_TAG_SLUG = '/showcase';
-
 export function getHeaderHomePath(): string {
   return '/';
-}
-
-export function getOfficialAnnouncementsPath(): string {
-  return pathFactory.tagLanding(HEADER_ANNOUNCEMENTS_TAG_SLUG);
-}
-
-export function getQualityCasesPath(): string {
-  return pathFactory.tagLanding(HEADER_SHOWCASE_TAG_SLUG);
 }
 
 export function isHeaderHomeTabActive(pathname: string): boolean {
@@ -63,12 +47,4 @@ export function isHeaderHomeTabActive(pathname: string): boolean {
 export function isTagSlugActive(pathname: string, tagSlug: string): boolean {
   const slug = decodedTagSlugFromPathname(pathname);
   return slug === tagSlug;
-}
-
-export function isHeaderAnnouncementsTabActive(pathname: string): boolean {
-  return isTagSlugActive(pathname, HEADER_ANNOUNCEMENTS_TAG_SLUG);
-}
-
-export function isHeaderQualityCasesTabActive(pathname: string): boolean {
-  return isTagSlugActive(pathname, HEADER_SHOWCASE_TAG_SLUG);
 }

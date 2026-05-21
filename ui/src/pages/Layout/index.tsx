@@ -222,7 +222,7 @@ const Layout: FC = () => {
           className={classnames(
             'position-relative page-wrap d-flex flex-column flex-fill',
             communityShell && 'community-shell-page',
-            layout === 'Fixed-width' ? 'container-xxl' : '',
+            layout === 'Fixed-width' && !communityShell ? 'container-xxl' : '',
           )}>
           {httpStatusCode ? (
             <HttpErrorContent httpCode={httpStatusCode} />

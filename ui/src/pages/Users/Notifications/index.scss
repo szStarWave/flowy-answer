@@ -1,23 +1,197 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+.community-notifications-page {
+  .community-notifications-page__header {
+    margin-bottom: 1.5rem;
+  }
 
-.inbox-nav {
-  border-top: 1px solid var(--an-answer-item-border-top);
-  padding: 0.5rem 0;
+  .community-notifications-page__title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .community-notifications-toolbar {
+    margin-bottom: 1rem;
+  }
+
+  .community-notifications-type-tabs,
+  .community-notifications-inbox-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    border-radius: 0.625rem;
+    background-color: var(--cm-bg-card, var(--bs-body-bg));
+    border: 1px solid var(--bs-border-color);
+  }
+
+  .community-notifications-type-tab,
+  .community-notifications-inbox-tab {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--bs-body-color);
+    }
+
+    &.active {
+      background-color: var(--cm-accent, var(--bs-primary));
+      color: #fff;
+      font-weight: 600;
+    }
+  }
+
+  .community-notifications-inbox-tabs {
+    margin-bottom: 1rem;
+  }
+
+  .community-notifications-inbox-tab {
+    padding: 0.375rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .community-notifications-mark-read {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+    background-color: var(--cm-bg-card, var(--bs-body-bg));
+
+    &:hover {
+      background-color: var(--cm-bg-hover, var(--bs-tertiary-bg));
+      border-color: var(--bs-border-color);
+      color: var(--bs-body-color);
+    }
+  }
+
+  .community-notifications-panel {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--cm-radius-lg, 1rem);
+    background-color: var(--cm-bg-card, var(--bs-body-bg));
+    overflow: hidden;
+  }
+
+  .community-notifications-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .community-notifications-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: var(--cm-bg-hover, var(--bs-tertiary-bg));
+    }
+
+    &.is-unread {
+      background-color: rgba(59, 130, 246, 0.06);
+
+      .community-notifications-item__indicator {
+        opacity: 1;
+      }
+    }
+  }
+
+  .community-notifications-item__indicator {
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--cm-accent, var(--bs-primary));
+    opacity: 0;
+  }
+
+  .community-notifications-item__avatar {
+    flex: none;
+  }
+
+  .community-notifications-item__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .community-notifications-item__text {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--bs-body-color);
+    word-break: break-word;
+
+    a {
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--cm-accent, var(--bs-primary));
+      }
+    }
+  }
+
+  .community-notifications-item__time {
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color);
+  }
+
+  .community-notifications-item__rank {
+    flex: none;
+    min-width: 3rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-align: right;
+    line-height: 1.4;
+
+    &.is-positive {
+      color: var(--bs-success);
+    }
+
+    &.is-negative {
+      color: var(--bs-danger);
+    }
+
+    &.is-neutral {
+      color: var(--bs-secondary-color);
+    }
+
+    &.is-badge {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+  }
+
+  .community-notifications-item__meta {
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.125rem;
+  }
+
+  .community-notifications-load-more {
+    margin-top: 1rem;
+    font-weight: 500;
+    color: var(--cm-accent, var(--bs-primary));
+    text-decoration: none;
+
+    &:hover {
+      color: var(--cm-accent, var(--bs-primary));
+      opacity: 0.85;
+    }
+  }
 }

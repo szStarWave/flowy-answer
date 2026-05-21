@@ -17,10 +17,23 @@
  * under the License.
  */
 
-.achievement-wrap {
-  .num,
-  .icon {
-    width: 60px;
-    flex: none;
-  }
-}
+import { FC, memo } from 'react';
+
+import homeIndexImage from '@/assets/index.png';
+
+import './index.scss';
+
+const HomeIndexBanner: FC = () => {
+  return (
+    <div className="community-home-index-banner">
+      <img
+        src={homeIndexImage}
+        alt=""
+        className="community-home-index-banner__image"
+        loading="eager"
+      />
+    </div>
+  );
+};
+
+export default memo(HomeIndexBanner);

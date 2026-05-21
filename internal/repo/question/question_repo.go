@@ -309,6 +309,19 @@ func (qr *questionRepo) GetQuestionCount(ctx context.Context) (count int64, err 
 	return count, nil
 }
 
+func (qr *questionRepo) CountPinnedQuestions(ctx context.Context) (count int64, err error) {
+	session := qr.data.DB.Context(ctx)
+	session.Where(builder.Lt{"status": entity.QuestionStatusDeleted})
+	count, err = session.Count(&entity.Question{
+		Show: entity.QuestionShow,
+		Pin:  entity.QuestionPin,
+	})
+	if err != nil {
+		return 0, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return count, nil
+}
+
 func (qr *questionRepo) GetUnansweredQuestionCount(ctx context.Context) (count int64, err error) {
 	session := qr.data.DB.Context(ctx)
 	session.Where(builder.Lt{"status": entity.QuestionStatusDeleted}).

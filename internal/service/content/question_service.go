@@ -648,6 +648,16 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 			return err
 		}
 	case schema.QuestionOperationPin:
+		if questionInfo.Pin != entity.QuestionPin {
+			const maxPinnedQuestions = 3
+			pinnedCount, countErr := qs.questionRepo.CountPinnedQuestions(ctx)
+			if countErr != nil {
+				return countErr
+			}
+			if pinnedCount >= maxPinnedQuestions {
+				return errors.BadRequest(reason.QuestionPinLimitExceeded)
+			}
+		}
 		questionInfo.Pin = entity.QuestionPin
 	case schema.QuestionOperationUnPin:
 		questionInfo.Pin = entity.QuestionUnPin

@@ -29,6 +29,13 @@ func HeadersByRequestURI() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.RequestURI, "/static/") {
 			c.Header("cache-control", "public, max-age=31536000")
+			return
+		}
+		if c.Writer.Header().Get("Content-Type") == "text/html;charset=utf-8" {
+			if cc := c.Writer.Header().Get("Cache-Control"); cc == "" {
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+			}
 		}
 	}
 }

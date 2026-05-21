@@ -244,6 +244,8 @@ backend:
         other: 输入的内容不足。
       daily_limit_exceeded:
         other: 已达到每日发帖上限（每天最多 {{.limit}} 条）。
+      pin_limit_exceeded:
+        other: 全站置顶帖子最多 {{.limit}} 个，请先取消其他帖子的置顶。
       post_interval_too_short:
         other: 请再等待 {{.seconds}} 秒后再发布下一个问题。
     poll:
@@ -2332,8 +2334,8 @@ ui:
         hero_image: 首页 Banner 图片 URL
         hero_link: Banner 点击链接（可选）
         quick_access: 快捷入口
-        top_nav: 顶栏频道（除首页外请填写标签 slug，将跳转到对应标签页）
-        top_nav_hint: 第一项留空 slug 表示「首页」；其余项填写标签 slug（如 /announcements），顶栏将打开该标签下的帖子列表。
+        top_nav: 顶栏频道（已废弃，顶栏自动展示全部标签）
+        top_nav_hint: 顶栏与侧栏「社区区」标签已自动从站点分类标签生成（首页 + 各标签页），点击后打开对应标签下的帖子列表，无需手动配置。
         left_nav_user: 侧栏 · 用户区
         left_nav_community: 侧栏 · 社区区
         field_title: 标题

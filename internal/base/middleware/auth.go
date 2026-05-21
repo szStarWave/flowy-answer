@@ -215,13 +215,15 @@ func (am *AuthUserMiddleware) CheckPrivateMode() gin.HandlerFunc {
 func ShowIndexPage(ctx *gin.Context) {
 	ctx.Header("content-type", "text/html;charset=utf-8")
 	ctx.Header("X-Frame-Options", "DENY")
-	file, err := ui.Build.ReadFile("build/index.html")
+	html, err := ui.RenderIndexHTML("", "")
 	if err != nil {
 		log.Error(err)
 		ctx.Status(http.StatusNotFound)
 		return
 	}
-	ctx.String(http.StatusOK, string(file))
+	ctx.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Header("Pragma", "no-cache")
+	ctx.String(http.StatusOK, html)
 }
 
 // GetLoginUserIDFromContext get user id from context

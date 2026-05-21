@@ -215,15 +215,11 @@ const Index: FC = () => {
           heroImage={heroImage}
           heroLink={heroLink}
           quickAccess={quickAccess}
-          topNav={topNav}
           leftNavUser={leftNavUser}
-          leftNavCommunity={leftNavCommunity}
           onHeroImageChange={setHeroImage}
           onHeroLinkChange={setHeroLink}
           onQuickAccessChange={setQuickAccess}
-          onTopNavChange={setTopNav}
           onLeftNavUserChange={setLeftNavUser}
-          onLeftNavCommunityChange={setLeftNavCommunity}
           onSave={onSubmit}
         />
       </div>

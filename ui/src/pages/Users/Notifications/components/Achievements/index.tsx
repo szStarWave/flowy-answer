@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -26,8 +25,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import { Empty } from '@/components';
 import { loggedUserInfoStore } from '@/stores';
-
-import './index.scss';
 
 const Achievements = ({ data, handleReadNotification }) => {
   const { user } = loggedUserInfoStore();
@@ -40,7 +37,7 @@ const Achievements = ({ data, handleReadNotification }) => {
     return <Empty />;
   }
   return (
-    <ListGroup className="achievement-wrap rounded-0">
+    <ul className="community-notifications-list">
       {data.map((item) => {
         const { comment, question, answer } =
           item?.object_info?.object_map || {};
@@ -61,41 +58,53 @@ const Achievements = ({ data, handleReadNotification }) => {
           default:
             url = '';
         }
-        return (
-          <ListGroup.Item
-            key={item.id}
-            className={classNames(
-              'd-flex border-start-0 border-end-0 py-3',
-              !item.is_read && 'warning',
-            )}>
-            {item.object_info.object_type === 'badge_award' ? (
-              <div className="icon text-end">👏</div>
-            ) : (
-              <>
-                {item.rank > 0 && (
-                  <div className="text-success num text-end">{`+${item.rank}`}</div>
-                )}
-                {item.rank === 0 && (
-                  <div className="num text-end">{item.rank}</div>
-                )}
-                {item.rank < 0 && (
-                  <div className="text-danger num text-end">{`${item.rank}`}</div>
-                )}
-              </>
-            )}
+        const isBadge = item.object_info.object_type === 'badge_award';
+        let rankClass = 'is-neutral';
+        if (item.rank > 0) {
+          rankClass = 'is-positive';
+        } else if (item.rank < 0) {
+          rankClass = 'is-negative';
+        }
 
-            <div className="d-flex flex-column ms-3 flex-fill">
-              <Link to={url} onClick={() => handleReadNotification(item.id)}>
-                {item.object_info.title}
-              </Link>
-              <span className="text-secondary small">
-                {t(item.object_info.object_type)}
-              </span>
+        return (
+          <li
+            key={item.id}
+            className={classNames('community-notifications-item', {
+              'is-unread': !item.is_read,
+            })}>
+            <span
+              className="community-notifications-item__indicator"
+              aria-hidden
+            />
+            <div
+              className={classNames(
+                'community-notifications-item__rank',
+                isBadge ? 'is-badge' : rankClass,
+              )}>
+              {isBadge ? (
+                '👏'
+              ) : (
+                <>
+                  {item.rank > 0 && `+${item.rank}`}
+                  {item.rank === 0 && item.rank}
+                  {item.rank < 0 && item.rank}
+                </>
+              )}
             </div>
-          </ListGroup.Item>
+            <div className="community-notifications-item__body">
+              <div className="community-notifications-item__text">
+                <Link to={url} onClick={() => handleReadNotification(item.id)}>
+                  {item.object_info.title}
+                </Link>
+              </div>
+              <div className="community-notifications-item__meta">
+                {t(item.object_info.object_type)}
+              </div>
+            </div>
+          </li>
         );
       })}
-    </ListGroup>
+    </ul>
   );
 };
 

@@ -29,13 +29,14 @@ import {
   brandingStore,
 } from '@/stores';
 import { Icon, PluginRender } from '@/components';
-import { hasConfiguredCommunitySidebar } from '@/config/communityNav';
+import {
+  canAccessWishNav,
+  hasConfiguredCommunitySidebar,
+} from '@/config/communityNav';
 import { PluginType } from '@/utils/pluginKit';
 import request from '@/utils/request';
 
 import CommunityNavSection from './CommunityNavSection';
-import PopularTags from './PopularTags';
-
 import './index.scss';
 
 const Index: FC = () => {
@@ -53,8 +54,7 @@ const Index: FC = () => {
       <CommunityNavSection section="user" />
       <CommunityNavSection section="community" />
 
-      {(userInfo?.is_admin || userInfo?.role_id === 2) &&
-      useCommunitySidebar ? (
+      {canAccessWishNav(userInfo) && useCommunitySidebar ? (
         <NavLink
           to="/admin/wishes"
           className={() =>
@@ -87,19 +87,12 @@ const Index: FC = () => {
         </NavLink>
       ) : null}
 
-      <NavLink to="/users" className="nav-link">
-        <Icon name="people-fill" className="me-2" />
-        <span>{t('header.nav.user')}</span>
-      </NavLink>
-
       <PluginRender
         slug_name="quick_links"
         type={PluginType.Sidebar}
         request={request}
         navigate={navigate}
       />
-
-      {!useCommunitySidebar ? <PopularTags /> : null}
 
       {can_revision || userInfo?.role_id === 2 ? (
         <>

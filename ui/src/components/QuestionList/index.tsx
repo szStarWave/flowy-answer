@@ -27,6 +27,7 @@ import classnames from 'classnames';
 import CommunityHomeFilter, {
   type CommunityHomeTab,
 } from '@/components/community/CommunityHomeFilter';
+import HomeIndexBanner from '@/components/community/HomeIndexBanner';
 import QuestionPostCard from '@/components/community/QuestionPostCard';
 import { useCommunityShellEnabled, useSkeletonControl } from '@/hooks';
 import { pathFactory } from '@/router/pathFactory';
@@ -121,6 +122,10 @@ const QuestionList: FC<Props> = ({
         'question-list--card': isCardView,
         'question-list--post-design': useDesignPostCard,
       })}>
+      {communityHomeLayout ? <HomeIndexBanner /> : null}
+      {!isSkeletonShow && isCardView && pinData?.length > 0 ? (
+        <PinList data={pinData} variant="card" />
+      ) : null}
       <div
         className={classnames(
           'content-header-toolbar mb-3 d-flex flex-wrap align-items-md-center gap-2',
@@ -196,114 +201,107 @@ const QuestionList: FC<Props> = ({
       {isSkeletonShow ? (
         <QuestionListLoader variant={isCardView ? 'card' : 'list'} />
       ) : isCardView ? (
-        <>
-          <PinList data={pinData} variant="card" />
-          {renderData?.map((li) => {
-            const href = pathFactory.questionLanding(li.id, li.url_title);
-            const postTime =
-              curOrder === 'active' ? li.operated_at : li.created_at;
-            if (useDesignPostCard) {
-              return (
-                <QuestionPostCard
-                  key={li.id}
-                  item={li}
-                  href={href}
-                  time={postTime}
-                  onNavigate={handleNavigate}
-                />
-              );
-            }
+        renderData?.map((li) => {
+          const href = pathFactory.questionLanding(li.id, li.url_title);
+          if (useDesignPostCard) {
             return (
-              <Card
+              <QuestionPostCard
                 key={li.id}
-                role="button"
-                tabIndex={0}
-                className="question-list__card rounded-3"
-                onClick={() => handleNavigate(href)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleNavigate(href);
-                  }
-                }}>
-                <Card.Body className="py-3 px-3 px-md-4">
-                  <div className="d-flex flex-wrap text-secondary small mb-12">
-                    <BaseUserCard
-                      data={li.operator}
-                      className="me-1"
-                      avatarClass="me-1"
-                    />
-                    •
-                    <FormatTime
-                      time={
-                        curOrder === 'active' ? li.operated_at : li.created_at
-                      }
-                      className="text-secondary ms-1 flex-shrink-0"
-                    />
-                  </div>
-                  <div className="text-wrap text-break question-list__title mb-1">
-                    <NavLink
-                      className="link-dark align-middle"
-                      onClick={(e) => e.stopPropagation()}
-                      to={href}>
-                      {li.title}
-                      {li.status === 2 ? ` [${t('closed')}]` : ''}
-                    </NavLink>
-                    {li.quality === 2 ? (
-                      <Badge
-                        bg="info"
-                        className="ms-2 align-middle fw-normal text-nowrap">
-                        {t('featured_badge')}
-                      </Badge>
-                    ) : null}
-                    {li.post_type === 'poll' ? (
-                      <Badge
-                        bg="secondary"
-                        className="ms-2 align-middle fw-normal text-nowrap">
-                        {tQD('poll.badge')}
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <div className="text-truncate-2 mb-2 question-list__excerpt">
-                    <NavLink
-                      to={href}
-                      className="d-block small text-secondary"
-                      dangerouslySetInnerHTML={{ __html: li.description }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-
-                  <div className="question-tags mb-12">
-                    {Array.isArray(li.tags)
-                      ? li.tags.map((tag, index) => {
-                          return (
-                            <Tag
-                              key={tag.slug_name}
-                              className={`${
-                                li.tags.length - 1 === index ? '' : 'me-1'
-                              }`}
-                              data={tag}
-                            />
-                          );
-                        })
-                      : null}
-                  </div>
-                  <div className="small text-secondary position-relative">
-                    <Counts
-                      data={{
-                        votes: li.vote_count,
-                        answers: li.answer_count,
-                        views: li.view_count,
-                      }}
-                      isAccepted={li.accepted_answer_id >= 1}
-                      className="mt-2 mt-md-0"
-                    />
-                  </div>
-                </Card.Body>
-              </Card>
+                item={li}
+                href={href}
+                time={li.created_at}
+                onNavigate={handleNavigate}
+              />
             );
-          })}
-        </>
+          }
+          return (
+            <Card
+              key={li.id}
+              role="button"
+              tabIndex={0}
+              className="question-list__card rounded-3"
+              onClick={() => handleNavigate(href)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate(href);
+                }
+              }}>
+              <Card.Body className="py-3 px-3 px-md-4">
+                <div className="d-flex flex-wrap text-secondary small mb-12">
+                  <BaseUserCard
+                    data={li.author || li.operator}
+                    className="me-1"
+                    avatarClass="me-1"
+                  />
+                  •
+                  <FormatTime
+                    time={li.created_at}
+                    className="text-secondary ms-1 flex-shrink-0"
+                  />
+                </div>
+                <div className="text-wrap text-break question-list__title mb-1">
+                  <NavLink
+                    className="link-dark align-middle"
+                    onClick={(e) => e.stopPropagation()}
+                    to={href}>
+                    {li.title}
+                    {li.status === 2 ? ` [${t('closed')}]` : ''}
+                  </NavLink>
+                  {li.quality === 2 ? (
+                    <Badge
+                      bg="info"
+                      className="ms-2 align-middle fw-normal text-nowrap">
+                      {t('featured_badge')}
+                    </Badge>
+                  ) : null}
+                  {li.post_type === 'poll' ? (
+                    <Badge
+                      bg="secondary"
+                      className="ms-2 align-middle fw-normal text-nowrap">
+                      {tQD('poll.badge')}
+                    </Badge>
+                  ) : null}
+                </div>
+                <div className="text-truncate-2 mb-2 question-list__excerpt">
+                  <NavLink
+                    to={href}
+                    className="d-block small text-secondary"
+                    dangerouslySetInnerHTML={{ __html: li.description }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+
+                <div className="question-tags mb-12">
+                  {Array.isArray(li.tags)
+                    ? li.tags.map((tag, index) => {
+                        return (
+                          <Tag
+                            key={tag.slug_name}
+                            className={`${
+                              li.tags.length - 1 === index ? '' : 'me-1'
+                            }`}
+                            data={tag}
+                          />
+                        );
+                      })
+                    : null}
+                </div>
+                <div className="small text-secondary position-relative">
+                  <Counts
+                    data={{
+                      votes: li.vote_count,
+                      answers: li.answer_count,
+                      views: li.view_count,
+                    }}
+                    isAccepted={li.accepted_answer_id >= 1}
+                    className="mt-2 mt-md-0"
+                  />
+                </div>
+              </Card.Body>
+            </Card>
+          );
+        })
       ) : (
         <ListGroup className="feeds-list-shell rounded-3 border-0">
           <>
@@ -319,15 +317,13 @@ const QuestionList: FC<Props> = ({
                   className="question-list__row position-relative pointer">
                   <div className="d-flex flex-wrap text-secondary small mb-12">
                     <BaseUserCard
-                      data={li.operator}
+                      data={li.author || li.operator}
                       className="me-1"
                       avatarClass="me-1"
                     />
                     •
                     <FormatTime
-                      time={
-                        curOrder === 'active' ? li.operated_at : li.created_at
-                      }
+                      time={li.created_at}
                       className="text-secondary ms-1 flex-shrink-0"
                     />
                   </div>

@@ -118,15 +118,11 @@ type Props = {
   heroImage: string;
   heroLink: string;
   quickAccess: BrandingQuickAccessItem[];
-  topNav: BrandingCommunityNavItem[];
   leftNavUser: BrandingCommunityNavItem[];
-  leftNavCommunity: BrandingCommunityNavItem[];
   onHeroImageChange: (v: string) => void;
   onHeroLinkChange: (v: string) => void;
   onQuickAccessChange: (v: BrandingQuickAccessItem[]) => void;
-  onTopNavChange: (v: BrandingCommunityNavItem[]) => void;
   onLeftNavUserChange: (v: BrandingCommunityNavItem[]) => void;
-  onLeftNavCommunityChange: (v: BrandingCommunityNavItem[]) => void;
   onSave: () => void;
 };
 
@@ -134,15 +130,11 @@ const CommunityConfigSection: FC<Props> = ({
   heroImage,
   heroLink,
   quickAccess,
-  topNav,
   leftNavUser,
-  leftNavCommunity,
   onHeroImageChange,
   onHeroLinkChange,
   onQuickAccessChange,
-  onTopNavChange,
   onLeftNavUserChange,
-  onLeftNavCommunityChange,
   onSave,
 }) => {
   const { t } = useTranslation('translation', {
@@ -246,26 +238,12 @@ const CommunityConfigSection: FC<Props> = ({
         {t('add_quick_access')}
       </Button>
 
-      <h6>{t('top_nav')}</h6>
-      <p className="text-secondary small">{t('top_nav_hint')}</p>
-      <NavRows
-        items={topNav}
-        onChange={onTopNavChange}
-        addLabel={t('add_nav_item')}
-        tagOnly
-      />
+      <p className="text-secondary small mb-4">{t('top_nav_hint')}</p>
 
       <h6>{t('left_nav_user')}</h6>
       <NavRows
         items={leftNavUser}
         onChange={onLeftNavUserChange}
-        addLabel={t('add_nav_item')}
-      />
-
-      <h6>{t('left_nav_community')}</h6>
-      <NavRows
-        items={leftNavCommunity}
-        onChange={onLeftNavCommunityChange}
         addLabel={t('add_nav_item')}
       />
 

@@ -22,7 +22,8 @@ import { useTranslation } from 'react-i18next';
 
 import dayjs from 'dayjs';
 
-import { Avatar } from '@/components';
+import { Avatar, Tag } from '@/components';
+import type { Tag as TagItem } from '@/common/interface';
 import { formatCount } from '@/utils';
 
 import './index.scss';
@@ -40,6 +41,13 @@ export interface QuestionPostCardItem {
   view_count: number;
   created_at: number;
   operated_at?: number;
+  author?: {
+    username?: string;
+    display_name?: string;
+    avatar?: string;
+    status?: string;
+    role_id?: number;
+  };
   operator?: {
     username?: string;
     display_name?: string;
@@ -47,6 +55,7 @@ export interface QuestionPostCardItem {
     status?: string;
     role_id?: number;
   };
+  tags?: TagItem[];
 }
 
 interface Props {
@@ -71,8 +80,8 @@ const QuestionPostCard: FC<Props> = ({ item, href, time, onNavigate }) => {
   });
   const { t: tRoot } = useTranslation();
 
-  const { operator } = item;
-  const isStaff = operator?.role_id === 2 || operator?.role_id === 3;
+  const author = item.author ?? item.operator;
+  const isStaff = author?.role_id === 2 || author?.role_id === 3;
   const showGoodBadge = item.quality === 2;
   const showPollBadge = item.post_type === 'poll';
 
@@ -94,20 +103,20 @@ const QuestionPostCard: FC<Props> = ({ item, href, time, onNavigate }) => {
       onKeyDown={handleKeyDown}>
       <header className="community-post-card__header">
         <div className="community-post-card__avatar" aria-hidden>
-          {operator?.status !== 'deleted' && operator?.avatar ? (
+          {author?.status !== 'deleted' && author?.avatar ? (
             <Avatar
-              avatar={operator.avatar}
+              avatar={author.avatar}
               size="40px"
-              alt={operator.display_name}
+              alt={author.display_name}
               searchStr="s=80"
             />
           ) : (
-            avatarInitial(operator?.display_name)
+            avatarInitial(author?.display_name)
           )}
         </div>
         <div className="community-post-card__meta">
           <div className="community-post-card__author text-truncate">
-            {operator?.display_name || '—'}
+            {author?.display_name || '—'}
           </div>
           <time
             className="community-post-card__time d-block"
@@ -142,6 +151,21 @@ const QuestionPostCard: FC<Props> = ({ item, href, time, onNavigate }) => {
           className="community-post-card__excerpt"
           dangerouslySetInnerHTML={{ __html: item.description }}
         />
+      ) : null}
+
+      {Array.isArray(item.tags) && item.tags.length > 0 ? (
+        <div
+          className="community-post-card__tags"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}>
+          {item.tags.map((tag) => (
+            <Tag
+              key={tag.slug_name}
+              data={tag}
+              className="community-post-card__tag"
+            />
+          ))}
+        </div>
       ) : null}
 
       <footer className="community-post-card__footer">

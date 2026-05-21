@@ -245,6 +245,8 @@ backend:
         other: Not enough content entered.
       daily_limit_exceeded:
         other: You have reached the daily question limit ({{.limit}} per day).
+      pin_limit_exceeded:
+        other: At most {{.limit}} posts can be pinned site-wide. Unpin another post first.
       post_interval_too_short:
         other: Please wait {{.seconds}} seconds before posting another question.
     poll:
@@ -2371,8 +2373,8 @@ ui:
         hero_image: Home banner image URL
         hero_link: Banner click URL (optional)
         quick_access: Quick access
-        top_nav: Top navigation
-        top_nav_hint: Leave tag slug empty for Home. Other items must use a tag slug (e.g. /announcements) and open that tag feed.
+        top_nav: Top navigation (deprecated)
+        top_nav_hint: Top tabs and the sidebar community tag list are generated automatically from site category tags (Home plus each tag feed). No manual configuration needed.
         left_nav_user: Sidebar · User
         left_nav_community: Sidebar · Community
         field_title: Title

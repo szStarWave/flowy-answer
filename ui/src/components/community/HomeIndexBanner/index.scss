@@ -1,0 +1,17 @@
+.community-home-index-banner {
+  margin-bottom: 1.25rem;
+  border-radius: var(--cm-radius-xl, 1.25rem);
+  overflow: hidden;
+  line-height: 0;
+  background-color: transparent;
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0;
+    border-radius: inherit;
+    object-fit: cover;
+    vertical-align: top;
+  }
+}

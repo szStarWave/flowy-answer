@@ -17,43 +17,22 @@
  * under the License.
  */
 
-import { useMemo, memo, type FC, type ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { memo, type FC, type ReactNode } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from 'react-bootstrap';
 
 import classnames from 'classnames';
 
-import { pathFactory } from '@/router/pathFactory';
-import type { TagInfo } from '@/common/interface';
-import { useQueryTags } from '@/services';
 import { floppyNavigation } from '@/utils';
+import { useCategoryTagNavLinks } from '@/hooks/useCategoryTagNavLinks';
 
 import './PopularTags.scss';
 
-const MAX_DISPLAY_TAGS = 60;
-const SIDEBAR_TAG_PAGE_SIZE = Math.min(30, MAX_DISPLAY_TAGS);
-
 const Index: FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'header.nav' });
-
-  const {
-    data: result,
-    error,
-    isLoading,
-  } = useQueryTags({
-    page: 1,
-    page_size: SIDEBAR_TAG_PAGE_SIZE,
-    query_cond: 'category',
-  });
-
-  const { tags, total } = useMemo(() => {
-    if (!result?.list) {
-      return { tags: [] as TagInfo[], total: 0 };
-    }
-    const list = result.list.slice(0, MAX_DISPLAY_TAGS);
-    return { tags: list, total: result.count };
-  }, [result]);
+  const { pathname } = useLocation();
+  const { tagLinks, isLoading, error, total } = useCategoryTagNavLinks();
 
   let body: ReactNode;
   if (isLoading) {
@@ -63,7 +42,7 @@ const Index: FC = () => {
         <span className="small">{t('popular_tags_loading')}</span>
       </div>
     );
-  } else if (error && !result) {
+  } else if (error && !tagLinks.length) {
     body = (
       <div className="side-nav-popular-tags__empty">
         <div>{t('popular_tags_error')}</div>
@@ -76,7 +55,7 @@ const Index: FC = () => {
         </NavLink>
       </div>
     );
-  } else if (!tags.length) {
+  } else if (!tagLinks.length) {
     body = (
       <div className="side-nav-popular-tags__empty">
         <div>{t('popular_tags_none')}</div>
@@ -93,20 +72,22 @@ const Index: FC = () => {
     body = (
       <div className="side-nav-popular-tags__stack">
         <div className="side-nav-popular-tags__list">
-          {tags.map((item) => (
+          {tagLinks.map((item) => (
             <NavLink
-              key={item.slug_name}
-              className={({ isActive }) =>
-                classnames('nav-link text-truncate', { active: isActive })
+              key={item.to}
+              className={() =>
+                classnames('nav-link text-truncate', {
+                  active: item.isActive?.(pathname) ?? false,
+                })
               }
-              to={pathFactory.tagLanding(item.slug_name)}
-              title={item.display_name}
+              to={item.to}
+              title={item.label}
               onClick={floppyNavigation.handleRouteLinkClick}>
-              {item.display_name || item.slug_name}
+              {item.label}
             </NavLink>
           ))}
         </div>
-        {total > tags.length ? (
+        {total > tagLinks.length ? (
           <NavLink
             end
             className={({ isActive }) =>

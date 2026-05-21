@@ -18,9 +18,9 @@
  */
 
 import { FC, memo, useState, useEffect, useSyncExternalStore } from 'react';
-import { Navbar, Nav, Button } from 'react-bootstrap';
+import { Navbar, Nav } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { Link, NavLink, useLocation, useMatch } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import classnames from 'classnames';
 
@@ -35,7 +35,7 @@ import {
   sideNavStore,
 } from '@/stores';
 import { logout, useQueryNotificationStatus } from '@/services';
-import { Icon, MobileSideNav } from '@/components';
+import { MobileSideNav } from '@/components';
 
 import NavItems from './components/NavItems';
 import HeaderTopTabs from './components/HeaderTopTabs';
@@ -64,21 +64,12 @@ const Header: FC = () => {
   );
   const { user, clear: clearUserStore } = loggedUserInfoStore();
   const { t } = useTranslation();
-  const { t: tHeader } = useTranslation('translation', { keyPrefix: 'header' });
   const siteInfo = siteInfoStore((state) => state.siteInfo);
   const brandingInfo = brandingStore((state) => state.branding);
   const loginSetting = loginSettingStore((state) => state.login);
   const { updateReview } = sideNavStore();
   const { data: redDot } = useQueryNotificationStatus();
   const [showMobileSideNav, setShowMobileSideNav] = useState(false);
-  /**
-   * Automatically append `tag` information when creating a question
-   */
-  const tagMatch = useMatch('/tags/:slugName');
-  let askUrl = '/questions/add';
-  if (tagMatch && tagMatch.params.slugName) {
-    askUrl = `${askUrl}?tags=${encodeURIComponent(tagMatch.params.slugName)}`;
-  }
 
   useEffect(() => {
     updateReview({
@@ -139,7 +130,9 @@ const Header: FC = () => {
       <div
         className={classnames(
           'w-100 d-flex align-items-center',
-          layout === 'Fixed-width' ? 'container-xxl fixed-width' : 'px-3',
+          layout === 'Fixed-width' && !isCommunityShell
+            ? 'container-xxl fixed-width'
+            : 'px-3',
         )}>
         <Navbar.Toggle
           className="answer-navBar me-2"
@@ -186,25 +179,6 @@ const Header: FC = () => {
 
         {user?.username ? (
           <Nav className="d-flex align-items-center flex-nowrap flex-row">
-            <Nav.Item className="me-2 d-block d-xl-none">
-              <NavLink
-                to={askUrl}
-                className="d-block icon-link nav-link text-center">
-                <Icon name="plus-lg" className="lh-1 fs-4" />
-              </NavLink>
-            </Nav.Item>
-
-            <Nav.Item className="me-2 d-none d-xl-block">
-              <Button
-                as={Link}
-                to={askUrl}
-                variant={navbarStyle === 'theme-dark' ? 'light' : 'primary'}
-                className="d-flex align-items-center text-nowrap header-cta-ask">
-                <Icon name="plus-lg" className="me-2 lh-1 fs-5" />
-                <span>{tHeader('create_post')}</span>
-              </Button>
-            </Nav.Item>
-
             <NavItems redDot={redDot} userInfo={user} logOut={handleLogout} />
           </Nav>
         ) : (

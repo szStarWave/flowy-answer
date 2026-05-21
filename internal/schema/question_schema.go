@@ -435,7 +435,10 @@ type QuestionPageResp struct {
 	LastAnsweredUserID string    `json:"-"`
 	LastAnsweredAt     time.Time `json:"-"`
 
-	// operator information
+	// Author is always the question creator (for list card display).
+	Author *QuestionPageRespOperator `json:"author"`
+
+	// operator information (last activity user when sorted by active)
 	OperatedAt    int64                     `json:"operated_at"`
 	Operator      *QuestionPageRespOperator `json:"operator"`
 	OperationType string                    `json:"operation_type"`

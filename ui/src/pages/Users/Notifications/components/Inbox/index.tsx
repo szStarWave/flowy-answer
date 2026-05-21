@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import { ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
-import { FormatTime, Empty } from '@/components';
+import { FormatTime, Empty, Avatar } from '@/components';
 
 const Inbox = ({ data, handleReadNotification }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'notifications' });
@@ -35,7 +34,7 @@ const Inbox = ({ data, handleReadNotification }) => {
     return <Empty />;
   }
   return (
-    <ListGroup className="rounded-0">
+    <ul className="community-notifications-list">
       {data.map((item) => {
         const { comment, question, answer } =
           item?.object_info?.object_map || {};
@@ -53,34 +52,51 @@ const Inbox = ({ data, handleReadNotification }) => {
           default:
             url = '';
         }
+        const showUser = item.user_info && item.user_info.status !== 'deleted';
         return (
-          <ListGroup.Item
+          <li
             key={item.id}
-            className={classNames(
-              'py-3 border-start-0 border-end-0',
-              !item.is_read && 'warning',
-            )}>
-            <div>
-              {item.user_info && item.user_info.status !== 'deleted' ? (
-                <Link to={`/users/${item.user_info.username}`}>
-                  {item.user_info.display_name}{' '}
-                </Link>
-              ) : (
-                // someone for anonymous user display
-                <span>{item.user_info?.display_name || t('someone')} </span>
-              )}
-              {item.notification_action}{' '}
-              <Link to={url} onClick={() => handleReadNotification(item.id)}>
-                {item.object_info.title}
+            className={classNames('community-notifications-item', {
+              'is-unread': !item.is_read,
+            })}>
+            <span
+              className="community-notifications-item__indicator"
+              aria-hidden
+            />
+            {showUser ? (
+              <Link
+                to={`/users/${item.user_info.username}`}
+                className="community-notifications-item__avatar">
+                <Avatar
+                  size="40px"
+                  avatar={item.user_info.avatar}
+                  searchStr="s=80"
+                  alt={item.user_info.display_name}
+                />
               </Link>
+            ) : null}
+            <div className="community-notifications-item__body">
+              <div className="community-notifications-item__text">
+                {showUser ? (
+                  <Link to={`/users/${item.user_info.username}`}>
+                    {item.user_info.display_name}
+                  </Link>
+                ) : (
+                  <span>{item.user_info?.display_name || t('someone')}</span>
+                )}{' '}
+                {item.notification_action}{' '}
+                <Link to={url} onClick={() => handleReadNotification(item.id)}>
+                  {item.object_info.title}
+                </Link>
+              </div>
+              <div className="community-notifications-item__time">
+                <FormatTime time={item.update_time} />
+              </div>
             </div>
-            <div className="text-secondary small">
-              <FormatTime time={item.update_time} />
-            </div>
-          </ListGroup.Item>
+          </li>
         );
       })}
-    </ListGroup>
+    </ul>
   );
 };
 

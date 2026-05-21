@@ -32,14 +32,14 @@ const Index: FC = () => {
         id="pcSideNav">
         <SideNav />
       </aside>
-      <div className="community-ui__main flex-fill w-100 overflow-x-hidden">
-        <div className="d-flex justify-content-center px-0 px-md-4">
+      <div className="community-ui__main flex-fill w-100 min-w-0 overflow-x-hidden">
+        <div className="community-ui__content w-100 px-0 px-md-4">
           <div className="answer-container main-mx-with w-100">
             <Outlet />
           </div>
         </div>
-        <div className="d-flex justify-content-center px-0 px-md-4">
-          <div className="main-mx-with">
+        <div className="community-ui__content w-100 px-0 px-md-4">
+          <div className="main-mx-with w-100">
             <Footer />
           </div>
         </div>

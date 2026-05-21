@@ -20,13 +20,12 @@
 import { FC, memo, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Spinner } from 'react-bootstrap';
 
 import { Icon } from '@/components';
-import { brandingStore } from '@/stores';
-import {
-  getLeftNavCommunityLinks,
-  getLeftNavUserLinks,
-} from '@/config/communityNav';
+import { brandingStore, loggedUserInfoStore } from '@/stores';
+import { getLeftNavUserLinks } from '@/config/communityNav';
+import { useCategoryTagNavLinks } from '@/hooks/useCategoryTagNavLinks';
 import { floppyNavigation } from '@/utils';
 
 type Props = {
@@ -37,13 +36,29 @@ const CommunityNavSection: FC<Props> = ({ section }) => {
   const { t } = useTranslation('translation');
   const { pathname } = useLocation();
   const branding = brandingStore((s) => s.branding);
+  const user = loggedUserInfoStore((s) => s.user);
+  const { tagLinks, isLoading: tagsLoading } = useCategoryTagNavLinks();
 
   const links = useMemo(() => {
     if (section === 'user') {
-      return getLeftNavUserLinks(branding, t);
+      return getLeftNavUserLinks(branding, t, user);
     }
-    return getLeftNavCommunityLinks(branding);
-  }, [branding, section, t]);
+    return tagLinks;
+  }, [branding, section, t, tagLinks, user]);
+
+  if (section === 'community' && tagsLoading && !links.length) {
+    return (
+      <>
+        <div className="side-nav__section-label">
+          {t('community_nav.community_section')}
+        </div>
+        <div className="d-flex align-items-center gap-2 px-3 py-2 small text-secondary">
+          <Spinner animation="border" size="sm" role="status" />
+          {t('header.nav.popular_tags_loading')}
+        </div>
+      </>
+    );
+  }
 
   if (!links.length) {
     return null;

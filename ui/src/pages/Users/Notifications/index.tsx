@@ -18,9 +18,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Row, Col, ButtonGroup, Button, Nav } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, NavLink } from 'react-router-dom';
 
 import classNames from 'classnames';
 
@@ -105,74 +105,85 @@ const Notifications = () => {
     title: t('notifications', { keyPrefix: 'page_title' }),
   });
   return (
-    <Row className="pt-4 mb-5">
+    <Row className="community-notifications-page pt-4 mb-5">
       <Col className="page-main flex-auto">
-        <h3 className="mb-4">{t('title')}</h3>
-        <div className="d-flex justify-content-between mb-3">
-          <ButtonGroup size="sm">
-            <Button
-              as="a"
-              href="/users/notifications/inbox"
-              variant="outline-secondary"
-              active={type === 'inbox'}
+        <header className="community-notifications-page__header">
+          <h3 className="community-notifications-page__title">{t('title')}</h3>
+        </header>
+
+        <div className="community-notifications-toolbar d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div className="community-notifications-type-tabs">
+            <Link
+              to="/users/notifications/inbox"
+              className={classNames('community-notifications-type-tab', {
+                active: type === 'inbox',
+              })}
               onClick={(evt) => handleTypeChange(evt, 'inbox')}>
               {t('inbox')}
-            </Button>
-            <Button
-              as="a"
-              href="/users/notifications/achievement"
-              variant="outline-secondary"
-              active={type === 'achievement'}
+            </Link>
+            <Link
+              to="/users/notifications/achievement"
+              className={classNames('community-notifications-type-tab', {
+                active: type === 'achievement',
+              })}
               onClick={(evt) => handleTypeChange(evt, 'achievement')}>
               {t('achievement')}
-            </Button>
-          </ButtonGroup>
+            </Link>
+          </div>
           <Button
             size="sm"
             variant="outline-secondary"
+            className="community-notifications-mark-read"
             onClick={handleUnreadNotification}>
             {t('all_read')}
           </Button>
         </div>
+
         {type === 'inbox' && (
-          <>
-            <Nav className="inbox-nav small">
-              {inboxTypeNavs.map((nav) => {
-                const navLinkHref = `/users/notifications/inbox/${nav}`;
-                const navLinkName = t(`inbox_type.${nav}`);
-                return (
-                  <Nav.Item key={nav}>
-                    <Link
-                      to={navLinkHref}
-                      onClick={() => {
-                        setPage(1);
-                      }}
-                      className={classNames('nav-link', {
-                        disabled: nav === subType,
-                      })}>
-                      {navLinkName}
-                    </Link>
-                  </Nav.Item>
-                );
-              })}
-            </Nav>
+          <div className="community-notifications-inbox-tabs">
+            {inboxTypeNavs.map((nav) => (
+              <NavLink
+                key={nav}
+                to={
+                  nav === 'all'
+                    ? '/users/notifications/inbox'
+                    : `/users/notifications/inbox/${nav}`
+                }
+                end={nav === 'all'}
+                className={({ isActive }) =>
+                  classNames('community-notifications-inbox-tab', {
+                    active: isActive,
+                  })
+                }
+                onClick={() => {
+                  setPage(1);
+                }}>
+                {t(`inbox_type.${nav}`)}
+              </NavLink>
+            ))}
+          </div>
+        )}
+
+        <div className="community-notifications-panel">
+          {type === 'inbox' && (
             <Inbox
               data={notificationData}
               handleReadNotification={handleReadNotification}
             />
-          </>
-        )}
-        {type === 'achievement' && (
-          <Achievements
-            data={notificationData}
-            handleReadNotification={handleReadNotification}
-          />
-        )}
+          )}
+          {type === 'achievement' && (
+            <Achievements
+              data={notificationData}
+              handleReadNotification={handleReadNotification}
+            />
+          )}
+        </div>
+
         {(data?.count || 0) > PAGE_SIZE * page && (
           <div className="d-flex justify-content-center align-items-center py-3">
             <Button
               variant="link"
-              className="btn-no-border"
+              className="community-notifications-load-more"
               onClick={handleLoadMore}>
               {t('show_more')}
             </Button>

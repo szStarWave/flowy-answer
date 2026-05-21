@@ -82,10 +82,27 @@ func (a *UIRouter) Register(r *gin.Engine, baseURLPath string) {
 		} else {
 			log.Debugf("registering static path %s", staticPath)
 
-			r.LoadHTMLGlob(staticPath + "/*.html")
 			r.Static(baseURLPath+"/static", staticPath+"/static")
 			r.NoRoute(func(c *gin.Context) {
-				c.HTML(http.StatusOK, "index.html", gin.H{})
+				cdnPrefix := ""
+				_ = plugin.CallCDN(func(fn plugin.CDN) error {
+					cdnPrefix = fn.GetStaticPrefix()
+					return nil
+				})
+				if cdnPrefix != "" && strings.HasSuffix(cdnPrefix, "/") {
+					cdnPrefix = strings.TrimSuffix(cdnPrefix, "/")
+				}
+				raw, readErr := os.ReadFile(staticPath + "/index.html")
+				if readErr != nil {
+					log.Error(readErr)
+					c.Status(http.StatusNotFound)
+					return
+				}
+				html := ui.RenderIndexHTMLContent(string(raw), baseURLPath, cdnPrefix)
+				c.Header("content-type", "text/html;charset=utf-8")
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+				c.String(http.StatusOK, html)
 			})
 
 			// return immediately if the static path is set
@@ -129,9 +146,26 @@ func (a *UIRouter) Register(r *gin.Engine, baseURLPath string) {
 			c.Redirect(http.StatusFound, "/")
 			return
 		default:
-			filePath = UIIndexFilePath
+			cdnPrefix := ""
+			_ = plugin.CallCDN(func(fn plugin.CDN) error {
+				cdnPrefix = fn.GetStaticPrefix()
+				return nil
+			})
+			if cdnPrefix != "" && strings.HasSuffix(cdnPrefix, "/") {
+				cdnPrefix = strings.TrimSuffix(cdnPrefix, "/")
+			}
+			html, renderErr := ui.RenderIndexHTML(baseURLPath, cdnPrefix)
+			if renderErr != nil {
+				log.Error(renderErr)
+				c.Status(http.StatusNotFound)
+				return
+			}
 			c.Header("content-type", "text/html;charset=utf-8")
 			c.Header("X-Frame-Options", "DENY")
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Header("Pragma", "no-cache")
+			c.String(http.StatusOK, html)
+			return
 		}
 		file, err := ui.Build.ReadFile(filePath)
 		if err != nil {
@@ -139,30 +173,6 @@ func (a *UIRouter) Register(r *gin.Engine, baseURLPath string) {
 			c.Status(http.StatusNotFound)
 			return
 		}
-
-		cdnPrefix := ""
-		_ = plugin.CallCDN(func(fn plugin.CDN) error {
-			cdnPrefix = fn.GetStaticPrefix()
-			return nil
-		})
-		if cdnPrefix != "" {
-			if cdnPrefix[len(cdnPrefix)-1:] == "/" {
-				cdnPrefix = strings.TrimSuffix(cdnPrefix, "/")
-			}
-			c.String(http.StatusOK, strings.ReplaceAll(string(file), "/static", cdnPrefix+"/static"))
-			return
-		}
-
-		// This part is to solve the problem of returning 404 when the access path does not exist.
-		// However, there is no way to check whether the current route exists in the frontend.
-		// We can only hand over the route to the frontend for processing.
-		// And the plugin, frontend routes can now be dynamically registered,
-		// so there's no good way to get all frontend routes
-		//if filePath == UIIndexFilePath {
-		//	c.String(http.StatusNotFound, string(file))
-		//	return
-		//}
-
-		c.String(http.StatusOK, string(file))
+		c.Data(http.StatusOK, http.DetectContentType(file), file)
 	})
 }

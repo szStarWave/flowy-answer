@@ -30,14 +30,12 @@ import (
 	"time"
 
 	"github.com/apache/answer/internal/base/middleware"
-	"github.com/apache/answer/internal/base/pager"
 	"github.com/apache/answer/internal/service/content"
 	"github.com/apache/answer/internal/service/eventqueue"
 	"github.com/apache/answer/plugin"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/handler"
-	"github.com/apache/answer/internal/base/translator"
 	templaterender "github.com/apache/answer/internal/controller/template_render"
 	"github.com/apache/answer/internal/entity"
 	"github.com/apache/answer/internal/schema"
@@ -56,7 +54,7 @@ var SiteUrl = ""
 
 type TemplateController struct {
 	scriptPath               []string
-	cssPath                  string
+	cssPaths                 []string
 	templateRenderController *templaterender.TemplateRenderController
 	siteInfoService          siteinfo_common.SiteInfoCommonService
 	eventQueueService        eventqueue.Service
@@ -72,10 +70,10 @@ func NewTemplateController(
 	userService *content.UserService,
 	questionService *content.QuestionService,
 ) *TemplateController {
-	script, css := GetStyle()
+	script, cssPaths := GetStyle()
 	return &TemplateController{
 		scriptPath:               script,
-		cssPath:                  css,
+		cssPaths:                 cssPaths,
 		templateRenderController: templateRenderController,
 		siteInfoService:          siteInfoService,
 		eventQueueService:        eventQueueService,
@@ -83,9 +81,10 @@ func NewTemplateController(
 		questionService:          questionService,
 	}
 }
-func GetStyle() (script []string, css string) {
+func GetStyle() (script []string, cssPaths []string) {
 	file, err := ui.Build.ReadFile("build/index.html")
 	if err != nil {
+		log.Error("ui build/index.html is missing; template pages will have no styles: ", err)
 		return
 	}
 	scriptRegexp := regexp.MustCompile(`<script defer="defer" src="([^"]*)"></script>`)
@@ -96,26 +95,73 @@ func GetStyle() (script []string, css string) {
 		}
 	}
 
-	cssRegexp := regexp.MustCompile(`<link href="(.*)" rel="stylesheet">`)
-	cssListData := cssRegexp.FindStringSubmatch(string(file))
-	if len(cssListData) == 2 {
-		css = cssListData[1]
+	cssRegexp := regexp.MustCompile(`<link href="([^"]+)" rel="stylesheet">`)
+	for _, m := range cssRegexp.FindAllStringSubmatch(string(file), -1) {
+		if len(m) == 2 {
+			cssPaths = append(cssPaths, m[1])
+		}
 	}
 	return
 }
 
-// serveEmbeddedUIIndex serves the React SPA shell; used when the classic template route
-// cannot represent the same URL (e.g. tag list filters only implemented in the SPA).
-func (tc *TemplateController) serveEmbeddedUIIndex(ctx *gin.Context) {
-	file, err := ui.Build.ReadFile("build/index.html")
+func siteBasePath(siteInfo *schema.TemplateSiteInfoResp) string {
+	if siteInfo == nil || siteInfo.General.SiteUrl == "" {
+		return ""
+	}
+	parsed, err := url.Parse(siteInfo.General.SiteUrl)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSuffix(parsed.Path, "/")
+}
+
+func cdnStaticPrefix() string {
+	prefix := ""
+	_ = plugin.CallCDN(func(fn plugin.CDN) error {
+		prefix = fn.GetStaticPrefix()
+		return nil
+	})
+	if prefix != "" && strings.HasSuffix(prefix, "/") {
+		prefix = strings.TrimSuffix(prefix, "/")
+	}
+	return prefix
+}
+
+func prefixAssetPath(basePath, assetPath string) string {
+	if assetPath == "" {
+		return assetPath
+	}
+	if strings.HasPrefix(assetPath, "http://") || strings.HasPrefix(assetPath, "https://") {
+		return assetPath
+	}
+	bp := strings.TrimSuffix(basePath, "/")
+	if bp == "" {
+		return assetPath
+	}
+	if strings.HasPrefix(assetPath, "/") {
+		return bp + assetPath
+	}
+	return bp + "/" + assetPath
+}
+
+func writeSPAIndexHTML(ctx *gin.Context, basePath, cdnPrefix string) {
+	html, err := ui.RenderIndexHTML(basePath, cdnPrefix)
 	if err != nil {
 		log.Error(err)
-		tc.Page404(ctx)
+		ctx.Status(http.StatusNotFound)
 		return
 	}
 	ctx.Header("content-type", "text/html;charset=utf-8")
+	ctx.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Header("Pragma", "no-cache")
 	ctx.Header("X-Frame-Options", "DENY")
-	ctx.String(http.StatusOK, string(file))
+	ctx.String(http.StatusOK, html)
+}
+
+// serveEmbeddedUIIndex serves the React SPA shell for community UI routes.
+func (tc *TemplateController) serveEmbeddedUIIndex(ctx *gin.Context) {
+	siteInfo := tc.SiteInfo(ctx)
+	writeSPAIndexHTML(ctx, siteBasePath(siteInfo), cdnStaticPrefix())
 }
 
 func (tc *TemplateController) SiteInfo(ctx *gin.Context) *schema.TemplateSiteInfoResp {
@@ -149,85 +195,13 @@ func (tc *TemplateController) SiteInfo(ctx *gin.Context) *schema.TemplateSiteInf
 	return resp
 }
 
-// Index question list
+// Index serves the React community home (SPA).
 func (tc *TemplateController) Index(ctx *gin.Context) {
-	req := &schema.QuestionPageReq{
-		OrderCond: "newest",
-	}
-	if handler.BindAndCheck(ctx, req) {
-		return
-	}
-
-	var page = req.Page
-
-	data, count, err := tc.templateRenderController.Index(ctx, req)
-	if err != nil || (len(data) == 0 && pager.ValPageOutOfRange(count, page, req.PageSize)) {
-		tc.Page404(ctx)
-		return
-	}
-
-	hotQuestionReq := &schema.QuestionPageReq{
-		Page:      1,
-		PageSize:  6,
-		OrderCond: "hot",
-		InDays:    7,
-	}
-	hotQuestion, _, _ := tc.templateRenderController.Index(ctx, hotQuestionReq)
-
-	siteInfo := tc.SiteInfo(ctx)
-	siteInfo.Canonical = siteInfo.General.SiteUrl
-
-	UrlUseTitle := siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitle ||
-		siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitleByShortID
-
-	siteInfo.Title = ""
-	tc.html(ctx, http.StatusOK, "question.html", siteInfo, gin.H{
-		"data":        data,
-		"useTitle":    UrlUseTitle,
-		"page":        templaterender.Paginator(page, req.PageSize, count),
-		"path":        "questions",
-		"hotQuestion": hotQuestion,
-	})
+	tc.serveEmbeddedUIIndex(ctx)
 }
 
 func (tc *TemplateController) QuestionList(ctx *gin.Context) {
-	req := &schema.QuestionPageReq{
-		OrderCond: "newest",
-	}
-	if handler.BindAndCheck(ctx, req) {
-		return
-	}
-	var page = req.Page
-	data, count, err := tc.templateRenderController.Index(ctx, req)
-	if err != nil || (len(data) == 0 && pager.ValPageOutOfRange(count, page, req.PageSize)) {
-		tc.Page404(ctx)
-		return
-	}
-
-	hotQuestionReq := &schema.QuestionPageReq{
-		Page:      1,
-		PageSize:  6,
-		OrderCond: "hot",
-		InDays:    7,
-	}
-	hotQuestion, _, _ := tc.templateRenderController.Index(ctx, hotQuestionReq)
-
-	siteInfo := tc.SiteInfo(ctx)
-	siteInfo.Canonical = fmt.Sprintf("%s/questions", siteInfo.General.SiteUrl)
-	if page > 1 {
-		siteInfo.Canonical = fmt.Sprintf("%s/questions?page=%d", siteInfo.General.SiteUrl, page)
-	}
-
-	UrlUseTitle := siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitle ||
-		siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitleByShortID
-
-	siteInfo.Title = fmt.Sprintf("%s - %s", translator.Tr(handler.GetLangByCtx(ctx), constant.QuestionsTitleTrKey), siteInfo.General.Name)
-	tc.html(ctx, http.StatusOK, "question.html", siteInfo, gin.H{
-		"data":        data,
-		"useTitle":    UrlUseTitle,
-		"page":        templaterender.Paginator(page, req.PageSize, count),
-		"hotQuestion": hotQuestion,
-	})
+	tc.serveEmbeddedUIIndex(ctx)
 }
 
 func (tc *TemplateController) QuestionInfoRedirect(ctx *gin.Context, siteInfo *schema.TemplateSiteInfoResp, correctTitle bool) (jump bool, url string) {
@@ -455,78 +429,14 @@ func (tc *TemplateController) QuestionInfo(ctx *gin.Context) {
 	})
 }
 
-// TagList tags list
+// TagList serves the React tags page (SPA).
 func (tc *TemplateController) TagList(ctx *gin.Context) {
-	req := &schema.GetTagWithPageReq{
-		PageSize: constant.DefaultPageSize,
-		Page:     1,
-	}
-	if handler.BindAndCheck(ctx, req) {
-		return
-	}
-	data, err := tc.templateRenderController.TagList(ctx, req)
-	if err != nil || pager.ValPageOutOfRange(data.Count, req.Page, req.PageSize) {
-		tc.Page404(ctx)
-		return
-	}
-	page := templaterender.Paginator(req.Page, req.PageSize, data.Count)
-
-	siteInfo := tc.SiteInfo(ctx)
-	siteInfo.Canonical = fmt.Sprintf("%s/tags", siteInfo.General.SiteUrl)
-	if req.Page > 1 {
-		siteInfo.Canonical = fmt.Sprintf("%s/tags?page=%d", siteInfo.General.SiteUrl, req.Page)
-	}
-	siteInfo.Title = fmt.Sprintf("%s - %s", translator.Tr(handler.GetLangByCtx(ctx), constant.TagsListTitleTrKey), siteInfo.General.Name)
-	tc.html(ctx, http.StatusOK, "tags.html", siteInfo, gin.H{
-		"page": page,
-		"data": data,
-	})
+	tc.serveEmbeddedUIIndex(ctx)
 }
 
-// TagInfo taginfo
+// TagInfo serves the React tag feed (SPA).
 func (tc *TemplateController) TagInfo(ctx *gin.Context) {
-	tag := ctx.Param("tag")
-	// Classic SEO template does not support SPA-only query params; hand off to embedded UI.
-	if ctx.Request.URL.Query().Get("quality") != "" {
-		tc.serveEmbeddedUIIndex(ctx)
-		return
-	}
-	req := &schema.GetTamplateTagInfoReq{}
-	if handler.BindAndCheck(ctx, req) {
-		tc.Page404(ctx)
-		return
-	}
-	nowPage := req.Page
-	req.Name = tag
-	tagInfo, questionList, questionCount, err := tc.templateRenderController.TagInfo(ctx, req)
-	if err != nil {
-		tc.Page404(ctx)
-		return
-	}
-	page := templaterender.Paginator(nowPage, req.PageSize, questionCount)
-
-	siteInfo := tc.SiteInfo(ctx)
-	siteInfo.Canonical = fmt.Sprintf("%s/tags/%s", siteInfo.General.SiteUrl, tag)
-	if req.Page > 1 {
-		siteInfo.Canonical = fmt.Sprintf("%s/tags/%s?page=%d", siteInfo.General.SiteUrl, tag, req.Page)
-	}
-	siteInfo.Description = htmltext.FetchExcerpt(tagInfo.ParsedText, "...", 240)
-	if len(tagInfo.ParsedText) == 0 {
-		siteInfo.Description = translator.Tr(handler.GetLangByCtx(ctx), constant.TagHasNoDescription)
-	}
-	siteInfo.Keywords = tagInfo.DisplayName
-
-	UrlUseTitle := siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitle ||
-		siteInfo.SiteSeo.Permalink == constant.PermalinkQuestionIDAndTitleByShortID
-
-	siteInfo.Title = fmt.Sprintf("'%s' %s - %s", tagInfo.DisplayName, translator.Tr(handler.GetLangByCtx(ctx), constant.QuestionsTitleTrKey), siteInfo.General.Name)
-	tc.html(ctx, http.StatusOK, "tag-detail.html", siteInfo, gin.H{
-		"tag":           tagInfo,
-		"questionList":  questionList,
-		"questionCount": questionCount,
-		"useTitle":      UrlUseTitle,
-		"page":          page,
-	})
+	tc.serveEmbeddedUIIndex(ctx)
 }
 
 // UserInfo user info
@@ -572,35 +482,31 @@ func (tc *TemplateController) Page404(ctx *gin.Context) {
 }
 
 func (tc *TemplateController) html(ctx *gin.Context, code int, tpl string, siteInfo *schema.TemplateSiteInfoResp, data gin.H) {
-	prefix := ""
-	cssPath := ""
+	basePath := siteBasePath(siteInfo)
+	cdnPrefix := cdnStaticPrefix()
+
 	scriptPath := make([]string, len(tc.scriptPath))
-
-	_ = plugin.CallCDN(func(fn plugin.CDN) error {
-		prefix = fn.GetStaticPrefix()
-		return nil
-	})
-
-	if prefix != "" {
-		if prefix[len(prefix)-1:] == "/" {
-			prefix = strings.TrimSuffix(prefix, "/")
+	for i, path := range tc.scriptPath {
+		p := prefixAssetPath(basePath, path)
+		if cdnPrefix != "" {
+			p = strings.ReplaceAll(p, "/static", cdnPrefix+"/static")
 		}
-		cssPath = prefix + tc.cssPath
-		for i, path := range tc.scriptPath {
-			scriptPath[i] = prefix + path
+		scriptPath[i] = p
+	}
+
+	cssPaths := make([]string, 0, len(tc.cssPaths))
+	for _, path := range tc.cssPaths {
+		p := prefixAssetPath(basePath, path)
+		if cdnPrefix != "" {
+			p = strings.ReplaceAll(p, "/static", cdnPrefix+"/static")
 		}
-	} else {
-		cssPath = tc.cssPath
-		scriptPath = tc.scriptPath
+		cssPaths = append(cssPaths, p)
 	}
 
 	data["siteinfo"] = siteInfo
-	data["baseURL"] = ""
-	if parsedUrl, err := url.Parse(siteInfo.General.SiteUrl); err == nil {
-		data["baseURL"] = parsedUrl.Path
-	}
+	data["baseURL"] = basePath
 	data["scriptPath"] = scriptPath
-	data["cssPath"] = cssPath
+	data["cssPaths"] = cssPaths
 	data["keywords"] = siteInfo.Keywords
 	if siteInfo.Description == "" {
 		siteInfo.Description = siteInfo.General.Description

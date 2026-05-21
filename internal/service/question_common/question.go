@@ -92,6 +92,7 @@ type QuestionRepo interface {
 	GetQuestionLink(ctx context.Context, page, pageSize int, questionID string, orderCond string, inDays int) (questions []*entity.Question, total int64, err error)
 	CountUserQuestionsCreatedBetween(ctx context.Context, userID string, startUTC, endUTC time.Time) (count int64, err error)
 	GetUserLastQuestionCreatedAt(ctx context.Context, userID string) (createdAt time.Time, has bool, err error)
+	CountPinnedQuestions(ctx context.Context) (count int64, err error)
 }
 
 // QuestionCommon user service
@@ -425,6 +426,8 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 			}
 		}
 
+		t.Author = &schema.QuestionPageRespOperator{ID: questionInfo.UserID}
+
 		// The default operation is to ask questions
 		t.OperationType = schema.QuestionPageRespOperationTypeAsked
 		t.OperatedAt = questionInfo.CreatedAt.Unix()
@@ -465,18 +468,25 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 		} else {
 			item.Tags = make([]*schema.TagResp, 0)
 		}
-		userInfo, ok := userInfoMap[item.Operator.ID]
-		if ok {
-			if userInfo != nil {
-				item.Operator.DisplayName = userInfo.DisplayName
-				item.Operator.Username = userInfo.Username
-				item.Operator.Rank = userInfo.Rank
-				item.Operator.Status = userInfo.Status
-				item.Operator.Avatar = userInfo.Avatar
-			}
-		}
+		fillQuestionPageOperator(item.Author, userInfoMap)
+		fillQuestionPageOperator(item.Operator, userInfoMap)
 	}
 	return formattedQuestions, nil
+}
+
+func fillQuestionPageOperator(op *schema.QuestionPageRespOperator, userInfoMap map[string]*schema.UserBasicInfo) {
+	if op == nil {
+		return
+	}
+	userInfo, ok := userInfoMap[op.ID]
+	if !ok || userInfo == nil {
+		return
+	}
+	op.DisplayName = userInfo.DisplayName
+	op.Username = userInfo.Username
+	op.Rank = userInfo.Rank
+	op.Status = userInfo.Status
+	op.Avatar = userInfo.Avatar
 }
 
 func (qs *QuestionCommon) FormatQuestions(ctx context.Context, questionList []*entity.Question, loginUserID string) ([]*schema.QuestionInfoResp, error) {

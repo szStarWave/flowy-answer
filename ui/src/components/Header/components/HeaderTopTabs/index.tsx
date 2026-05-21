@@ -17,22 +17,19 @@
  * under the License.
  */
 
-import { FC, memo, useMemo } from 'react';
+import { FC, memo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import classnames from 'classnames';
 
 import { floppyNavigation } from '@/utils';
-import { brandingStore } from '@/stores';
-import { getTopNavLinks } from '@/config/communityNav';
+import { useTopNavLinks } from '@/hooks/useCategoryTagNavLinks';
 
 const HeaderTopTabs: FC = () => {
   const { t } = useTranslation('translation');
   const { pathname } = useLocation();
-  const branding = brandingStore((state) => state.branding);
-
-  const tabs = useMemo(() => getTopNavLinks(branding, t), [branding, t]);
+  const { tabs } = useTopNavLinks(t);
 
   const tabClass = (isActive: boolean) =>
     classnames('nav-link header-top-tabs__link py-2 px-2 px-xl-3', {

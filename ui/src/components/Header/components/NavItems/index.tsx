@@ -64,20 +64,6 @@ const Index: FC<Props> = ({ redDot, userInfo, logOut }) => {
             </div>
           )}
         </NavLink>
-
-        <NavLink
-          to="/users/notifications/achievement"
-          title={t('achievement', { keyPrefix: 'notifications' })}
-          className="icon-link nav-link d-flex align-items-center justify-content-center p-0 me-2 position-relative">
-          <Icon name="trophy-fill" className="fs-4" />
-          {(redDot?.achievement || 0) > 0 && (
-            <div className="unread-dot bg-danger">
-              <span className="visually-hidden">
-                {t('new_alerts', { keyPrefix: 'notifications' })}
-              </span>
-            </div>
-          )}
-        </NavLink>
       </Nav>
 
       <Dropdown align="end" data-bs-theme={isDarkTheme() ? 'dark' : 'light'}>
