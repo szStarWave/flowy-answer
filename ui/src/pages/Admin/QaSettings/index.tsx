@@ -66,6 +66,12 @@ const QaSettings = () => {
         title: t('require_review_for_new_questions.label'),
         description: t('require_review_for_new_questions.text'),
       },
+      view_review_threshold: {
+        type: 'number',
+        title: t('view_review_threshold.label'),
+        description: t('view_review_threshold.text'),
+        default: 100,
+      },
       user_daily_question_limit: {
         type: 'number',
         title: t('user_daily_question_limit.label'),
@@ -111,6 +117,12 @@ const QaSettings = () => {
         label: t('require_review_for_new_questions.label'),
       },
     },
+    view_review_threshold: {
+      'ui:widget': 'input',
+      'ui:options': {
+        inputType: 'number',
+      },
+    },
     user_daily_question_limit: {
       'ui:widget': 'input',
       'ui:options': {
@@ -148,6 +160,7 @@ const QaSettings = () => {
       restrict_answer: formData.restrict_answer.value,
       require_review_for_new_questions:
         formData.require_review_for_new_questions.value,
+      view_review_threshold: formData.view_review_threshold.value,
       user_daily_question_limit: formData.user_daily_question_limit.value,
       user_question_interval_seconds:
         formData.user_question_interval_seconds.value,
@@ -181,6 +194,7 @@ const QaSettings = () => {
         formMeta.restrict_answer.value = res.restrict_answer;
         formMeta.require_review_for_new_questions.value =
           res.require_review_for_new_questions ?? false;
+        formMeta.view_review_threshold.value = res.view_review_threshold ?? 100;
         formMeta.user_daily_question_limit.value =
           res.user_daily_question_limit ?? 20;
         formMeta.user_question_interval_seconds.value =

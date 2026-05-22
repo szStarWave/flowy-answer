@@ -117,6 +117,8 @@ var migrations = []Migration{
 	NewMigration("v1.8.9", "add wish and wish_vote tables for feature voting", addWishTables, true),
 	NewMigration("v1.9.0", "add wish_period and wish period grouping", addWishPeriodTables, true),
 	NewMigration("v1.9.1", "repair invalid wish table timestamps for MySQL", repairWishInvalidTimestamps, true),
+	NewMigration("v1.9.2", "add question admin_reviewed for view-threshold moderation", addQuestionAdminReviewedColumn, true),
+	NewMigration("v1.9.3", "add view_review_threshold to site questions settings", addViewReviewThresholdSetting, true),
 }
 
 func GetMigrations() []Migration {

@@ -516,6 +516,10 @@ func (qs *QuestionService) AddQuestion(ctx context.Context, req *schema.Question
 	if err := qs.questionRepo.UpdateQuestionStatus(ctx, question.ID, question.Status); err != nil {
 		return nil, err
 	}
+	adminReviewed := qs.reviewService.AdminReviewedAfterCreate(ctx, req.UserID, question.Status)
+	if err := qs.questionRepo.UpdateQuestionAdminReviewed(ctx, question.ID, adminReviewed); err != nil {
+		log.Errorf("update question admin_reviewed failed, err: %v", err)
+	}
 	if question.Status == entity.QuestionStatusAvailable {
 		question.ParsedText, err = qs.questioncommon.UpdateQuestionLink(ctx, question.ID, "", question.ParsedText, question.OriginalText)
 		if err != nil {
@@ -1332,9 +1336,11 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 func (qs *QuestionService) GetQuestionAndAddPV(ctx context.Context, questionID, loginUserID string,
 	per schema.QuestionPermission) (
 	resp *schema.QuestionInfoResp, err error) {
-	err = qs.questioncommon.UpdatePv(ctx, questionID)
+	viewCount, err := qs.questioncommon.UpdatePv(ctx, questionID, loginUserID)
 	if err != nil {
 		log.Error(err)
+	} else {
+		qs.reviewService.TryTriggerViewThresholdReview(ctx, questionID, viewCount)
 	}
 	return qs.GetQuestion(ctx, questionID, loginUserID, per)
 }

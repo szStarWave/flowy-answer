@@ -39,6 +39,11 @@ const (
 	QuestionPostTypeRegular = 1
 	// QuestionPostTypePoll question carries a structured poll (see question_poll).
 	QuestionPostTypePoll = 2
+
+	// QuestionAdminReviewedNo auto-published question not yet approved by admin moderation.
+	QuestionAdminReviewedNo = 1
+	// QuestionAdminReviewedYes admin has approved (or staff-authored / legacy reviewed).
+	QuestionAdminReviewedYes = 2
 )
 
 var AdminQuestionSearchStatus = map[string]int{
@@ -83,6 +88,7 @@ type Question struct {
 	RevisionID       string    `xorm:"not null default 0 BIGINT(20) revision_id"`
 	LinkedCount      int       `xorm:"not null default 0 INT(11) linked_count"`
 	PostType         int       `xorm:"not null default 1 INT(11) post_type"`
+	AdminReviewed    int       `xorm:"not null default 2 INT(11) admin_reviewed"`
 }
 
 // TableName question table name

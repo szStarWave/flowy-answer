@@ -48,6 +48,12 @@ import (
 // reviewSubmitterSitePolicy is stored in review.submitter when queued by site settings (not a plugin slug).
 const reviewSubmitterSitePolicy = "site_policy"
 
+// reviewSubmitterViewThreshold is stored when a published question hits the view-count moderation threshold.
+const reviewSubmitterViewThreshold = "view_threshold"
+
+// defaultViewReviewThreshold is used when site questions config has no positive threshold set.
+const defaultViewReviewThreshold = 100
+
 // ReviewRepo review repository
 type ReviewRepo interface {
 	AddReview(ctx context.Context, review *entity.Review) (err error)
@@ -202,15 +208,10 @@ func (cs *ReviewService) getReviewContentAuthorInfo(ctx context.Context, userID 
 	return
 }
 
-func (cs *ReviewService) shouldQueueDefaultUserQuestion(ctx context.Context, author plugin.ReviewContentAuthor) bool {
-	if author.Role != 1 {
-		return false
-	}
-	sq, err := cs.siteInfoService.GetSiteQuestion(ctx)
-	if err != nil || sq == nil {
-		return false
-	}
-	return sq.RequireReviewForNewQuestions
+func (cs *ReviewService) shouldQueueDefaultUserQuestion(_ context.Context, _ plugin.ReviewContentAuthor) bool {
+	// New questions from regular users are auto-published after sensitive-word check;
+	// high-traffic review is handled by TryTriggerViewThresholdReview instead.
+	return false
 }
 
 // call plugin to review
@@ -307,6 +308,9 @@ func (cs *ReviewService) updateObjectStatus(ctx context.Context, review *entity.
 			return err
 		}
 		if isApprove {
+			if err := cs.questionRepo.UpdateQuestionAdminReviewed(ctx, questionInfo.ID, entity.QuestionAdminReviewedYes); err != nil {
+				log.Errorf("update question admin_reviewed failed, err: %v", err)
+			}
 			tags, err := cs.tagCommon.GetObjectEntityTag(ctx, questionInfo.ID)
 			if err != nil {
 				log.Errorf("get question tags failed, err: %v", err)
@@ -659,6 +663,107 @@ func (cs *ReviewService) notificationAnswerComment(ctx context.Context,
 // GetReviewPendingCount get review pending count
 func (cs *ReviewService) GetReviewPendingCount(ctx context.Context) (count int64, err error) {
 	return cs.reviewRepo.GetReviewCount(ctx, entity.ReviewStatusPending)
+}
+
+// AdminReviewedAfterCreate returns admin_reviewed flag for a newly created question.
+func (cs *ReviewService) AdminReviewedAfterCreate(ctx context.Context, authorUserID string, questionStatus int) int {
+	if questionStatus != entity.QuestionStatusAvailable {
+		return entity.QuestionAdminReviewedNo
+	}
+	authorRole, err := cs.userRoleService.GetUserRole(ctx, authorUserID)
+	if err != nil {
+		log.Errorf("get user role failed, err: %v", err)
+		return entity.QuestionAdminReviewedNo
+	}
+	if authorRole == role.RoleUserID {
+		return entity.QuestionAdminReviewedNo
+	}
+	return entity.QuestionAdminReviewedYes
+}
+
+func (cs *ReviewService) getViewReviewThreshold(ctx context.Context) int {
+	sq, err := cs.siteInfoService.GetSiteQuestion(ctx)
+	if err != nil || sq == nil {
+		return defaultViewReviewThreshold
+	}
+	if sq.ViewReviewThreshold == 0 {
+		return 0
+	}
+	return sq.ViewReviewThreshold
+}
+
+// TryTriggerViewThresholdReview unpublishes high-traffic auto-published questions for admin review.
+func (cs *ReviewService) TryTriggerViewThresholdReview(ctx context.Context, questionID string, viewCount int) {
+	threshold := cs.getViewReviewThreshold(ctx)
+	if threshold <= 0 || viewCount < threshold {
+		return
+	}
+	question, exist, err := cs.questionRepo.GetQuestion(ctx, questionID)
+	if err != nil || !exist {
+		return
+	}
+	if question.Status != entity.QuestionStatusAvailable {
+		return
+	}
+	if question.AdminReviewed == entity.QuestionAdminReviewedYes {
+		return
+	}
+	authorRole, err := cs.userRoleService.GetUserRole(ctx, question.UserID)
+	if err != nil {
+		log.Errorf("get user role failed, err: %v", err)
+		return
+	}
+	if authorRole != role.RoleUserID {
+		return
+	}
+	existing, exist, err := cs.reviewRepo.GetReviewByObject(ctx, uid.DeShortID(question.ID))
+	if err != nil {
+		log.Errorf("get review by object failed, err: %v", err)
+		return
+	}
+	if exist && existing.Status == entity.ReviewStatusPending {
+		return
+	}
+	if err := cs.questionRepo.UpdateQuestionStatus(ctx, question.ID, entity.QuestionStatusPending); err != nil {
+		log.Errorf("unpublish question for view review failed, err: %v", err)
+		return
+	}
+	reviewRecord := &entity.Review{
+		UserID:         question.UserID,
+		ObjectID:       uid.DeShortID(question.ID),
+		ObjectType:     constant.ObjectTypeStrMapping[constant.QuestionObjectType],
+		ReviewerUserID: "0",
+		Status:         entity.ReviewStatusPending,
+		Submitter:      reviewSubmitterViewThreshold,
+		Reason:         "",
+	}
+	if err := cs.reviewRepo.AddReview(ctx, reviewRecord); err != nil {
+		log.Errorf("add view threshold review failed, err: %v", err)
+		return
+	}
+	cs.notifyStaffQuestionNeedsReview(ctx, question.ID, question.UserID)
+}
+
+func (cs *ReviewService) notifyStaffQuestionNeedsReview(ctx context.Context, questionID, authorUserID string) {
+	staffRels, err := cs.userRoleService.GetUserByRoleID(ctx, []int{role.RoleAdminID, role.RoleModeratorID})
+	if err != nil {
+		log.Errorf("get staff users failed, err: %v", err)
+		return
+	}
+	for _, rel := range staffRels {
+		if rel.UserID == authorUserID {
+			continue
+		}
+		msg := &schema.NotificationMsg{
+			ReceiverUserID:     rel.UserID,
+			TriggerUserID:      authorUserID,
+			Type:               schema.NotificationTypeInbox,
+			ObjectID:           questionID,
+			ObjectType:         constant.QuestionObjectType,
+			NotificationAction: constant.NotificationQuestionNeedsReview,
+		}
+		cs.notificationQueueService.Send(ctx, msg)
+	}
 }
 
 // GetUnreviewedPostPage get review page

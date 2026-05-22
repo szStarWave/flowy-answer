@@ -18,9 +18,11 @@
  */
 
 import { memo, FC, useEffect, useRef, useState } from 'react';
-import { Button, Alert, Badge } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+
+import classNames from 'classnames';
 
 import {
   Actions,
@@ -127,12 +129,10 @@ const Index: FC<Props> = ({
         </div>
 
         {data?.accepted === 2 && (
-          <div className="lh-1">
-            <Badge bg="success" pill>
-              <Icon name="check-circle-fill me-1" />
-              Best answer
-            </Badge>
-          </div>
+          <span className="answer-accept-badge">
+            <Icon name="check-circle-fill" />
+            <span>{t('answers.btn_accepted')}</span>
+          </span>
         )}
       </div>
       <ImgViewer>
@@ -161,7 +161,7 @@ const Index: FC<Props> = ({
           />
         </div>
       </ImgViewer>
-      <div className="d-flex align-items-center my-4">
+      <div className="answer-actions-row d-flex align-items-center flex-wrap gap-2 my-4">
         <Actions
           source="answer"
           data={{
@@ -177,17 +177,22 @@ const Index: FC<Props> = ({
         />
 
         {canAccept && (
-          <Button
-            variant={data.accepted === 2 ? 'success' : 'outline-success'}
-            className="ms-3"
+          <button
+            type="button"
+            className={classNames(
+              'answer-accept-btn',
+              data.accepted === 2 && 'answer-accept-btn--active',
+            )}
             onClick={acceptAnswer}>
-            <Icon name="check-circle-fill" className="me-2" />
+            <Icon
+              name={data.accepted === 2 ? 'check-circle-fill' : 'check-circle'}
+            />
             <span>
               {data.accepted === 2
                 ? t('answers.btn_accepted')
                 : t('answers.btn_accept')}
             </span>
-          </Button>
+          </button>
         )}
       </div>
 

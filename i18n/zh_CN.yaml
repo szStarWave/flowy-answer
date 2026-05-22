@@ -288,6 +288,8 @@ backend:
     review:
       site_policy_submitter:
         other: 站点策略（新问题需审核）
+      view_threshold_submitter:
+        other: 浏览量达标（需复审）
     tag:
       already_exist:
         other: 标签已存在。
@@ -526,6 +528,8 @@ backend:
         other: 邀请你回答
       earned_badge:
         other: 你获得 "{{.BadgeName}}" 徽章
+      question_needs_review:
+        other: 有帖子浏览量达标，待你审核
   email_tpl:
     change_email:
       title:
@@ -2414,8 +2418,11 @@ ui:
         label: 每个用户对于每个问题只能有一个回答
         text: "用户可以使用编辑按钮优化已有的回答"
       require_review_for_new_questions:
-        label: 普通用户新问题需管理员审核
-        text: "开启后，默认「用户」角色发表的新问题会先进入审核队列；管理员与版主发帖仍直接公开。审核入口：侧栏「审查」中的待审帖子，或管理后台问题列表筛选「待审核」。"
+        label: 普通用户新问题需管理员审核（已停用）
+        text: "当前策略：普通用户发帖通过敏感词检测后即公开；浏览量达到设定阈值时自动下架并进入审核队列。本开关已不再生效，保留仅供兼容旧配置。"
+      view_review_threshold:
+        label: 浏览量复审阈值
+        text: "普通用户自动发布的帖子在浏览量（不含作者本人访问）达到该值时下架并进入审核队列。填 0 表示关闭此功能。默认 100。"
       min_tags:
         label: "问题的最少标签数"
         text: "一个问题所需标签的最小数量。"

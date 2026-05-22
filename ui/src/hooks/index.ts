@@ -36,6 +36,7 @@ import {
   useCommunityShellEnabled,
   useCommunityShellBodyClass,
 } from './useCommunityShell';
+import { useStaffSideNav } from './useStaffSideNav';
 
 export {
   useTagModal,
@@ -55,4 +56,5 @@ export {
   useExternalToast,
   useCommunityShellEnabled,
   useCommunityShellBodyClass,
+  useStaffSideNav,
 };

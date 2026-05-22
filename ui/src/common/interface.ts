@@ -1037,6 +1037,8 @@ export interface AdminQuestionSetting {
   user_question_interval_seconds: number;
   /** 0 = no minimum gap */
   user_comment_interval_seconds: number;
+  /** 0 = disable view-count moderation; author self-views are excluded from PV */
+  view_review_threshold: number;
 }
 
 export interface AdminTagsSetting {

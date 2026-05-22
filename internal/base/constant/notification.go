@@ -58,6 +58,8 @@ const (
 	NotificationInvitedYouToAnswer = "notification.action.invited_you_to_answer"
 	// NotificationEarnedBadge earned badge
 	NotificationEarnedBadge = "notification.action.earned_badge"
+	// NotificationQuestionNeedsReview question reached view threshold and needs admin review
+	NotificationQuestionNeedsReview = "notification.action.question_needs_review"
 )
 
 type NotificationChannelKey string
@@ -99,5 +101,6 @@ var (
 		NotificationYourAnswerWasDeleted:   1,
 		NotificationYourCommentWasDeleted:  1,
 		NotificationInvitedYouToAnswer:     3,
+		NotificationQuestionNeedsReview:    1,
 	}
 )

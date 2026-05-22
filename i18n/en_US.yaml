@@ -289,6 +289,8 @@ backend:
     review:
       site_policy_submitter:
         other: Site policy (new questions require review)
+      view_threshold_submitter:
+        other: View threshold (requires moderation)
     tag:
       already_exist:
         other: Tag already exists.
@@ -527,6 +529,8 @@ backend:
         other: invited you to answer
       earned_badge:
         other: You've earned the "{{.BadgeName}}" badge
+      question_needs_review:
+        other: A post reached the view threshold and needs your review
   email_tpl:
     change_email:
       title:
@@ -2455,8 +2459,11 @@ ui:
         label: Each user can only write one answer for the same question
         text: "Turn off to allow users to write multiple answers to the same question, which may cause answers to be unfocused."
       require_review_for_new_questions:
-        label: Require review for new questions from default users
-        text: "When enabled, members with the default User role go to the review queue; Admin and Moderator posts stay public. Review under Review → Queued posts, or Admin → Questions → Pending."
+        label: Require review for new questions (deprecated)
+        text: "Current policy: default users publish after sensitive-word check; at the configured view threshold posts are unpublished and queued for review. This toggle no longer applies and is kept for legacy config only."
+      view_review_threshold:
+        label: View-count review threshold
+        text: "Auto-published posts from default users are unpublished for review when view count (excluding the author's own views) reaches this value. Use 0 to disable. Default is 100."
       min_tags:
         label: "Minimum tags per question"
         text: "Minimum number of tags required in a question."

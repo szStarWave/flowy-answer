@@ -102,14 +102,37 @@ func (qr *questionRepo) UpdateQuestion(ctx context.Context, question *entity.Que
 	return
 }
 
-func (qr *questionRepo) UpdatePvCount(ctx context.Context, questionID string) (err error) {
+func (qr *questionRepo) UpdatePvCount(ctx context.Context, questionID, viewerUserID string) (viewCount int, err error) {
 	questionID = uid.DeShortID(questionID)
+	got := &entity.Question{}
+	exist, err := qr.data.DB.Context(ctx).ID(questionID).
+		Cols("view_count", "user_id").Get(got)
+	if err != nil {
+		return 0, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	if !exist {
+		return 0, errors.NotFound(reason.QuestionNotFound)
+	}
+	if len(viewerUserID) > 0 && uid.DeShortID(viewerUserID) == uid.DeShortID(got.UserID) {
+		return got.ViewCount, nil
+	}
 	question := &entity.Question{}
 	_, err = qr.data.DB.Context(ctx).Where("id =?", questionID).Incr("view_count", 1).Update(question)
 	if err != nil {
+		return 0, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	got.ViewCount++
+	_ = qr.UpdateSearch(ctx, questionID)
+	return got.ViewCount, nil
+}
+
+func (qr *questionRepo) UpdateQuestionAdminReviewed(ctx context.Context, questionID string, adminReviewed int) (err error) {
+	questionID = uid.DeShortID(questionID)
+	_, err = qr.data.DB.Context(ctx).ID(questionID).Cols("admin_reviewed").
+		Update(&entity.Question{AdminReviewed: adminReviewed})
+	if err != nil {
 		return errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
-	_ = qr.UpdateSearch(ctx, question.ID)
 	return nil
 }
 

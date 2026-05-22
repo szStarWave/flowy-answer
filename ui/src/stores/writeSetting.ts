@@ -41,6 +41,7 @@ const Index = create<IProps>((set) => ({
     user_daily_question_limit: 20,
     user_question_interval_seconds: 120,
     user_comment_interval_seconds: 15,
+    view_review_threshold: 100,
     recommend_tags: [],
     required_tag: false,
     reserved_tags: [],

@@ -201,8 +201,46 @@
 
     /* MDXEditor ships light UI; keep readable in dark theme */
     [data-bs-theme='dark'] & {
-      --basePageBg: var(--bs-body-bg, #212529);
-      --baseText: var(--bs-body-color, #dee2e6);
+      .mdxeditor.dark-theme,
+      .dark-theme.mdxeditor {
+        --basePageBg: var(--bs-body-bg, #212529);
+        --baseBg: var(--bs-tertiary-bg, #2b3035);
+        --baseBgHover: var(--bs-tertiary-bg, #343a40);
+        --baseText: var(--bs-emphasis-color, #f8f9fa);
+        --baseTextContrast: var(--bs-body-color, #dee2e6);
+        --baseBorder: var(--bs-border-color);
+        color: var(--baseText);
+      }
+
+      [role='toolbar'] button,
+      .mdxeditor-toolbar button {
+        color: var(--bs-emphasis-color, #f8f9fa) !important;
+
+        svg,
+        svg path,
+        svg line,
+        svg polyline,
+        svg rect,
+        svg circle {
+          fill: currentColor !important;
+          stroke: currentColor !important;
+        }
+      }
+
+      .community-md-editor__help .toolbar,
+      .community-md-editor__help .toolbar .bi {
+        color: var(--bs-emphasis-color, #f8f9fa) !important;
+      }
+    }
+  }
+
+  [data-bs-theme='dark'] & .toolbar-wrap {
+    .toolbar {
+      color: var(--bs-emphasis-color, #f8f9fa);
+
+      .bi {
+        color: inherit;
+      }
     }
   }
 }

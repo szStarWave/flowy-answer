@@ -25,7 +25,7 @@ import { Link, useLocation } from 'react-router-dom';
 import classnames from 'classnames';
 
 import { userCenter, floppyNavigation, isLight } from '@/utils';
-import { useCommunityShellEnabled } from '@/hooks';
+import { useCommunityShellEnabled, useStaffSideNav } from '@/hooks';
 import {
   loggedUserInfoStore,
   siteInfoStore,
@@ -93,6 +93,10 @@ const Header: FC = () => {
   let themeMode = 'light';
   const { theme, theme_config, layout } = themeSettingStore((_) => _);
   const isCommunityShell = useCommunityShellEnabled();
+  const showCommunitySideNav = useStaffSideNav();
+  const isAdminRoute = location.pathname.includes('/admin');
+  const showSideNavToggle =
+    isAdminRoute || !isCommunityShell || showCommunitySideNav;
   if (isCommunityShell) {
     themeMode = htmlTheme;
     navbarStyle = `theme-${themeMode}`;
@@ -134,12 +138,14 @@ const Header: FC = () => {
             ? 'container-xxl fixed-width'
             : 'px-3',
         )}>
-        <Navbar.Toggle
-          className="answer-navBar me-2"
-          onClick={() => {
-            setShowMobileSideNav(!showMobileSideNav);
-          }}
-        />
+        {showSideNavToggle ? (
+          <Navbar.Toggle
+            className="answer-navBar me-2"
+            onClick={() => {
+              setShowMobileSideNav(!showMobileSideNav);
+            }}
+          />
+        ) : null}
 
         <Navbar.Brand
           to="/"
@@ -206,7 +212,9 @@ const Header: FC = () => {
         )}
       </div>
 
-      <MobileSideNav show={showMobileSideNav} onHide={setShowMobileSideNav} />
+      {showSideNavToggle ? (
+        <MobileSideNav show={showMobileSideNav} onHide={setShowMobileSideNav} />
+      ) : null}
     </Navbar>
   );
 };

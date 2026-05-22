@@ -69,7 +69,8 @@ type QuestionRepo interface {
 	RecoverQuestion(ctx context.Context, questionID string) (err error)
 	UpdateQuestionOperation(ctx context.Context, question *entity.Question) (err error)
 	GetQuestionsByTitle(ctx context.Context, title string, pageSize int) (questionList []*entity.Question, err error)
-	UpdatePvCount(ctx context.Context, questionID string) (err error)
+	UpdatePvCount(ctx context.Context, questionID, viewerUserID string) (viewCount int, err error)
+	UpdateQuestionAdminReviewed(ctx context.Context, questionID string, adminReviewed int) (err error)
 	UpdateAnswerCount(ctx context.Context, questionID string, num int) (err error)
 	UpdateCollectionCount(ctx context.Context, questionID string) (count int64, err error)
 	UpdateAccepted(ctx context.Context, question *entity.Question) (err error)
@@ -158,8 +159,8 @@ func (qs *QuestionCommon) GetPersonalUserQuestionCount(ctx context.Context, logi
 	return qs.questionRepo.GetUserQuestionCount(ctx, userID, show)
 }
 
-func (qs *QuestionCommon) UpdatePv(ctx context.Context, questionID string) error {
-	return qs.questionRepo.UpdatePvCount(ctx, questionID)
+func (qs *QuestionCommon) UpdatePv(ctx context.Context, questionID, viewerUserID string) (viewCount int, err error) {
+	return qs.questionRepo.UpdatePvCount(ctx, questionID, viewerUserID)
 }
 
 func (qs *QuestionCommon) UpdateAnswerCount(ctx context.Context, questionID string) error {

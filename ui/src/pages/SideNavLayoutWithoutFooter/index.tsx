@@ -20,18 +20,29 @@
 import { FC, memo } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import classnames from 'classnames';
+
 import { SideNav } from '@/components';
+import { useStaffSideNav } from '@/hooks';
 
 import '@/common/sideNavLayout.scss';
 
 const Index: FC = () => {
+  const showSideNav = useStaffSideNav();
+
   return (
-    <div className="community-ui community-ui--shell d-flex flex-fill">
-      <aside
-        className="position-sticky px-3 border-end py-4 d-none d-xl-block"
-        id="pcSideNav">
-        <SideNav />
-      </aside>
+    <div
+      className={classnames(
+        'community-ui community-ui--shell d-flex flex-fill',
+        !showSideNav && 'community-ui--no-sidebar',
+      )}>
+      {showSideNav ? (
+        <aside
+          className="position-sticky px-3 border-end py-4 d-none d-xl-block"
+          id="pcSideNav">
+          <SideNav />
+        </aside>
+      ) : null}
       <div className="community-ui__main flex-fill w-100 min-w-0 d-flex flex-column overflow-x-hidden">
         <div className="community-ui__content w-100 flex-grow-1 px-0 px-md-4">
           <div className="answer-container main-mx-with w-100 d-flex flex-column flex-1">

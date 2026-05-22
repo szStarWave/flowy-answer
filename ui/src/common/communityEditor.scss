@@ -76,11 +76,15 @@
       border: none !important;
       border-radius: 0.375rem !important;
       background: transparent !important;
-      color: var(--bs-secondary-color) !important;
+      color: var(--bs-emphasis-color, var(--bs-body-color)) !important;
       font-size: 0.875rem;
       font-weight: 600;
       line-height: 1;
       box-shadow: none !important;
+
+      svg {
+        color: inherit;
+      }
 
       &:hover {
         background-color: var(--cm-bg-hover, var(--bs-tertiary-bg)) !important;
@@ -132,7 +136,11 @@
 
     .toolbar {
       font-size: 1rem;
-      color: var(--bs-secondary-color);
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+
+      .bi {
+        color: inherit;
+      }
 
       &:hover {
         background-color: var(--cm-bg-hover, var(--bs-tertiary-bg));
@@ -210,6 +218,52 @@
         font-weight: 600;
         background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
       }
+    }
+  }
+}
+
+/* MDXEditor dark toolbar — applies on all pages using community-md-editor (post, answer reply, etc.) */
+[data-bs-theme='dark'] {
+  .community-md-editor .mdx-visual-post-editor {
+    .mdxeditor.dark-theme,
+    .dark-theme.mdxeditor {
+      --basePageBg: var(--cm-bg-secondary, var(--bs-body-bg));
+      --baseBg: var(--cm-bg-secondary, var(--bs-tertiary-bg));
+      --baseBgSubtle: var(--cm-bg-hover, var(--bs-tertiary-bg));
+      --baseBgHover: var(--cm-bg-hover, #252b3d);
+      --baseBgActive: rgba(59, 130, 246, 0.15);
+      --baseBorder: var(--bs-border-color);
+      --baseBorderHover: var(--cm-accent, var(--bs-primary));
+      --baseText: var(--bs-emphasis-color, #e2e8f0);
+      --baseTextContrast: var(--bs-body-color, #f8fafc);
+      --baseSolid: var(--bs-secondary-color, #94a3b8);
+      color: var(--baseText);
+    }
+
+    [role='toolbar'] button,
+    .mdxeditor-toolbar button {
+      color: var(--bs-emphasis-color, #e2e8f0) !important;
+
+      svg,
+      svg path,
+      svg line,
+      svg polyline,
+      svg rect,
+      svg circle {
+        fill: currentColor !important;
+        stroke: currentColor !important;
+      }
+    }
+
+    [role='toolbar'] select,
+    .mdxeditor-toolbar select {
+      color: var(--bs-body-color) !important;
+      background-color: var(--cm-bg-card, var(--bs-body-bg)) !important;
+    }
+
+    .community-md-editor__help .toolbar,
+    .community-md-editor__help .toolbar .bi {
+      color: var(--bs-emphasis-color, #e2e8f0) !important;
     }
   }
 }

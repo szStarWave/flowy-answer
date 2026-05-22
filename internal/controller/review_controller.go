@@ -80,6 +80,7 @@ func (rc *ReviewController) GetUnreviewedPostPage(ctx *gin.Context) {
 		return nil
 	})
 	req.ReviewerMapping["site_policy"] = translator.Tr(handler.GetLangByCtx(ctx), reason.ReviewSubmitterSitePolicy)
+	req.ReviewerMapping["view_threshold"] = translator.Tr(handler.GetLangByCtx(ctx), reason.ReviewSubmitterViewThreshold)
 
 	resp, err := rc.reviewService.GetUnreviewedPostPage(ctx, req)
 	handler.HandleResponse(ctx, err, resp)

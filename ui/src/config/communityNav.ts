@@ -43,11 +43,16 @@ type WishNavUser = {
   role_id?: number;
 };
 
-export function canAccessWishNav(user?: WishNavUser | null): boolean {
+/** Admin or moderator — may see the community left sidebar. */
+export function isStaffUser(user?: WishNavUser | null): boolean {
   if (!user) {
     return false;
   }
   return !!(user.is_admin || user.role_id === 2 || user.role_id === 3);
+}
+
+export function canAccessWishNav(user?: WishNavUser | null): boolean {
+  return isStaffUser(user);
 }
 
 function isWishNavTarget(to: string): boolean {

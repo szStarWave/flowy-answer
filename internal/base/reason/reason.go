@@ -88,6 +88,7 @@ const (
 	ReportHandleFailed               = "error.report.handle_failed"
 	ReportNotFound                   = "error.report.not_found"
 	ReviewSubmitterSitePolicy        = "error.review.site_policy_submitter"
+	ReviewSubmitterViewThreshold     = "error.review.view_threshold_submitter"
 	ReadConfigFailed                 = "error.config.read_config_failed"
 	DatabaseConnectionFailed         = "error.database.connection_failed"
 	InstallCreateTableFailed         = "error.database.create_table_failed"

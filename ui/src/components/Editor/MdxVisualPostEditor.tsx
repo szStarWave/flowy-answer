@@ -23,10 +23,12 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useSyncExternalStore,
   type ElementRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import classNames from 'classnames';
 import {
   MDXEditor,
   BlockTypeSelect,
@@ -59,6 +61,18 @@ import type { BaseEditorProps } from './types';
 import { useMdxEditorTranslation } from './mdxEditorI18n';
 import MdxPostImageDialog from './MdxPostImageDialog';
 import { Help } from './ToolBars';
+
+function subscribeHtmlTheme(cb: () => void) {
+  const el = document.documentElement;
+  const obs = new MutationObserver(cb);
+  obs.observe(el, { attributes: true, attributeFilter: ['data-bs-theme'] });
+  return () => obs.disconnect();
+}
+
+function getHtmlTheme(): 'light' | 'dark' {
+  const t = document.documentElement.getAttribute('data-bs-theme');
+  return t === 'dark' ? 'dark' : 'light';
+}
 
 export interface MdxVisualPostEditorProps extends BaseEditorProps {
   onImageUpload?: (file: File) => Promise<string>;
@@ -107,6 +121,11 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
     keyPrefix: 'mdx_editor.code_languages',
   });
   const mdxTranslation = useMdxEditorTranslation();
+  const htmlTheme = useSyncExternalStore(
+    subscribeHtmlTheme,
+    getHtmlTheme,
+    () => 'light' as const,
+  );
 
   const codeBlockLanguages = useMemo(
     () => ({
@@ -187,7 +206,10 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
     <div className="mdx-visual-post-editor" onFocusCapture={() => onFocus?.()}>
       <MDXEditor
         ref={editorRef}
-        className="mdx-visual-post-editor__root"
+        className={classNames(
+          'mdx-visual-post-editor__root',
+          htmlTheme === 'dark' && 'dark-theme',
+        )}
         markdown={value || ''}
         onChange={handleChange}
         onBlur={onBlur}

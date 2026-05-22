@@ -135,8 +135,7 @@ type SiteQuestionsReq struct {
 	MinimumTags    int  `validate:"omitempty,gte=0,lte=5" json:"min_tags"`
 	MinimumContent int  `validate:"omitempty,gte=0,lte=65535" json:"min_content"`
 	RestrictAnswer bool `validate:"omitempty" json:"restrict_answer"`
-	// RequireReviewForNewQuestions when true, users with default User role (not admin/moderator)
-	// enter the moderation queue for new questions after reviewer plugins (plugin may still reject/delete).
+	// RequireReviewForNewQuestions legacy setting; no longer enforced (auto-publish + view-threshold review instead).
 	RequireReviewForNewQuestions bool `validate:"omitempty" json:"require_review_for_new_questions"`
 	// UserDailyQuestionLimit max questions per user per calendar day (site timezone); 0 = unlimited.
 	UserDailyQuestionLimit int `validate:"omitempty,gte=0,lte=1000" json:"user_daily_question_limit"`
@@ -144,6 +143,9 @@ type SiteQuestionsReq struct {
 	UserQuestionIntervalSeconds int `validate:"omitempty,gte=0,lte=86400" json:"user_question_interval_seconds"`
 	// UserCommentIntervalSeconds minimum seconds between two comments from the same user; 0 = no limit.
 	UserCommentIntervalSeconds int `validate:"omitempty,gte=0,lte=86400" json:"user_comment_interval_seconds"`
+	// ViewReviewThreshold unpublish auto-published user questions for admin review when view_count reaches
+	// this value (author self-views excluded). 0 = disabled.
+	ViewReviewThreshold int `validate:"omitempty,gte=0,lte=1000000" json:"view_review_threshold"`
 }
 
 // SiteAdvancedReq site advanced settings request
