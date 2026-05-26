@@ -43,7 +43,7 @@ const Index: FC = () => {
           <SideNav />
         </aside>
       ) : null}
-      <div className="community-ui__main flex-fill w-100 min-w-0 d-flex flex-column overflow-x-hidden">
+      <div className="community-ui__main flex-fill w-100 min-w-0 d-flex flex-column">
         <div className="community-ui__content w-100 flex-grow-1 px-0 px-md-4">
           <div className="answer-container main-mx-with w-100 d-flex flex-column flex-1">
             <Outlet />

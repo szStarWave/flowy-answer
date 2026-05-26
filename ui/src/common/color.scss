@@ -40,6 +40,11 @@
   --an-alert-exist-color: #055160;
 }
 
+.cm-editor .cm-cursor,
+.cm-editor .cm-dropCursor {
+  border-left-color: var(--bs-emphasis-color, #212529) !important;
+}
+
 [data-bs-theme='dark'] {
   --an-side-nav-link: rgba(255, 255, 255, 0.65);
   --an-toolbar-divider: rgba(255, 255, 255, 0.3);
@@ -74,8 +79,9 @@
     color: var(--bs-body-color);
   }
 
-  .cm-cursor {
-    border-left-color: var(--bs-body-color);
+  .cm-cursor,
+  .cm-dropCursor {
+    border-left-color: var(--bs-emphasis-color, var(--bs-body-color)) !important;
   }
   .ͼ2.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
     background-color: #3e4451;

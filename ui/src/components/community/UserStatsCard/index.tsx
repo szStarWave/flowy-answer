@@ -22,13 +22,19 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Card } from 'react-bootstrap';
 
+import classNames from 'classnames';
+
 import { loggedUserInfoStore } from '@/stores';
 import { usePersonalInfoByName } from '@/services/client/personal';
 import { floppyNavigation, formatCount } from '@/utils';
 
 import './index.scss';
 
-const UserStatsCard: FC = () => {
+interface Props {
+  className?: string;
+}
+
+const UserStatsCard: FC<Props> = ({ className }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'community_stats' });
   const user = loggedUserInfoStore((s) => s.user);
   const { data: profile } = usePersonalInfoByName(user.username);
@@ -52,7 +58,7 @@ const UserStatsCard: FC = () => {
   }
 
   return (
-    <Card className="community-stats-card mb-4">
+    <Card className={classNames('community-stats-card mb-4', className)}>
       <Card.Body>
         <div className="community-stats-card__grid">
           <div className="community-stats-card__stat">

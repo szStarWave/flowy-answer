@@ -1416,6 +1416,7 @@ ui:
     empty: No wishes in this period yet
     vote_failed: Vote failed. Please try again later.
     vote_closed: Voting is closed for this period.
+    widget_empty: No wish posts yet.
     widget_no_period: No active wish period right now.
     page_title: Wishes
   footer:

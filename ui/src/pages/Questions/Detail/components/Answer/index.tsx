@@ -105,7 +105,7 @@ const Index: FC<Props> = ({
     <div
       id={data.id}
       ref={answerRef}
-      className="answer-item answer-item-post py-4">
+      className="answer-item answer-item-post py-4 w-100">
       {data.status === 10 && (
         <Alert variant="danger" className="mb-4">
           {t('post_deleted', { keyPrefix: 'messages' })}
@@ -144,12 +144,11 @@ const Index: FC<Props> = ({
               contentRoot={tocRoot}
             />
           )}
-        <div className="d-flex flex-column flex-xl-row gap-3 align-items-start">
+        <div className="d-flex flex-column flex-xl-row gap-3 align-items-start post-body-with-toc">
           {Array.isArray(data?.content_outline) &&
             data.content_outline.length > 0 && (
               <ContentToc
-                className="flex-shrink-0 d-none d-xl-block"
-                style={{ width: '13.5rem' }}
+                className="content-toc--sidebar d-none d-xl-block"
                 headings={data.content_outline}
                 contentRoot={tocRoot}
               />

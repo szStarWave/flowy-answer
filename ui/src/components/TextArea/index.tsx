@@ -49,7 +49,7 @@ const TextArea: FC<
   return (
     <FormControl
       as="textarea"
-      className="resize-none font-monospace"
+      className="resize-none font-monospace an-caret-visible"
       rows={rows}
       size={size}
       value={value}

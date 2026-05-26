@@ -28,7 +28,7 @@ import {
 } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Pagination, CustomSidebar } from '@/components';
+import { Pagination } from '@/components';
 import { loggedUserInfoStore, siteInfoStore, toastStore } from '@/stores';
 import { scrollToElementTop, scrollToDocTop } from '@/utils';
 import { usePageTags, usePageUsers, useSkeletonControl } from '@/hooks';
@@ -46,7 +46,6 @@ import {
   WriteAnswer,
   Alert,
   ContentLoader,
-  LinkedQuestions,
 } from './components';
 
 import './index.scss';
@@ -230,10 +229,9 @@ const Index = () => {
     keywords: question?.tags.map((_) => _.slug_name).join(','),
   });
 
-  const showLinkedQuestions = question?.id && question.id !== '';
   return (
-    <Row className="questionDetailPage community-article-page pt-4 mb-5">
-      <Col className="page-main flex-auto">
+    <Row className="questionDetailPage community-article-page community-article-page--wide pt-4 mb-5">
+      <Col xs={12} className="page-main min-w-0">
         {question?.operation?.level && <Alert data={question.operation} />}
         {!isSkeletonShow && question?.id && (
           <Breadcrumb className="question-detail-breadcrumb small mb-3">
@@ -251,7 +249,7 @@ const Index = () => {
         {isSkeletonShow ? (
           <ContentLoader />
         ) : question?.id ? (
-          <Card className="question-detail-main border-0 shadow-sm mb-4">
+          <Card className="question-detail-main border-0 shadow-sm mb-4 w-100">
             <Card.Body className="p-0">
               <Question
                 data={question}
@@ -309,10 +307,6 @@ const Index = () => {
               callback={writeAnswerCallback}
             />
           )}
-      </Col>
-      <Col className="page-right-side mt-4 mt-xl-0">
-        <CustomSidebar />
-        {showLinkedQuestions ? <LinkedQuestions id={question.id} /> : null}
       </Col>
     </Row>
   );

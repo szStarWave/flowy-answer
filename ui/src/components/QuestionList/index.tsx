@@ -27,7 +27,6 @@ import classnames from 'classnames';
 import CommunityHomeFilter, {
   type CommunityHomeTab,
 } from '@/components/community/CommunityHomeFilter';
-import HomeIndexBanner from '@/components/community/HomeIndexBanner';
 import QuestionPostCard from '@/components/community/QuestionPostCard';
 import { useCommunityShellEnabled, useSkeletonControl } from '@/hooks';
 import { pathFactory } from '@/router/pathFactory';
@@ -122,7 +121,6 @@ const QuestionList: FC<Props> = ({
         'question-list--card': isCardView,
         'question-list--post-design': useDesignPostCard,
       })}>
-      {communityHomeLayout ? <HomeIndexBanner /> : null}
       {!isSkeletonShow && isCardView && pinData?.length > 0 ? (
         <PinList data={pinData} variant="card" />
       ) : null}

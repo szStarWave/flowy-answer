@@ -210,6 +210,7 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
           'mdx-visual-post-editor__root',
           htmlTheme === 'dark' && 'dark-theme',
         )}
+        contentEditableClassName="an-mdx-content-editable"
         markdown={value || ''}
         onChange={handleChange}
         onBlur={onBlur}

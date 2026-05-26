@@ -1,0 +1,73 @@
+/*
+ * Caret visibility for MDXEditor (Lexical) and comment/reply textareas.
+ * See: https://github.com/mdx-editor/editor/issues/257 (linkDialogAnchor z-index: -1)
+ */
+
+.mdxeditor {
+  --baseTextContrast: #1e293b;
+}
+
+[data-bs-theme='dark'] .mdxeditor {
+  --baseTextContrast: #f8fafc;
+}
+
+/* MDXEditor link dialog anchor creates a negative stacking context and hides caret */
+.mdxeditor [class*='_linkDialogAnchor_'] {
+  z-index: 0 !important;
+}
+
+.mdxeditor-root-contenteditable {
+  position: relative !important;
+}
+
+.an-mdx-content-editable,
+.mdxeditor-root-contenteditable [contenteditable='true'][role='textbox'] {
+  position: relative;
+  z-index: 1;
+  caret-color: #1e293b;
+  color: #1e293b;
+}
+
+[data-bs-theme='dark'] .an-mdx-content-editable,
+[data-bs-theme='dark'] .mdxeditor-root-contenteditable [contenteditable='true'][role='textbox'] {
+  caret-color: #f8fafc;
+  color: #f8fafc;
+}
+
+/* Placeholder layer must not intercept caret rendering */
+.mdxeditor-root-contenteditable [class*='_placeholder_'] {
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.mdxeditor-root-contenteditable > div[contenteditable='true']:not([role='textbox']) {
+  display: none !important;
+}
+
+/* Comment / reply / answer preview textareas */
+.an-caret-visible,
+.custom-form-control textarea.form-control,
+.comment-compose__preview,
+.comments-wrap textarea.form-control {
+  caret-color: #1e293b;
+  color: #1e293b;
+}
+
+[data-bs-theme='dark'] .an-caret-visible,
+[data-bs-theme='dark'] .custom-form-control textarea.form-control,
+[data-bs-theme='dark'] .comment-compose__preview,
+[data-bs-theme='dark'] .comments-wrap textarea.form-control {
+  caret-color: #f8fafc;
+  color: #f8fafc;
+}
+
+.cm-editor.cm-focused .cm-cursor,
+.cm-editor.cm-focused .cm-dropCursor {
+  border-left-color: #1e293b !important;
+}
+
+[data-bs-theme='dark'] .cm-editor.cm-focused .cm-cursor,
+[data-bs-theme='dark'] .cm-editor.cm-focused .cm-dropCursor {
+  border-left-color: #f8fafc !important;
+}

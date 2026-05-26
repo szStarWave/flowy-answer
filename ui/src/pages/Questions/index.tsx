@@ -26,6 +26,7 @@ import { usePageTags } from '@/hooks';
 import { QuestionList } from '@/components';
 import { QUESTION_ORDER_KEYS } from '@/components/QuestionList';
 import HeroBanner from '@/components/community/HeroBanner';
+import HomeIndexBanner from '@/components/community/HomeIndexBanner';
 import QuickAccessGrid from '@/components/community/QuickAccessGrid';
 import WishListWidget from '@/components/community/WishListWidget';
 import UserStatsCard from '@/components/community/UserStatsCard';
@@ -104,54 +105,72 @@ const Questions: FC = () => {
       : QUESTION_ORDER_KEYS.filter((key) => key !== 'recommend');
 
   usePageTags({ title: pageTitle, subtitle: slogan });
-  return (
-    <Row className="community-home-page mb-5 g-4">
-      <Col className="page-main flex-auto overflow-x-hidden">
-        {isIndexPage ? (
-          <>
-            <HeroBanner />
-            <QuickAccessGrid />
-          </>
+
+  const welcomeCard = (
+    <div className={`card mb-4${isIndexPage ? ' community-home-welcome' : ''}`}>
+      <div className="card-body">
+        <h5 className="card-title">
+          {t2('website_welcome', {
+            site_name: siteInfo.name,
+          })}
+        </h5>
+        <p className="card-text">{siteInfo.description}</p>
+        <Link
+          to={userCenter.getLoginUrl()}
+          className="btn btn-primary"
+          onClick={floppyNavigation.handleRouteLinkClick}>
+          {t('login', { keyPrefix: 'btns' })}
+        </Link>
+        {loginSetting.allow_new_registrations ? (
+          <Link
+            to={userCenter.getSignUpUrl()}
+            className="btn btn-link ms-2"
+            onClick={floppyNavigation.handleRouteLinkClick}>
+            {t('signup', { keyPrefix: 'btns' })}
+          </Link>
         ) : null}
+      </div>
+    </div>
+  );
+
+  return isIndexPage ? (
+    <div className="community-home-layout mb-5">
+      <div className="community-home-layout__main">
+        <HomeIndexBanner />
+        <HeroBanner />
+        <QuickAccessGrid />
         <QuestionList
           source="questions"
           data={listData}
-          order={isIndexPage ? homeTab : curOrder}
+          order={homeTab}
           orderList={listOrderKeys}
           isLoading={listLoading}
-          communityHomeLayout={isIndexPage}
+          communityHomeLayout
+        />
+      </div>
+      <aside className="community-home-layout__rail">
+        {loggedUser.access_token ? (
+          <UserStatsCard className="mb-0" />
+        ) : !loggedUser.username ? (
+          welcomeCard
+        ) : null}
+        <WishListWidget />
+      </aside>
+    </div>
+  ) : (
+    <Row className="community-home-page mb-5 g-4 align-items-start">
+      <Col className="page-main flex-auto overflow-x-hidden">
+        <QuestionList
+          source="questions"
+          data={listData}
+          order={curOrder}
+          orderList={listOrderKeys}
+          isLoading={listLoading}
         />
       </Col>
       <Col className="page-right-side mt-4 mt-xl-0">
         {loggedUser.access_token ? <UserStatsCard /> : null}
-        {!loggedUser.username && (
-          <div
-            className={`card mb-4${isIndexPage ? ' community-home-welcome' : ''}`}>
-            <div className="card-body">
-              <h5 className="card-title">
-                {t2('website_welcome', {
-                  site_name: siteInfo.name,
-                })}
-              </h5>
-              <p className="card-text">{siteInfo.description}</p>
-              <Link
-                to={userCenter.getLoginUrl()}
-                className="btn btn-primary"
-                onClick={floppyNavigation.handleRouteLinkClick}>
-                {t('login', { keyPrefix: 'btns' })}
-              </Link>
-              {loginSetting.allow_new_registrations ? (
-                <Link
-                  to={userCenter.getSignUpUrl()}
-                  className="btn btn-link ms-2"
-                  onClick={floppyNavigation.handleRouteLinkClick}>
-                  {t('signup', { keyPrefix: 'btns' })}
-                </Link>
-              ) : null}
-            </div>
-          </div>
-        )}
-        {isIndexPage ? <WishListWidget /> : null}
+        {!loggedUser.username ? welcomeCard : null}
       </Col>
     </Row>
   );

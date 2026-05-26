@@ -24,6 +24,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -32,6 +33,8 @@ import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 
 import type { ContentHeading } from '@/common/interface';
+
+import { useSidebarSticky } from './useSidebarSticky';
 
 import './index.scss';
 
@@ -78,6 +81,9 @@ const ContentToc: FC<ContentTocProps> = ({
 }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'question_detail' });
   const [activeId, setActiveId] = useState<string>('');
+  const railRef = useRef<HTMLDivElement>(null);
+  const isSidebar = className?.includes('content-toc--sidebar');
+  const stickyStyle = useSidebarSticky(Boolean(isSidebar), railRef);
 
   const idList = useMemo(
     () => headings.map((h) => h.id).filter(Boolean),
@@ -177,10 +183,12 @@ const ContentToc: FC<ContentTocProps> = ({
     </ul>
   );
 
-  return (
+  const nav = (
     <nav
-      className={classNames('content-toc small border rounded p-3', className)}
-      style={style}
+      className={classNames('content-toc small border rounded p-3', className, {
+        'content-toc--floating': stickyStyle.position === 'fixed',
+      })}
+      style={{ ...style, ...stickyStyle }}
       aria-label={t('table_of_contents')}>
       <div className="content-toc-title fw-semibold mb-2 text-secondary">
         {t('table_of_contents')}
@@ -188,6 +196,16 @@ const ContentToc: FC<ContentTocProps> = ({
       {renderBranch(tocTree, 0)}
     </nav>
   );
+
+  if (isSidebar) {
+    return (
+      <div ref={railRef} className="content-toc-rail">
+        {nav}
+      </div>
+    );
+  }
+
+  return nav;
 };
 
 export default memo(ContentToc);

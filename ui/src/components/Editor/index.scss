@@ -195,8 +195,14 @@
       font-size: 15px;
     }
 
-    .mdxeditor-root-contenteditable {
+    .mdxeditor-root-contenteditable,
+    .mdxeditor-root-contenteditable > div {
       min-height: 26rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+      caret-color: var(--bs-emphasis-color, var(--bs-body-color));
     }
 
     /* MDXEditor ships light UI; keep readable in dark theme */

@@ -18,17 +18,20 @@
  */
 
 import { FC, memo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import classnames from 'classnames';
 
 import { SideNav, Footer } from '@/components';
 import { useStaffSideNav } from '@/hooks';
+import { isQuestionDetailPath } from '@/config/communityNav';
 
 import '@/common/sideNavLayout.scss';
 
 const Index: FC = () => {
   const showSideNav = useStaffSideNav();
+  const { pathname } = useLocation();
+  const fluidContent = isQuestionDetailPath(pathname);
 
   return (
     <div
@@ -43,9 +46,17 @@ const Index: FC = () => {
           <SideNav />
         </aside>
       ) : null}
-      <div className="community-ui__main flex-fill w-100 min-w-0 overflow-x-hidden">
-        <div className="community-ui__content w-100 px-0 px-md-4">
-          <div className="answer-container main-mx-with w-100">
+      <div className="community-ui__main flex-fill w-100 min-w-0">
+        <div
+          className={classnames(
+            'community-ui__content w-100 px-0 px-md-4',
+            fluidContent && 'community-ui__content--fluid',
+          )}>
+          <div
+            className={classnames(
+              'answer-container main-mx-with w-100',
+              fluidContent && 'answer-container--fluid',
+            )}>
             <Outlet />
           </div>
         </div>

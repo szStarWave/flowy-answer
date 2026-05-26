@@ -97,6 +97,48 @@ function tagLandingPath(tagSlug: string): string {
   return pathFactory.tagLanding(slug);
 }
 
+export function tagInfoToNavLink(tag: {
+  slug_name: string;
+  display_name?: string;
+}): CommunityNavLink {
+  const slug = tag.slug_name;
+  return {
+    label: tag.display_name?.trim() || slug,
+    to: tagLandingPath(slug),
+    isActive: (pathname) => isTagSlugActive(pathname, slug),
+  };
+}
+
+/** Slug for the 许愿功能 category tag (matches top nav when slug_name is `wishfunction`). */
+export const WISH_FEATURE_TAG_SLUG = 'wishfunction';
+
+export function isWishFeatureTag(tag: {
+  slug_name?: string;
+  display_name?: string;
+}): boolean {
+  const slug = tag.slug_name?.trim().replace(/^\/+/, '') ?? '';
+  return slug === WISH_FEATURE_TAG_SLUG;
+}
+
+export function findWishFeatureTag<
+  T extends { slug_name?: string; display_name?: string },
+>(tags: T[] | undefined): T | undefined {
+  return tags?.find(isWishFeatureTag);
+}
+
+/** Tag landing path for 许愿功能 — same route as the top bar category tab. */
+export function wishFeatureTagLandingPath(
+  tag?: { slug_name?: string; display_name?: string } | null,
+): string {
+  if (tag?.slug_name?.trim()) {
+    return tagInfoToNavLink({
+      slug_name: tag.slug_name,
+      display_name: tag.display_name,
+    }).to;
+  }
+  return pathFactory.tagLanding(WISH_FEATURE_TAG_SLUG);
+}
+
 function resolveNavTarget(item: BrandingCommunityNavItem): string {
   const path = item.path?.trim();
   if (path) {
@@ -140,18 +182,6 @@ export function getHomeNavLink(t: TFunction): CommunityNavLink {
     label: t('header.tabs.home'),
     to: '/',
     isActive: isHeaderHomeTabActive,
-  };
-}
-
-export function tagInfoToNavLink(tag: {
-  slug_name: string;
-  display_name?: string;
-}): CommunityNavLink {
-  const slug = tag.slug_name;
-  return {
-    label: tag.display_name?.trim() || slug,
-    to: tagLandingPath(slug),
-    isActive: (pathname) => isTagSlugActive(pathname, slug),
   };
 }
 
@@ -233,4 +263,20 @@ export function hasConfiguredCommunitySidebar(branding: AdminSettingBranding) {
 /** Site-wide community chrome (header, backgrounds) — not only SideNavLayout routes. */
 export function isCommunityShellEnabled(): boolean {
   return true;
+}
+
+/** Question / answer detail pages that use the wide fluid main column. */
+export function isQuestionDetailPath(pathname: string): boolean {
+  if (!pathname.startsWith('/questions/')) {
+    return false;
+  }
+  if (pathname.startsWith('/questions/linked/')) {
+    return false;
+  }
+  const rest = pathname.slice('/questions/'.length);
+  if (!rest || rest.includes('/edit')) {
+    return false;
+  }
+  const segments = rest.split('/').filter(Boolean);
+  return segments.length >= 1 && segments.length <= 3;
 }

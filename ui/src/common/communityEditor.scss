@@ -115,12 +115,23 @@
       padding: 1.25rem 1.5rem !important;
       font-size: 0.9375rem;
       line-height: 1.8;
-      color: var(--bs-body-color);
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+      caret-color: var(--bs-emphasis-color, var(--bs-body-color));
       background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg)) !important;
     }
 
     .mdxeditor-root-contenteditable:focus-within {
       outline: none;
+    }
+
+    .mdxeditor-root-contenteditable [contenteditable='true'] {
+      color: inherit;
+      caret-color: inherit;
+    }
+
+    .cm-editor.cm-focused .cm-cursor,
+    .cm-editor.cm-focused .cm-dropCursor {
+      border-left-color: var(--bs-emphasis-color, var(--bs-body-color)) !important;
     }
   }
 
@@ -197,12 +208,16 @@
       border-radius: 0.75rem;
       border: 1px solid var(--bs-border-color);
       background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg));
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+      caret-color: var(--bs-emphasis-color, var(--bs-body-color));
       padding: 1rem;
       resize: vertical;
 
       &:focus {
         border-color: var(--cm-accent, var(--bs-primary));
         box-shadow: 0 0 0 3px var(--cm-accent-glow, rgba(59, 130, 246, 0.25));
+        color: var(--bs-emphasis-color, var(--bs-body-color));
+        caret-color: var(--bs-emphasis-color, var(--bs-body-color));
       }
     }
 
@@ -219,6 +234,29 @@
         background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
       }
     }
+  }
+
+  .custom-form-control {
+    width: 100%;
+
+    textarea.form-control {
+      width: 100%;
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+      caret-color: var(--bs-emphasis-color, var(--bs-body-color));
+      background-color: var(--cm-bg-secondary, var(--bs-tertiary-bg));
+
+      &:focus {
+        color: var(--bs-emphasis-color, var(--bs-body-color));
+        caret-color: var(--bs-emphasis-color, var(--bs-body-color));
+      }
+    }
+  }
+}
+
+[data-bs-theme='dark'] {
+  .community-ui .custom-form-control textarea.form-control {
+    color: var(--bs-emphasis-color, #f1f5f9);
+    caret-color: var(--bs-emphasis-color, #f1f5f9);
   }
 }
 
@@ -264,6 +302,12 @@
     .community-md-editor__help .toolbar,
     .community-md-editor__help .toolbar .bi {
       color: var(--bs-emphasis-color, #e2e8f0) !important;
+    }
+
+    .mdxeditor-root-contenteditable,
+    .mdxeditor-root-contenteditable [contenteditable='true'] {
+      color: var(--bs-emphasis-color, #f1f5f9);
+      caret-color: var(--bs-emphasis-color, #f1f5f9);
     }
   }
 }

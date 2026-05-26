@@ -1395,6 +1395,7 @@ ui:
     meta: "{{discussions}} 讨论 · {{views}} 阅读"
     vote_failed: 投票失败，请稍后重试
     vote_closed: 本期许愿已结束，暂不可投票
+    widget_empty: 暂无许愿帖子
     widget_no_period: 暂无进行中的许愿活动
     page_title: 许愿功能
     page_intro: 为心仪的许愿项投票，票数越高排序越靠前。每期许愿由管理员或版主发布。

@@ -29,7 +29,19 @@
 .page-right-side {
   flex: none;
   width: 300px;
-  box-sizing: content-box;
+  box-sizing: border-box;
+}
+
+.community-ui .community-ui__content--fluid,
+.community-ui .community-ui__content:has(.community-article-page--wide) {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.community-ui .answer-container--fluid.main-mx-with,
+.community-ui .answer-container.main-mx-with:has(> .community-article-page--wide) {
+  max-width: none;
 }
 
 // lg

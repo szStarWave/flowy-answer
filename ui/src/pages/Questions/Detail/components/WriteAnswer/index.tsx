@@ -242,7 +242,7 @@ const Index: FC<Props> = ({ visible = false, data, callback }) => {
   };
 
   return (
-    <Form noValidate className="article-write-reply">
+    <Form noValidate className="article-write-reply w-100">
       {(!data.answered || showEditor) && (
         <>
           <Form.Control

@@ -199,12 +199,11 @@ const Index: FC<Props> = ({
                 contentRoot={tocRoot}
               />
             )}
-          <div className="d-flex flex-column flex-xl-row gap-3 align-items-start question-body-with-toc">
+          <div className="d-flex flex-column flex-xl-row gap-3 align-items-start post-body-with-toc">
             {Array.isArray(data?.content_outline) &&
               data.content_outline.length > 0 && (
                 <ContentToc
-                  className="flex-shrink-0 d-none d-xl-block"
-                  style={{ width: '13.5rem' }}
+                  className="content-toc--sidebar d-none d-xl-block"
                   headings={data.content_outline}
                   contentRoot={tocRoot}
                 />
