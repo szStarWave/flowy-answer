@@ -99,13 +99,13 @@
 
 .question-detail-main {
   width: 100%;
-  max-width: none;
+  max-width: var(--cm-content-max-w, 1200px);
   border-radius: var(--bs-border-radius-lg) !important;
 }
 
 .questionDetailPage .answer-item-post {
   width: 100%;
-  max-width: none;
+  max-width: var(--cm-content-max-w, 1200px);
   border-top: none;
   margin-top: 0.75rem;
   padding: 1.25rem 1.25rem 1.5rem;

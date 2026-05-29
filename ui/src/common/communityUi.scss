@@ -525,8 +525,7 @@ html:has(.community-ui) {
   .article-write-reply,
   .answer-item-post {
     width: 100%;
-
-    max-width: none;
+    max-width: var(--cm-content-max-w, 1200px);
   }
 
   .question-detail-breadcrumb {
@@ -788,6 +787,21 @@ html:has(.community-ui) {
     border-radius: 0.625rem;
 
     padding: 0.5rem 1rem;
+  }
+}
+
+/* Non-staff: no left sidebar — center detail column content */
+.community-ui.community-ui--no-sidebar .questionDetailPage.community-article-page {
+  .question-detail-breadcrumb,
+  .question-detail-main,
+  .article-replies-header,
+  .article-replies-section,
+  .article-write-reply,
+  .page-main > .answer-item {
+    width: 100%;
+    max-width: var(--cm-content-max-w, 1200px);
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
