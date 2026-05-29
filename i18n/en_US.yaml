@@ -1086,6 +1086,8 @@ ui:
           file:
             label: Image file
             btn: Select image
+            multi_hint: You can select multiple images at once
+            single_only: Only one image can be replaced when editing
             msg:
               empty: File cannot be empty.
               only_image: Only image files are allowed.
@@ -1104,6 +1106,7 @@ ui:
       btn_cancel: Cancel
       btn_confirm: Add
       uploading: Uploading
+      local_path_paste_warning: Found {{count}} local image path(s) that other users cannot view. Please upload images using "Upload image" before publishing.
     indent:
       text: Indent
     outdent:

@@ -25,6 +25,7 @@ import ToolItem from '../toolItem';
 import { EditorContext } from '../EditorContext';
 import { Editor } from '../types';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { useLocalImagePasteWarning } from '../hooks/useLocalImagePasteWarning';
 
 const Image = () => {
   const editor = useContext(EditorContext);
@@ -39,6 +40,7 @@ const Image = () => {
   }, [editor]);
   const { t } = useTranslation('translation', { keyPrefix: 'editor' });
   const { verifyImageSize, uploadFiles } = useImageUpload();
+  const { warnOnPaste } = useLocalImagePasteWarning();
 
   const loadingText = `![${t('image.uploading')}...]()`;
 
@@ -55,6 +57,8 @@ const Image = () => {
     errorMsg: '',
     type: '',
   });
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const [imageName, setImageName] = useState({
     value: '',
@@ -114,6 +118,7 @@ const Image = () => {
 
   const paste = async (event) => {
     const clipboard = event.clipboardData;
+    warnOnPaste(event);
 
     const bool = verifyImageSize(clipboard.files);
 
@@ -218,7 +223,48 @@ const Image = () => {
       editorState.replaceSelection(markdownText);
     }
   };
-  const handleClick = () => {
+  const handleClick = async () => {
+    if (currentTab === 'localImage') {
+      if (!selectedFiles.length) {
+        setLink({ ...link, isInvalid: true });
+        return;
+      }
+      if (!verifyImageSize(selectedFiles)) {
+        return;
+      }
+      if (!editorState) {
+        return;
+      }
+
+      setVisible(false);
+      const startPos = editorState.getCursor();
+      const endPos = { ...startPos, ch: startPos.ch + loadingText.length };
+      editorState.replaceSelection(loadingText);
+      editorState.setReadOnly(true);
+
+      try {
+        const urls = await uploadFiles(selectedFiles);
+        const text = urls.map(({ name, url, type }) => {
+          const alt =
+            selectedFiles.length === 1 && imageName.value
+              ? imageName.value
+              : name;
+          return `${type === 'post' ? '!' : ''}[${alt}](${url})`;
+        });
+        editorState.replaceRange(text.join('\n'), startPos, endPos);
+      } catch {
+        editorState.replaceRange('', startPos, endPos);
+      } finally {
+        editorState.setReadOnly(false);
+        editorState.focus();
+      }
+
+      setSelectedFiles([]);
+      setLink({ ...link, value: '', isInvalid: false, type: '' });
+      setImageName({ ...imageName, value: '' });
+      return;
+    }
+
     if (!link.value) {
       setLink({ ...link, isInvalid: true });
       return;
@@ -264,27 +310,19 @@ const Image = () => {
     const text = editorInstance?.getSelection();
 
     setImageName({ ...imageName, value: text });
+    setSelectedFiles([]);
+    setLink({ ...link, value: '', isInvalid: false, type: '' });
 
     setVisible(true);
   };
 
-  const { uploadSingleFile } = useImageUpload();
-
-  const onUpload = async (e) => {
-    if (!editor) {
-      return;
-    }
-    const files = e.target?.files || [];
-    const bool = verifyImageSize(files);
-
-    if (!bool) {
-      return;
-    }
-
-    uploadSingleFile(e.target.files[0]).then((url) => {
-      setLink({ ...link, value: url });
+  const onFileSelect = (e) => {
+    const files = Array.from(e.target?.files || []);
+    setSelectedFiles(files);
+    setLink({ ...link, isInvalid: false });
+    if (files.length === 1) {
       setImageName({ ...imageName, value: files[0].name });
-    });
+    }
   };
 
   const onHide = () => setVisible(false);
@@ -313,10 +351,24 @@ const Image = () => {
                   </Form.Label>
                   <Form.Control
                     type="file"
-                    onChange={onUpload}
+                    multiple
+                    onChange={onFileSelect}
                     isInvalid={currentTab === 'localImage' && link.isInvalid}
                     accept="image/*"
                   />
+                  <Form.Text muted>
+                    {t('image.form_image.fields.file.multi_hint')}
+                  </Form.Text>
+                  {selectedFiles.length > 1 && (
+                    <ul className="small text-secondary mb-0 mt-2 ps-3">
+                      {selectedFiles.map((file) => (
+                        <li
+                          key={`${file.name}-${file.size}-${file.lastModified}`}>
+                          {file.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
                   <Form.Control.Feedback type="invalid">
                     {t('image.form_image.fields.file.msg.empty')}
@@ -339,6 +391,7 @@ const Image = () => {
                       setImageName({ ...imageName, value: e.target.value })
                     }
                     isInvalid={imageName.isInvalid}
+                    disabled={selectedFiles.length > 1}
                   />
                 </Form.Group>
               </Form>

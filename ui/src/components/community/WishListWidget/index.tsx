@@ -153,10 +153,10 @@ const WishListWidget: FC = () => {
                   }`}>
                   {index + 1}
                 </span>
-                <div className="community-wish-widget__content flex-grow-1 min-w-0">
+                <div className="community-wish-widget__content">
                   <Link
                     to={pathFactory.questionLanding(item.id, item.url_title)}
-                    className="community-wish-widget__wish-title text-truncate d-block"
+                    className="community-wish-widget__wish-title"
                     title={item.title}
                     onClick={floppyNavigation.handleRouteLinkClick}>
                     {item.title}

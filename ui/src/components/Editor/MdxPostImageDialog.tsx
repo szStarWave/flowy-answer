@@ -11,20 +11,21 @@
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR ANY
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Form, Modal, Tab, Tabs } from 'react-bootstrap';
+import { Button, Form, Modal, Spinner, Tab, Tabs } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import {
   allowSetImageDimensions$,
   closeImageDialog$,
   imageDialogState$,
+  insertMarkdown$,
   saveImage$,
   useCellValues,
   usePublisher,
@@ -41,8 +42,9 @@ const MdxPostImageDialog: FC = () => {
     allowSetImageDimensions$,
   );
   const saveImage = usePublisher(saveImage$);
+  const insertMarkdown = usePublisher(insertMarkdown$);
   const closeDialog = usePublisher(closeImageDialog$);
-  const { verifyImageSize, uploadSingleFile } = useImageUpload();
+  const { verifyImageSize, uploadFiles, uploadSingleFile } = useImageUpload();
 
   const [currentTab, setCurrentTab] = useState<string>('localImage');
   const [srcUrl, setSrcUrl] = useState('');
@@ -51,10 +53,12 @@ const MdxPostImageDialog: FC = () => {
   const [titleAttr, setTitleAttr] = useState('');
   const [width, setWidth] = useState<string>('');
   const [height, setHeight] = useState<string>('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [srcInvalid, setSrcInvalid] = useState(false);
   const [fileInvalid, setFileInvalid] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const wasInactiveRef = useRef(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetForm = useCallback(() => {
     setCurrentTab('localImage');
@@ -63,9 +67,13 @@ const MdxPostImageDialog: FC = () => {
     setTitleAttr('');
     setWidth('');
     setHeight('');
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setSrcInvalid(false);
     setFileInvalid(false);
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   }, []);
 
   useEffect(() => {
@@ -86,7 +94,7 @@ const MdxPostImageDialog: FC = () => {
       setTitleAttr(iv.title ?? '');
       setWidth(iv.width != null ? String(iv.width) : '');
       setHeight(iv.height != null ? String(iv.height) : '');
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setCurrentTab('remoteImage');
       setSrcInvalid(false);
       setFileInvalid(false);
@@ -98,6 +106,9 @@ const MdxPostImageDialog: FC = () => {
   }, [state, resetForm]);
 
   const handleHide = () => {
+    if (uploading) {
+      return;
+    }
     closeDialog();
     resetForm();
   };
@@ -115,26 +126,50 @@ const MdxPostImageDialog: FC = () => {
       : {}),
   });
 
+  const uploadAndInsertLocalImages = async () => {
+    if (!selectedFiles.length) {
+      setFileInvalid(true);
+      return;
+    }
+    if (!verifyImageSize(selectedFiles)) {
+      return;
+    }
+
+    if (selectedFiles.length === 1) {
+      setUploading(true);
+      try {
+        const url = await uploadSingleFile(selectedFiles[0]);
+        saveImage(savePayloadForSrc(url));
+      } catch {
+        /* 错误提示由 request 拦截器处理 */
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const results = await uploadFiles(selectedFiles);
+      const markdown = results
+        .map(({ name, url }) => `![${name}](${url})`)
+        .join('\n\n');
+      insertMarkdown(markdown);
+      closeDialog();
+      resetForm();
+    } catch {
+      /* 错误提示由 request 拦截器处理 */
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = () => {
     setSrcInvalid(false);
     setFileInvalid(false);
 
     if (currentTab === 'localImage') {
-      if (!selectedFile) {
-        setFileInvalid(true);
-        return;
-      }
-      if (!verifyImageSize([selectedFile])) {
-        return;
-      }
-      // 与旧 CodeMirror 弹窗一致：先 uploadImage 拿 URL，再插入；避免经 MDX saveImage+FileList 时 multipart 异常导致 400 与 reject(false)
-      uploadSingleFile(selectedFile)
-        .then((url) => {
-          saveImage(savePayloadForSrc(url));
-        })
-        .catch(() => {
-          /* 错误提示由 request 拦截器处理；吞掉 false 避免 Uncaught (in promise) */
-        });
+      uploadAndInsertLocalImages();
       return;
     }
 
@@ -157,7 +192,7 @@ const MdxPostImageDialog: FC = () => {
 
   return (
     <Modal show onHide={handleHide} centered size="lg" backdrop="static">
-      <Modal.Header closeButton>
+      <Modal.Header closeButton={!uploading}>
         <Modal.Title as="h5" className="mb-0">
           {modalTitle}
         </Modal.Title>
@@ -165,7 +200,7 @@ const MdxPostImageDialog: FC = () => {
       <Modal.Body>
         <Tabs
           activeKey={currentTab}
-          onSelect={(k) => k && setCurrentTab(k)}
+          onSelect={(k) => k && !uploading && setCurrentTab(k)}
           className="mb-0">
           <Tab eventKey="localImage" title={t('image.tab_image')}>
             <Form className="mt-3">
@@ -174,33 +209,54 @@ const MdxPostImageDialog: FC = () => {
                   {t('image.form_image.fields.file.label')}
                 </Form.Label>
                 <Form.Control
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  multiple={!isEditing}
+                  disabled={uploading}
                   isInvalid={fileInvalid}
                   onChange={(e) => {
                     setFileInvalid(false);
                     const input = e.currentTarget as HTMLInputElement;
-                    const f = input.files?.[0] ?? null;
-                    setSelectedFile(f);
-                    if (f?.name) {
-                      setAltText((prev) => prev || f.name);
+                    const files = Array.from(input.files ?? []);
+                    setSelectedFiles(files);
+                    if (files.length === 1 && files[0].name) {
+                      setAltText((prev) => prev || files[0].name);
                     }
                   }}
                 />
+                <Form.Text muted>
+                  {isEditing
+                    ? t('image.form_image.fields.file.single_only')
+                    : t('image.form_image.fields.file.multi_hint')}
+                </Form.Text>
+                {selectedFiles.length > 1 && (
+                  <ul className="small text-secondary mb-0 mt-2 ps-3">
+                    {selectedFiles.map((file) => (
+                      <li
+                        key={`${file.name}-${file.size}-${file.lastModified}`}>
+                        {file.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <Form.Control.Feedback type="invalid">
                   {t('image.form_image.fields.file.msg.empty')}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Form.Group className="mb-3" controlId="mdx-post-img-desc">
-                <Form.Label>
-                  {`${t('image.form_image.fields.desc.label')} ${tForm('optional')}`}
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                />
-              </Form.Group>
+              {selectedFiles.length <= 1 && (
+                <Form.Group className="mb-3" controlId="mdx-post-img-desc">
+                  <Form.Label>
+                    {`${t('image.form_image.fields.desc.label')} ${tForm('optional')}`}
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={altText}
+                    disabled={uploading}
+                    onChange={(e) => setAltText(e.target.value)}
+                  />
+                </Form.Group>
+              )}
             </Form>
           </Tab>
           <Tab eventKey="remoteImage" title={t('image.tab_url')}>
@@ -211,6 +267,7 @@ const MdxPostImageDialog: FC = () => {
                   type="text"
                   value={srcUrl}
                   isInvalid={srcInvalid}
+                  disabled={uploading}
                   onChange={(e) => {
                     setSrcInvalid(false);
                     setSrcUrl(e.target.value);
@@ -227,6 +284,7 @@ const MdxPostImageDialog: FC = () => {
                 <Form.Control
                   type="text"
                   value={altText}
+                  disabled={uploading}
                   onChange={(e) => setAltText(e.target.value)}
                 />
               </Form.Group>
@@ -241,6 +299,7 @@ const MdxPostImageDialog: FC = () => {
             <Form.Control
               type="text"
               value={titleAttr}
+              disabled={uploading}
               onChange={(e) => setTitleAttr(e.target.value)}
             />
           </Form.Group>
@@ -256,6 +315,7 @@ const MdxPostImageDialog: FC = () => {
                   type="number"
                   min={0}
                   value={width}
+                  disabled={uploading}
                   onChange={(e) => setWidth(e.target.value)}
                 />
               </Form.Group>
@@ -269,6 +329,7 @@ const MdxPostImageDialog: FC = () => {
                   type="number"
                   min={0}
                   value={height}
+                  disabled={uploading}
                   onChange={(e) => setHeight(e.target.value)}
                 />
               </Form.Group>
@@ -277,11 +338,27 @@ const MdxPostImageDialog: FC = () => {
         )}
       </Modal.Body>
       <Modal.Footer className="border-0 pt-0">
-        <Button variant="outline-secondary" onClick={handleHide}>
+        <Button
+          variant="outline-secondary"
+          onClick={handleHide}
+          disabled={uploading}>
           {t('image.btn_cancel')}
         </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          {t('image.btn_confirm')}
+        <Button variant="primary" onClick={handleSubmit} disabled={uploading}>
+          {uploading ? (
+            <>
+              <Spinner
+                animation="border"
+                size="sm"
+                className="me-2"
+                role="status"
+                aria-hidden
+              />
+              {t('image.uploading')}
+            </>
+          ) : (
+            t('image.btn_confirm')
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

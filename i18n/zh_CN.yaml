@@ -1075,6 +1075,8 @@ ui:
           file:
             label: 图像文件
             btn: 选择图片
+            multi_hint: 可同时选择多张图片
+            single_only: 编辑图片时仅支持单张替换
             msg:
               empty: 请选择图片文件。
               only_image: 只能上传图片文件。
@@ -1093,6 +1095,7 @@ ui:
       btn_cancel: 取消
       btn_confirm: 添加
       uploading: 上传中
+      local_path_paste_warning: 检测到 {{count}} 处本地图片路径，其他用户无法查看。请通过「上传图片」将图片上传到服务器后再使用。
     indent:
       text: 缩进
     outdent:

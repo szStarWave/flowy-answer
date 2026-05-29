@@ -24,6 +24,7 @@ import {
   useMemo,
   useRef,
   useSyncExternalStore,
+  type ClipboardEvent,
   type ElementRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,6 +59,7 @@ import {
 import '@mdxeditor/editor/style.css';
 
 import type { BaseEditorProps } from './types';
+import { useLocalImagePasteWarning } from './hooks/useLocalImagePasteWarning';
 import { useMdxEditorTranslation } from './mdxEditorI18n';
 import MdxPostImageDialog from './MdxPostImageDialog';
 import { Help } from './ToolBars';
@@ -121,6 +123,7 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
     keyPrefix: 'mdx_editor.code_languages',
   });
   const mdxTranslation = useMdxEditorTranslation();
+  const { warnOnPaste } = useLocalImagePasteWarning();
   const htmlTheme = useSyncExternalStore(
     subscribeHtmlTheme,
     getHtmlTheme,
@@ -202,8 +205,18 @@ const MdxVisualPostEditor: FC<MdxVisualPostEditorProps> = ({
     onEditorReady?.(null);
   }, [onEditorReady]);
 
+  const handlePasteCapture = useCallback(
+    (event: ClipboardEvent) => {
+      warnOnPaste(event);
+    },
+    [warnOnPaste],
+  );
+
   return (
-    <div className="mdx-visual-post-editor" onFocusCapture={() => onFocus?.()}>
+    <div
+      className="mdx-visual-post-editor"
+      onFocusCapture={() => onFocus?.()}
+      onPasteCapture={handlePasteCapture}>
       <MDXEditor
         ref={editorRef}
         className={classNames(
