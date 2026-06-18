@@ -41,4 +41,7 @@ ui:
   api_url: '/'
   base_url: ''
   api_base_url: ''
+  # 构建渠道：决定首页静态横幅等资源（flowy/gmk 及 international-flowy/international-gmk）
+  # Docker 构建可通过 --build-arg CHANNEL=international-gmk 覆盖
+  channel: 'flowy'
 

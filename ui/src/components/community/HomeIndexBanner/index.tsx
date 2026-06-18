@@ -19,11 +19,13 @@
 
 import { FC, memo } from 'react';
 
-import homeIndexImage from '@/assets/index.png';
+import { getChannelHomeBanner } from '@/utils/channelAssets';
 
 import './index.scss';
 
 const HomeIndexBanner: FC = () => {
+  const homeIndexImage = getChannelHomeBanner();
+
   return (
     <div className="community-home-index-banner">
       <img

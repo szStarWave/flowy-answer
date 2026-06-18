@@ -27,6 +27,12 @@ const envFilePath = path.resolve(__dirname, '../.env.production');
 // Read config.yaml file
 const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'));
 
+// CHANNEL env (Makefile / Docker build-arg) overrides configs/config.yaml
+if (process.env.CHANNEL) {
+  config.ui = config.ui || {};
+  config.ui.channel = process.env.CHANNEL;
+}
+
 // Generate .env file content
 let envContent = 'TSC_COMPILE_ON_ERROR=true\nESLINT_NO_DEV_ERRORS=true\n';
 for (const key in config.ui) {

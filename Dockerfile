@@ -37,6 +37,9 @@ ENV ANSWER_MODULE=${BUILD_DIR}
 ARG TAGS="sqlite sqlite_unlock_notify"
 ENV TAGS="bindata timetzdata ${TAGS}"
 ARG CGO_EXTRA_CFLAGS
+# 构建渠道（flowy / gmk 等），决定首页横幅等 UI 资源
+ARG CHANNEL=flowy
+ENV CHANNEL=${CHANNEL}
 
 COPY . ${BUILD_DIR}
 WORKDIR ${BUILD_DIR}
@@ -75,8 +78,10 @@ LABEL maintainer="linkinstar@apache.org"
 # 与线上对照：docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) ...
 ARG GIT_COMMIT=unknown
 ARG BUILD_DATE=unknown
+ARG CHANNEL=flowy
 LABEL org.opencontainers.image.revision="${GIT_COMMIT}" \
-      org.opencontainers.image.created="${BUILD_DATE}"
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.flowy.channel="${CHANNEL}"
 
 ARG TIMEZONE
 ENV TIMEZONE=${TIMEZONE:-"Asia/Shanghai"}

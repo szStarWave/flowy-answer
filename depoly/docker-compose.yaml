@@ -1,4 +1,9 @@
 # ~/answer-deploy/docker-compose.yml
+#
+# 多渠道镜像：构建时指定渠道，tag 形如 prod-flowy、prod-gmk、prod-international-flowy
+#   ./script/build-image.sh --channels flowy,gmk,international-flowy,international-gmk --env prod
+# 部署时设置 ANSWER_IMAGE_TAG，例如 prod-international-gmk
+#
 # 若镜像编入了 cache-redis 插件：需增加 redis 服务，且管理后台「插件 → Redis Cache」
 # 中 Endpoint 填「redis:6379」（服务名与下方 redis 服务一致）。未配置时会报 redis is not configured correctly。
 services:

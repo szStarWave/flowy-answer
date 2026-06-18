@@ -53,12 +53,13 @@ clean:
 	@rm -f $(BIN)
 	@rm -rf ui/build
 
+# 本地 UI 构建可指定渠道：make ui CHANNEL=gmk
+ui:
+	@cd ui && rm -rf build && CHANNEL=$(CHANNEL) pnpm pre-install && CHANNEL=$(CHANNEL) pnpm build && cd -
+
 install-ui-packages:
 	@corepack enable
 	@corepack prepare pnpm@9.7.0 --activate
-
-ui:
-	@cd ui && rm -rf build && pnpm pre-install && pnpm build && cd -
 
 lint: generate $(GOLANGCI)
 	@bash ./script/check-asf-header.sh
