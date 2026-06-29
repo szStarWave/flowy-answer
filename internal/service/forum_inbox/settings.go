@@ -29,12 +29,15 @@ var Settings = struct {
 	IngestSecret string
 	// UserChannel 可选；非空则在 JSON 中带上 channel；为空则请求体不传 channel，由主站使用 forum.default_user_channel
 	UserChannel string
+	// FirstPostRewardAPIURL 首次发帖奖励接口完整 URL（经网关代理，无需鉴权）；为空字符串时不调用
+	FirstPostRewardAPIURL string
 	// BroadcastTagNames 帖子若带有其中任一标签（slug 或展示名与下列字符串之一相同，英文标签忽略大小写），则对全站有邮箱用户投递「新帖」站内信
 	BroadcastTagNames []string
 }{
-	APIBaseURL: "https://server.flowyaipc.com/claw/integration/forum/inbox/messages",
-	IngestSecret: "5f89138a-6311-4970-a237-521b61a23592",
-	UserChannel:  "flowy",
+	APIBaseURL:            "https://server.flowyaipc.com/claw/integration/forum/inbox/messages",
+	IngestSecret:          "5f89138a-6311-4970-a237-521b61a23592",
+	UserChannel:           "flowy",
+	FirstPostRewardAPIURL: "https://server.flowyaipc.com/claw/integration/forum/first-post/reward",
 	BroadcastTagNames: []string{
 		"官方公告",
 		"使用指南",

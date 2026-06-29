@@ -81,6 +81,7 @@ type QuestionRepo interface {
 	GetUnansweredQuestionCount(ctx context.Context) (count int64, err error)
 	GetResolvedQuestionCount(ctx context.Context) (count int64, err error)
 	GetUserQuestionCount(ctx context.Context, userID string, show int) (count int64, err error)
+	GetUserPublishedQuestionCount(ctx context.Context, userID string) (count int64, err error)
 	SitemapQuestions(ctx context.Context, page, pageSize int) (questionIDList []*schema.SiteMapQuestionInfo, err error)
 	RemoveAllUserQuestion(ctx context.Context, userID string) (err error)
 	UpdateSearch(ctx context.Context, questionID string) (err error)

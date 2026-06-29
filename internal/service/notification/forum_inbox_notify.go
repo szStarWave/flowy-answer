@@ -170,6 +170,51 @@ func (ns *ExternalNotificationService) tryForumInboxBroadcastNewQuestion(ctx con
 	log.Infof("forum inbox: broadcast finished question_id=%s delivered_ok=%d errors=%d", raw.QuestionID, sentOK, sendErr)
 }
 
+func (ns *ExternalNotificationService) tryForumInboxFirstPostReward(ctx context.Context, msg *schema.ExternalNotificationMsg) {
+	if ns.forumInboxClient == nil || !ns.forumInboxClient.FirstPostRewardEnabled() || msg.NewQuestionTemplateRawData == nil {
+		return
+	}
+	authorID := msg.NewQuestionTemplateRawData.QuestionAuthorUserID
+	if authorID == "" {
+		return
+	}
+	if ns.checkUserStatusBeforeNotification(ctx, authorID) {
+		log.Warnf("forum first-post reward: skip, inactive author user_id=%s", authorID)
+		return
+	}
+	publishedCount, err := ns.questionRepo.GetUserPublishedQuestionCount(ctx, authorID)
+	if err != nil {
+		log.Errorf("forum first-post reward: count published questions user_id=%s: %v", authorID, err)
+		return
+	}
+	if publishedCount != 1 {
+		return
+	}
+	userInfo, exist, err := ns.userRepo.GetByUserID(ctx, authorID)
+	if err != nil || !exist || userInfo == nil {
+		if err != nil {
+			log.Errorf("forum first-post reward: load author user_id=%s: %v", authorID, err)
+		}
+		return
+	}
+	email := strings.TrimSpace(userInfo.EMail)
+	if email == "" {
+		log.Warnf("forum first-post reward: skip, empty email user_id=%s", authorID)
+		return
+	}
+	result, err := ns.forumInboxClient.RequestFirstPostReward(ctx, email)
+	if err != nil {
+		log.Errorf("forum first-post reward: request failed user_id=%s question_id=%s: %v",
+			authorID, msg.NewQuestionTemplateRawData.QuestionID, err)
+		return
+	}
+	if result == nil {
+		return
+	}
+	log.Infof("forum first-post reward: ok user_id=%s question_id=%s granted=%d balance=%d duplicate=%v",
+		authorID, msg.NewQuestionTemplateRawData.QuestionID, result.GrantedPoints, result.Balance, result.Duplicate)
+}
+
 func questionMatchesForumBroadcastTag(raw *schema.NewQuestionTemplateRawData, tagSet map[string]struct{}) bool {
 	if raw == nil || len(tagSet) == 0 {
 		return false

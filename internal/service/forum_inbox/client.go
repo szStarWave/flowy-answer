@@ -49,10 +49,11 @@ const (
 
 // Client calls the main application HTTP ingest API (see forum-inbox-integration.md).
 type Client struct {
-	httpClient *http.Client
-	ingestURL  string
-	secret     string
-	channel    string
+	httpClient         *http.Client
+	ingestURL          string
+	firstPostRewardURL string
+	secret             string
+	channel            string
 
 	broadcastTagNames map[string]struct{}
 }
@@ -79,13 +80,7 @@ type ingestResponse struct {
 func NewClient() *Client {
 	ingestURL := strings.TrimSpace(Settings.APIBaseURL)
 	secret := strings.TrimSpace(Settings.IngestSecret)
-	if ingestURL == "" || secret == "" {
-		loggedForumInboxDisabled.Do(func() {
-			log.Infof("forum inbox: outbound delivery disabled (set APIBaseURL and IngestSecret in internal/service/forum_inbox/settings.go)")
-		})
-		return &Client{}
-	}
-
+	rewardURL := strings.TrimSpace(Settings.FirstPostRewardAPIURL)
 	ch := strings.TrimSpace(Settings.UserChannel)
 
 	tagSet := make(map[string]struct{})
@@ -96,23 +91,40 @@ func NewClient() *Client {
 		}
 	}
 
-	c := &Client{
-		httpClient: &http.Client{
-			Timeout: 20 * time.Second,
-		},
-		ingestURL:         ingestURL,
-		secret:            secret,
-		channel:           ch,
-		broadcastTagNames: tagSet,
+	httpClient := &http.Client{Timeout: 20 * time.Second}
+
+	if ingestURL == "" || secret == "" {
+		loggedForumInboxDisabled.Do(func() {
+			log.Infof("forum inbox: outbound delivery disabled (set APIBaseURL and IngestSecret in internal/service/forum_inbox/settings.go)")
+		})
+	} else {
+		loggedForumInboxEnabled.Do(func() {
+			host := "(invalid URL)"
+			if u, err := url.Parse(ingestURL); err == nil && u.Host != "" {
+				host = u.Host
+			}
+			log.Infof("forum inbox: outbound delivery enabled, host=%s", host)
+		})
 	}
-	loggedForumInboxEnabled.Do(func() {
-		host := "(invalid URL)"
-		if u, err := url.Parse(ingestURL); err == nil && u.Host != "" {
-			host = u.Host
-		}
-		log.Infof("forum inbox: outbound delivery enabled, host=%s", host)
-	})
-	return c
+
+	if rewardURL == "" {
+		logFirstPostRewardDisabled()
+	} else {
+		logFirstPostRewardEnabled(rewardURL)
+	}
+
+	if ingestURL == "" && secret == "" && rewardURL == "" {
+		return &Client{}
+	}
+
+	return &Client{
+		httpClient:         httpClient,
+		ingestURL:          ingestURL,
+		firstPostRewardURL: rewardURL,
+		secret:             secret,
+		channel:            ch,
+		broadcastTagNames:  tagSet,
+	}
 }
 
 // Enabled is true when outbound forum inbox integration is configured.

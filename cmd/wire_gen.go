@@ -202,7 +202,7 @@ func initApplication(debug bool, serverConf *conf.Server, dbConf *data.Database,
 	answerActivityRepo := activity.NewAnswerActivityRepo(dataData, activityRepo, userRankRepo, noticequeueService)
 	answerActivityService := activity2.NewAnswerActivityService(answerActivityRepo, configService)
 	client := forum_inbox.NewClient()
-	externalNotificationService := notification.NewExternalNotificationService(dataData, userNotificationConfigRepo, followRepo, emailService, userRepo, externalService, userExternalLoginRepo, siteInfoCommonService, client)
+	externalNotificationService := notification.NewExternalNotificationService(dataData, userNotificationConfigRepo, followRepo, emailService, userRepo, questionRepo, externalService, userExternalLoginRepo, siteInfoCommonService, client)
 	pollRepo := poll.NewPollRepo(dataData)
 	pollService := content.NewPollService(pollRepo, questionRepo, rankService, userRoleRelService, uniqueIDRepo)
 	questionService := content.NewQuestionService(activityRepo, questionRepo, answerRepo, tagCommonService, tagService, questionCommon, userCommon, userRepo, userRoleRelService, revisionService, metaCommonService, collectionCommon, answerActivityService, emailService, noticequeueService, externalService, service, siteInfoCommonService, externalNotificationService, reviewService, configService, eventqueueService, reviewRepo, pollService, sensitiveWordService)

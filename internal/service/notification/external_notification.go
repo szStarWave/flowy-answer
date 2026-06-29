@@ -30,6 +30,7 @@ import (
 	"github.com/apache/answer/internal/service/export"
 	"github.com/apache/answer/internal/service/forum_inbox"
 	"github.com/apache/answer/internal/service/noticequeue"
+	questioncommon "github.com/apache/answer/internal/service/question_common"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	usercommon "github.com/apache/answer/internal/service/user_common"
 	"github.com/apache/answer/internal/service/user_external_login"
@@ -43,6 +44,7 @@ type ExternalNotificationService struct {
 	followRepo                 activity_common.FollowRepo
 	emailService               *export.EmailService
 	userRepo                   usercommon.UserRepo
+	questionRepo               questioncommon.QuestionRepo
 	notificationQueueService   noticequeue.ExternalService
 	userExternalLoginRepo      user_external_login.UserExternalLoginRepo
 	siteInfoService            siteinfo_common.SiteInfoCommonService
@@ -55,6 +57,7 @@ func NewExternalNotificationService(
 	followRepo activity_common.FollowRepo,
 	emailService *export.EmailService,
 	userRepo usercommon.UserRepo,
+	questionRepo questioncommon.QuestionRepo,
 	notificationQueueService noticequeue.ExternalService,
 	userExternalLoginRepo user_external_login.UserExternalLoginRepo,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
@@ -66,6 +69,7 @@ func NewExternalNotificationService(
 		followRepo:                 followRepo,
 		emailService:               emailService,
 		userRepo:                   userRepo,
+		questionRepo:               questionRepo,
 		notificationQueueService:   notificationQueueService,
 		userExternalLoginRepo:      userExternalLoginRepo,
 		siteInfoService:            siteInfoService,

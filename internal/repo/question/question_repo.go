@@ -378,6 +378,16 @@ func (qr *questionRepo) GetUserQuestionCount(ctx context.Context, userID string,
 	return
 }
 
+func (qr *questionRepo) GetUserPublishedQuestionCount(ctx context.Context, userID string) (count int64, err error) {
+	session := qr.data.DB.Context(ctx)
+	session.In("status", entity.QuestionStatusAvailable, entity.QuestionStatusClosed)
+	count, err = session.Count(&entity.Question{UserID: userID})
+	if err != nil {
+		return count, errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return
+}
+
 func (qr *questionRepo) SitemapQuestions(ctx context.Context, page, pageSize int) (
 	questionIDList []*schema.SiteMapQuestionInfo, err error) {
 	page--
